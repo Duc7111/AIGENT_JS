@@ -1,7 +1,64 @@
+/*Reset Css */
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+
 }
+
+#main{
+
+}
+
+#header {
+  height: 72px;
+  background-color: #312E52;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+}
+
+#nav {
+  display: flex;
+  align-items: center;
+  list-style-type: none;
+}
+
+#nav li {
+  display: inline-block;
+}
+
+#nav .logo{
+  height: 56px;
+  width: 56px;
+  margin-left: 32px;
+}
+
+#nav .logoName{
+  color: white;
+  text-decoration: none;
+  font-size: 32px;
+  margin-left: 8px;
+  padding-right: 8px;
+}
+
+#nav .menu_icon{
+  height: 40px;
+  width: 40px;
+  margin-left: 8px;
+}
+
+#header .setting_icon{
+  height: 40px;
+  width: 40px;
+  float: right;
+  margin-right: 32px;
+}
+
+
