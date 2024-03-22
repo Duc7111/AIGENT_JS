@@ -45,10 +45,7 @@ body {
 }
 
 #nav .menu_icon{
-  height: 40px;
-  width: 40px;
-  margin-left: 8px;
-  cursor: pointer;
+  
 }
 
 #header .setting_icon{
@@ -64,59 +61,98 @@ body {
   align-items:start;
   height: 100vh;
   background-color: #F4F4F4;
+  width:100%;
 }
 
-#content #menu-bar{
+#content .menu-bar{
   justify-content: center;
   align-items: center;
   height: 100%;
-  width: 20%;
+  width: 25%;
   background-color: #312E52;
   
 }
 
-#content #menu-bar #bar{
+.button_menu_icon{
+  background-color: #312E52;
+  border-style:none;
+   height: 40px;
+  width: 40px;
+  margin-left: 8px;
+  cursor:pointer;
+}
+
+#content .menu-bar.close{
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 5%;
+  background-color: #312E52;
+}
+
+#content .menu-bar.close .bar,
+#content .menu-bar .bar{
   display: flex;
   flex-direction: column;
   align-items: center;
   list-style-type: none;
-  
+  width:--webkit-fill-available;
+  height: auto;
 }
 
-#content #menu-bar #bar li{
+#content .menu-bar.close .bar li{
   display:block;
-  margin: 16px 32px 0 32px;
-  padding: 8px 16px 8px 16px;
+  margin-top: 16px;
+  padding: 8px 8% 8px 8%;
   border-radius: 8px;
   background-color: #6B55BC;
-
   height:40px;
   width:80%;
-  text-decoration: none;
+  font-size: 0px;
+}
+
+#content .menu-bar .bar li{
+  display:block;
+  margin-top: 16px;
+  padding: 8px 8% 8px 8%;
+  border-radius: 8px;
+  background-color: #6B55BC;
+  height:40px;
+  width:80%;
   font-size: 16px;
 }
 
-#content #menu-bar #bar li a{
+#content .menu-bar.close .bar li a{
+  justify-content:center;
+  align-content:center;
+  display:flex;
+  left:0;
+  text-decoration: none;
+}
+#content .menu-bar .bar li a{
   justify-content:left;
   align-content:center;
   display:flex;
   left:0;
   text-decoration: none;
 }
-#content #menu-bar .icon{
-  
+
+#content .menu-bar.close .nav-text{
+  opacity: 0;
+  margin-left:0;
 }
-#content .nav-text{
+
+
+#content .menu-bar .nav-text{
   color: black;
   
   margin-left:8px;
 }
 
 #content #sub-content{
-
+  width:inherit;
   align-items: center;
   height: 100vh;
-  width: 80%;
   background-color: #1E1D2E;
   padding: 16px 32px 0 32px;
     
