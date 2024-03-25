@@ -21,7 +21,7 @@ class Buffer:
 
     _val: any
 
-    __listeners: dict[str, bool]
+    __listeners: dict[int, bool]
     __unread: int
     __maxread: int
     __mutex: Semaphore
@@ -34,27 +34,27 @@ class Buffer:
         self.__mutex = Semaphore(1)
 
     # Register a listener to the buffer
-    def register(self, listener: str) -> None:
+    def register(self, id: int) -> None:
         self.__mutex.acquire()
-        if listener not in self.__listeners:
-            self.__listeners[listener] = True
+        if id not in self.__listeners:
+            self.__listeners[id] = True
             self.__maxread += 1
         self.__mutex.release()
 
     # Unregister a listener from the buffer
-    def unregister(self, listener: str) -> None:
+    def unregister(self, id: int) -> None:
         self.__mutex.acquire()
-        if listener in self.__listeners:
-            del self.__listeners[listener]
+        if id in self.__listeners:
+            del self.__listeners[id]
             self.__maxread -= 1
         self.__mutex.release()
 
 
-    def get_val(self, listener: str) -> any:
+    def get_val(self, id: int) -> any:
         self.__mutex.acquire()
-        if listener in self.__listeners and self.__listeners[listener]:
+        if id in self.__listeners and self.__listeners[id]:
             self.__unread -= 1
-            self.__listeners[listener] = False
+            self.__listeners[id] = False
             val = deepcopy(self._val)
         self.__mutex.release()
         return val

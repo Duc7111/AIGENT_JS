@@ -22,7 +22,7 @@ class Module:
         for key in self.inputBuffer:
             if self.inputBuffer[key] is None:
                 continue
-            self.input[key] = self.inputBuffer[key].get_val()
+            self.input[key] = self.inputBuffer[key].get_val(id(self))
             if self.input[key] is None:
                 self.status = False
                 return
@@ -61,21 +61,22 @@ class Pipeline(Module):
             return True
         return False
         
-    def connect(self, srcModule: str, tgtModule: str, srcKey: str, tgtKey: str) -> bool:
-        if srcModule not in self.modules or tgtModule not in self.modules:
+    def connect(self, srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> bool:
+        if srcModuleKey not in self.modules or tgtModuleKey not in self.modules:
             return False
-        if srcKey not in self.modules[srcModule].outputBuffer or tgtKey not in self.modules[tgtModule].inputBuffer:
+        if srcKey not in self.modules[srcModuleKey].outputBuffer or tgtKey not in self.modules[tgtModuleKey].inputBuffer:
             return False
-        self.modules[srcModule].outputBuffer[srcKey].register(tgtModule)
-        self.modules[tgtModule].inputBuffer[tgtKey] = self.modules[srcModule].outputBuffer[srcKey]
+        self.modules[srcModuleKey].outputBuffer[srcKey].register(id(self.modules[tgtModuleKey]))
+        self.modules[tgtModuleKey].inputBuffer[tgtKey] = self.modules[srcModuleKey].outputBuffer[srcKey]
         return True
-    
-    def disconnect(self, srcModule: str, tgtModule: str, srcKey: str, tgtKey: str) -> bool:
-        if srcModule not in self.modules or tgtModule not in self.modules:
+        
+    def disconnect(self, srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> bool:
+        if srcModuleKey not in self.modules or tgtModuleKey not in self.modules:
             return False
-        if srcKey not in self.modules[srcModule].outputBuffer or tgtKey not in self.modules[tgtModule].inputBuffer:
+        if srcKey not in self.modules[srcModuleKey].outputBuffer or tgtKey not in self.modules[tgtModuleKey].inputBuffer:
             return False
-        self.modules[srcModule].outputBuffer[srcKey].unregister(tgtModule)
-        self.modules[tgtModule].inputBuffer[tgtKey] = None
+        self.modules[srcModuleKey].outputBuffer[srcKey].unregister(id(self.modules[tgtModuleKey]))
+        self.modules[tgtModuleKey].inputBuffer[tgtKey] = None
         return True
+        
     
