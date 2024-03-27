@@ -1,0 +1,102 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+      Arial, sans-serif;
+  }
+  
+  #header {
+    height: 72px;
+    background-color: #414873;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    #header-left {
+        display: flex;
+        align-items: center;
+        list-style-type: none;
+        margin-left: 48px;
+    
+        .btn {
+            padding: 10px 16px;
+            margin: 0 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: 600;
+            background-color: #9290C3;
+            cursor: pointer;
+          }
+      }
+
+    #header-right {
+        display: flex;
+        align-items: center;
+        list-style-type: none;
+        margin-right: 48px;
+
+        #ic-save{
+            margin-right: 32px;
+        }
+    }
+  }
+
+  .content {
+    height: 100vh;
+    width: 100%;
+    padding: 0 32px;
+    background-color: #312E52;
+
+    .content-bar{
+      display: flex;
+      width: 100%;
+      padding: 16px;
+      justify-content: space-between;
+      align-items: center;
+
+      .btn{
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        margin-left: 32px;
+        border-radius: 8px;
+        border: none;
+        background-color: #535C91;
+        cursor: pointer;
+
+        .btn-content{
+          margin-left: 10px; 
+          font-size: 18px;
+          font-weight: 600;
+          color: #fff;
+        }
+      }
+
+      .bar-left{
+        display: flex;
+        align-items: center;
+      }
+      .bar-right{
+        display: flex;
+        align-items: center;
+
+        #btn-run{
+          border-radius: 50%;
+          background-color: #535C91;
+          border: none;
+          color: white;
+          padding: 16px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 16px;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+  
