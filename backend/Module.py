@@ -32,10 +32,14 @@ class Pipeline(Module):
     
     modules: dict[str, Module]
     threads: dict[str, Thread]
-
+    regDict: dict[tuple[str, str, str, str], None]
+    
     def __init__(self):
+        super().__init__()
         self._modules = dict()
         self.threads = dict()
+        self.iRegistry = dict()
+        self.oRegistry = dict()
 
     def run(self) -> None:
         for key in self.modules:
@@ -56,6 +60,11 @@ class Pipeline(Module):
     
     def remove_module(self, key: str) -> bool:
         if key in self.modules:
+            # Disconnect all connections
+            for (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in list(self.regDict.keys()):
+                if srcModuleKey == key or tgtModuleKey == key:
+                    self.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
+                    del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]
             del self.modules[key]
             del self.threads[key]
             return True
@@ -66,8 +75,10 @@ class Pipeline(Module):
             return False
         if srcKey not in self.modules[srcModuleKey].outputBuffer or tgtKey not in self.modules[tgtModuleKey].inputBuffer:
             return False
-        self.modules[srcModuleKey].outputBuffer[srcKey].register(id(self.modules[tgtModuleKey]))
-        self.modules[tgtModuleKey].inputBuffer[tgtKey] = self.modules[srcModuleKey].outputBuffer[srcKey]
+        if (srcModuleKey, tgtModuleKey, srcKey, tgtKey) not in self.regDict:
+            self.modules[srcModuleKey].outputBuffer[srcKey].register(id(self.modules[tgtModuleKey]))
+            self.modules[tgtModuleKey].inputBuffer[tgtKey] = self.modules[srcModuleKey].outputBuffer[srcKey]
+            self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)] = None
         return True
         
     def disconnect(self, srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> bool:
@@ -75,8 +86,11 @@ class Pipeline(Module):
             return False
         if srcKey not in self.modules[srcModuleKey].outputBuffer or tgtKey not in self.modules[tgtModuleKey].inputBuffer:
             return False
-        self.modules[srcModuleKey].outputBuffer[srcKey].unregister(id(self.modules[tgtModuleKey]))
-        self.modules[tgtModuleKey].inputBuffer[tgtKey] = None
+        if (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in self.regDict:
+            self.modules[srcModuleKey].outputBuffer[srcKey].unregister(id(self.modules[tgtModuleKey]))
+            self.modules[tgtModuleKey].inputBuffer[tgtKey] = None
+            del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]
         return True
-        
+    
+
     
