@@ -1,22 +1,22 @@
 
 import os
 import socket
-
 import json
+from importlib import import_module
 
-import HuggingFace as hf
-import Module
+from Module import *
 
 HOST = '127.0.0.1'
 PORT = 7777
 
-modules = dict()
+pipeline: Pipeline = Pipeline()
 
 if __name__ == '__main__':
+    request = globals()
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print("Starting server")
         s.bind((HOST, PORT))
-        print("Connected to server")
+        print("Connected to host")
         s.listen(1)
         conn, addr = s.accept()
         with conn:
@@ -26,37 +26,40 @@ if __name__ == '__main__':
                 if not data:
                     break
                 data = json.loads(data)
-                match data['command']:
-                    case 'create':
-                        match data['object_type']:
-                            case 'model':
-                                if data['object_name'] in modules:
-                                    print('Object already exists')
-                                else:
-                                    modules[data['object_name']] = hf.Model(data['name'])
-                                    print('Object created')
-                                    
-                            case 'tokenizer':
-                                if data['object_name'] in modules:
-                                    print('Object already exists')
-                                else:
-                                    modules[data['object_name']] = hf.Tokenizer(data['name'])
-                                    print(b'Object created')
-                                    
-                            case 'hf_pipeline':
-                                if data['object_name'] in modules:
-                                    print('Object already exists')
-                                else:
-                                    inputs = data['inputs']
-                                    modules[data['object_name']] = hf.Pipeline(**inputs)
-                                    print('Object created')
-                                    
-                    case 'run':
-                        if data['object_name'] in modules:
-                            conn.sendall(json.dumps(modules[data['object_name']].run(data['inputs'])).encode())
-                        else:
-                            print('Object does not exist')
-                            
-                    case _:
-                        print('Invalid command')
+                res = request[data['request']](**data['inputs'])
+                conn.sendall(json.dumps(res.__dict__).encode())
+
+
+
+def load_pipeline(path: str) -> dict:
+    try:
+        with open(path, 'r') as f:
+            data = json.load(f)
+    except:
+        return {'status': False, 'outputs': {}}
+    for key in data:
+        add_module(key, **data[key])
+    return {'status': True, 'outputs': {}}
+
+def save_pipeline(path: str) -> dict:
+    data = dict()
+    for key in pipeline.modules:
+        data[key] = (pipeline.modules[key].__class__.__module__, pipeline.modules[key].__class__.__name__)
+    try:
+        with open(path, 'w') as f:
+            json.dump(data, f)
+    except:
+        return {'status': False, 'outputs': {}}
+    return {'status': True, 'outputs': {}}
                 
+def add_module(key: str, type: str, module: str) -> dict:
+    type = import_module(type)
+    module = getattr(type, module)
+    return {'status': pipeline.add_module(key, module), 'outputs': {}}
+
+def remove_module(key: str) -> dict:
+    return {'status': pipeline.remove_module(key), 'outputs': {}}
+    
+def run() -> dict:
+    pipeline.run()
+    return {'status': pipeline.status, 'outputs': {key: pipeline.outputBuffer[key]._val for key in pipeline.outputBuffer}}

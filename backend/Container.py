@@ -51,6 +51,7 @@ class Buffer:
 
 
     def get_val(self, id: int) -> any:
+        val = None
         self.__mutex.acquire()
         if id in self.__listeners and self.__listeners[id]:
             self.__unread -= 1
