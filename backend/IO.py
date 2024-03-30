@@ -7,8 +7,14 @@ class FileReader(Module):
         self.hyperparameters['file'] = file
 
     def run(self) -> None:
-        with open(self.hyperparameters['file'], 'r') as f:
-            self.outputBuffer['output'] = f.read()
+        try:
+            file = open(self.hyperparameters['file'], 'r')
+            self.outputBuffer['output'].set_val(id(self), file.read())
+            self.status = True
+        except:
+            self.status = False
+        finally:
+            file.close()
 
 class FileWriter(Module):
     def __init__(self, file: str) -> None:
@@ -16,5 +22,11 @@ class FileWriter(Module):
         self.hyperparameters['file'] = file
 
     def run(self) -> None:
-        with open(self.hyperparameters['file'], 'w') as f:
-            f.write(self.inputBuffer['input'])
+        try:
+            file = open(self.hyperparameters['file'], 'w')
+            file.write(self.inputBuffer['input'].get_val(id(self)))
+            self.status = True
+        except:
+            self.status = False
+        finally:
+            file.close()
