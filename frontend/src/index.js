@@ -1,10 +1,14 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const net = require('net');
+const HOST = '127.0.0.1';
+const PORT = 7777;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
+
 
 const createWindow = () => {
   // Create the browser window.
@@ -24,13 +28,32 @@ const createWindow = () => {
   });
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 };
+
+const client = () => {
+  const clientSocket = new net.Socket();
+  clientSocket.connect(PORT, HOST, () => {
+    console.log('Connected to server');
+    createWindow();
+    //clientSocket.write('Hello, server!');
+
+  }); 
+  clientSocket.on('data', (data) => {
+    console.log('Received from server:', data.decode());
+  });
+  clientSocket.on('close', () => {
+    console.log('Connection closed');
+  });
+};
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+  client();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
