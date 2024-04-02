@@ -27,6 +27,10 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, 'Pipeline', 'pipeline.html'));
   });
 
+  ipcMain.on('navigate-back', (event) => {
+    mainWindow.webContents.goBack();
+  });
+
   // Open the DevTools.
   //mainWindow.webContents.openDevTools();
 };

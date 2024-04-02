@@ -9,22 +9,22 @@
     <div id="main">
       <div id="header">
         <div id="header-left">
-          <img id="ic-back" src="../image/ic_back.svg" />
+          <img id="ic-back" class="ic" src="../image/ic_back.svg" />
           <button id="btn-project" class="btn">Project Name</button>
-          <img id="ic-edit" src="../image/ic_edit.svg" />
+          <img id="ic-edit" class="ic" src="../image/ic_edit.svg" />
         </div>
         <div id="header-right">
-          <img id="ic-save" src="../image/ic_save.svg" />
-          <img id="ic-setting" src="../image/setting_icon.svg" />
+          <img id="ic-save" class="ic" src="../image/ic_save.svg" />
+          <img id="ic-setting" class="ic" src="../image/setting_icon.svg" />
         </div>
       </div>
 
       <div class="content">
         <div class="content-bar">
           <div class="bar-left">
-            <img id="ic-plus" src="../image/ic_plus.svg" />
+            <img id="ic-plus" class="ic" src="../image/ic_plus.svg" />
             <button id="btn-import" class="btn">
-              <img src="../image/ic_import.svg" />
+              <img id="ic-import" src="../image/ic_import.svg" />
               <span class="btn-content">Import</span>
             </button>
           </div>
@@ -39,5 +39,11 @@
         </div>
       </div>
     </div>
+
+    <script>
+      document.getElementById("ic-back").addEventListener("click", () => {
+        window.electron.navigateBack();
+      });
+    </script>
   </body>
 </html>
