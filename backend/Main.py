@@ -55,10 +55,34 @@ def save_pipeline(path: str) -> dict:
 def add_module(key: str, type: str, module: str) -> dict:
     type = import_module(type)
     module = getattr(type, module)
-    return {'status': pipeline.add_module(key, module), 'outputs': {}}
+    return {
+        'status': pipeline.add_module(key, module), 
+        'outputs': {}
+        }
 
 def remove_module(key: str) -> dict:
-    return {'status': pipeline.remove_module(key), 'outputs': {}}
+    return {
+        'status': pipeline.remove_module(key), 
+        'outputs': {}
+        }
+
+def set_module_hyperparameters(key: str, hyperparameters: dict) -> dict:
+    return {
+        'status': pipeline.modules[key].set_hyperparameters(hyperparameters),
+        'outputs': {}
+        }
+
+def connect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> dict:
+    return {
+        'status': pipeline.connect(srcModuleKey, tgtModuleKey, srcKey, tgtKey), 
+        'outputs': {}
+        }
+
+def disconnect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> dict:
+    return {
+        'status': pipeline.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey), 
+        'outputs': {}
+        }
     
 def run() -> dict:
     pipeline.run()

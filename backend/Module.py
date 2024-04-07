@@ -9,6 +9,7 @@ class Module:
     outputBuffer: dict[str, Buffer]
     input: dict[str, any]
     hyperparameters: dict[str, any]
+    hyperparameters_list: tuple[str]
     status: bool
 
     def __init__(self) -> None:
@@ -16,6 +17,7 @@ class Module:
         self.outputBuffer = dict()
         self.input = dict()
         self.hyperparameters = dict()
+        self.hyperparameters_list = tuple()
         self.status = True
     
     def run(self) -> None:
@@ -27,6 +29,12 @@ class Module:
                 self.status = False
                 return
         self.status = True
+
+    def set_hyperparameters(self, hyperparameters: dict[str, any]) -> None:
+        self.hyperparameters = dict()
+        for key in hyperparameters:
+            if key in self.hyperparameters_list:
+                self.hyperparameters[key] = hyperparameters[key]
  
 class Pipeline(Module):
     

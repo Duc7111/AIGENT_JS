@@ -6,30 +6,76 @@ from Module import Module
 
 class Model(Module):
     
-    model: AutoModel
+    __model: AutoModel | None
     
-    def __init__(self, name: str):
-        self.model = AutoModel.from_pretrained(name)
+    def __init__(self):
+        super.__init__()
+        self.__model = None
+        self.hyperparameters_list = AutoModel.from_pretrained.__code__.co_varnames
     
-    def run(self, inputs: dict) -> dict:
-        return self.model(**inputs)
+    def run(self) -> None:
+        self.__model = AutoModel.from_pretrained(**self.hyperparameters)
+        if self.__model is None:
+            self.status = False
+            return
+        super().run()
+        if self.status == False:
+            return
+        try:
+            res = self.__model(**self.input)
+            for key in res:
+                self.outputBuffer[key].set_val(res[key])
+        except:
+            self.status = False
+            return
+        
 
 class Tokenizer(Module):
     
-    tokenizer: AutoTokenizer
+    __tokenizer: AutoTokenizer | None
         
-    def __init__(self, name: str):
-        self.tokenizer = AutoTokenizer.from_pretrained(name)
+    def __init__(self):
+        super().__init__()
+        self.__tokenizer = None
+        self.hyperparameters_list = AutoTokenizer.from_pretrained.__code__.co_varnames
         
-    def run(self, inputs: dict) -> dict:
-        return self.tokenizer(**inputs)
+    def run(self) -> None:
+        self.__tokenizer = AutoTokenizer.from_pretrained(**self.hyperparameters)
+        if self.__tokenizer is None:
+            self.status = False
+            return
+        super().run()
+        if self.status == False:
+            return
+        try:
+            res = self.__tokenizer(**self.input)
+            for key in res:
+                self.outputBuffer[key].set_val(res[key])
+        except:
+            self.status = False
+            return
 
 class Pipeline(Module):
     
-    nlp: Pipeline
+    ___pipeline: Pipeline
     
-    def __init__(self, task: str, tokenizer_name: str, model_name: str):
-        self.nlp = pipeline(task=task, model=model_name, tokenizer=tokenizer_name)
+    def __init__(self):
+        super().__init__()
+        self.___pipeline = None
+        self.hyperparameters_list = pipeline.__code__.co_varnames
     
-    def run(self, inputs: dict) -> dict:
-        return self.nlp(**inputs)
+    def run(self) -> None:
+        self.___pipeline = pipeline(**self.hyperparameters)
+        if self.___pipeline is None:
+            self.status = False
+            return
+        super().run()
+        if self.status == False:
+            return
+        try:
+            res = self.___pipeline(**self.input)
+            for key in res:
+                self.outputBuffer[key].set_val(res[key])
+        except:
+            self.status = False
+            return
