@@ -44,7 +44,7 @@ class Pipeline(Module):
     
     def __init__(self):
         super().__init__()
-        self._modules = dict()
+        self.modules = dict()
         self.threads = dict()
         self.iRegistry = dict()
         self.oRegistry = dict()

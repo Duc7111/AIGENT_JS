@@ -11,26 +11,6 @@ PORT = 7777
 
 pipeline: Pipeline = Pipeline()
 
-if __name__ == '__main__':
-    request = globals()
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        print("Starting server")
-        s.bind((HOST, PORT))
-        print("Connected to host")
-        s.listen(1)
-        conn, addr = s.accept()
-        with conn:
-            print('Connected by', addr)
-            while True:
-                data = conn.recv(1024)
-                if not data:
-                    break
-                data = json.loads(data)
-                res = request[data['request']](**data['inputs'])
-                conn.sendall(json.dumps(res.__dict__).encode())
-
-
-
 def load_pipeline(path: str) -> dict:
     try:
         with open(path, 'r') as f:
@@ -48,8 +28,8 @@ def save_pipeline(path: str) -> dict:
     try:
         with open(path, 'w') as f:
             json.dump(data, f)
-    except:
-        return {'status': False, 'outputs': {}}
+    except Exception as e:
+        return {'status': False, 'message': str(e), 'outputs': {}}
     return {'status': True, 'outputs': {}}
                 
 def add_module(key: str, type: str, module: str) -> dict:
@@ -87,3 +67,23 @@ def disconnect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey
 def run() -> dict:
     pipeline.run()
     return {'status': pipeline.status, 'outputs': {key: pipeline.outputBuffer[key]._val for key in pipeline.outputBuffer}}
+
+
+request = globals()
+
+if __name__ == '__main__':
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        print("Starting server")
+        s.bind((HOST, PORT))
+        print("Connected to host")
+        s.listen(1)
+        conn, addr = s.accept()
+        with conn:
+            print('Connected by', addr)
+            while True:
+                data = conn.recv(1024)
+                if not data:
+                    break
+                data = json.loads(data)
+                res = request[data['request']](**data['inputs'])
+                conn.sendall(json.dumps(res).encode())

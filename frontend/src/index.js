@@ -4,6 +4,9 @@ const net = require('net');
 const HOST = '127.0.0.1';
 const PORT = 7777;
 
+
+let clientSocket = new net.Socket();
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -31,12 +34,15 @@ const createWindow = () => {
     mainWindow.webContents.goBack();
   });
 
+  ipcMain.on('save-pipeline-request', (event, data) => {
+    clientSocket.write(JSON.stringify(data));
+  });
+
   // Open the DevTools.
   //mainWindow.webContents.openDevTools();
 };
 
 const client = () => {
-  const clientSocket = new net.Socket();
   clientSocket.connect(PORT, HOST, () => {
     console.log('Connected to server');
     createWindow();
@@ -44,7 +50,7 @@ const client = () => {
 
   }); 
   clientSocket.on('data', (data) => {
-    console.log('Received from server:', data.decode());
+    console.log('Received from server:', data.toString());
   });
   clientSocket.on('close', () => {
     console.log('Connection closed');

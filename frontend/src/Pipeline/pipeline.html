@@ -45,5 +45,12 @@
         window.electron.navigateBack();
       });
     </script>
+
+    <script>
+      const icSave = document.getElementById("ic-save");
+      icSave.addEventListener("click", function () {
+        window.electron.savePipeline();
+      });
+    </script>
   </body>
 </html>
