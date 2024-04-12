@@ -35,25 +35,25 @@
       <div class="menu-bar close">
         <ul class="bar">
           <li>
-            <a href="" id="chatflowsBtn">
+            <a href="#chatflow-view">
               <img src="./image/chatflows_icon.svg" class="icon" />
               <span class="text nav-text">Chatflows</span>
             </a>
           </li>
           <li>
-            <a href="">
+            <a href="#library-view">
               <img src="./image/market_icon.svg " class="icon" />
-              <span class="text nav-text">Marketplaces</span>
+              <span class="text nav-text">Libraries</span>
             </a>
           </li>
           <li>
-            <a href="">
+            <a href="#assistant-view">
               <img src="./image/assis_icon.svg" class="icon" />
               <span class="text nav-text">Assistants</span>
             </a>
           </li>
           <li>
-            <a href="">
+            <a href="#apikey-view">
               <img src="./image/key_fill.svg" class="icon" />
               <span class="text nav-text">API Keys</span>
             </a>
@@ -62,7 +62,7 @@
       </div>
 
       <div id="sub-content">
-        <div id="chatflow-view">
+        <div id="chatflow-view" class="sub-view">
           <div class="header-chatflow">
             <div class="text chatflow-name">List</div>
             <div class="base">
@@ -77,6 +77,18 @@
           </div>
 
           <div id="list-directory"></div>
+        </div>
+
+        <div id="library-view" class="sub-view">
+          <h2>Market View</h2>
+        </div>
+
+        <div id="assistant-view" class="sub-view">
+          <h2>Assistants View</h2>
+        </div>
+
+        <div id="apikey-view" class="sub-view">
+          <h2>API View</h2>
         </div>
       </div>
     </div>
@@ -99,6 +111,45 @@
         chatflowsBtn.addEventListener("click", (e) => {
           e.preventDefault();
           window.electron.openPipeline();
+        });
+      });
+    </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Hide all sub-views except for chatflow-view
+        const subContents = document.querySelectorAll(
+          "#sub-content > .sub-view"
+        );
+        subContents.forEach((subContent) => {
+          if (subContent.id !== "chatflow-view") {
+            subContent.style.display = "none";
+          }
+        });
+      });
+
+      var navigation = document.querySelector(".bar");
+      var listItems = navigation.children;
+      Array.from(listItems).forEach((item) => {
+        const contentLinks = item.querySelector("a");
+
+        contentLinks.addEventListener("click", (event) => {
+          event.preventDefault(); // Prevent default behavior of link click
+          const targetId = contentLinks.getAttribute("href"); // Get the target id from the href attribute
+          const subContents = document.querySelectorAll(
+            "#sub-content > .sub-view"
+          );
+
+          subContents.forEach((subContent) => {
+            subContent.style.display = "none"; // Hide all sub-content divs
+          });
+          const targetSubContent = document.getElementById(
+            targetId.substring(1)
+          ); // Remove '#' from targetId
+
+          if (targetSubContent) {
+            targetSubContent.style.display = "block"; // Show the targeted sub-content div
+          }
         });
       });
     </script>
