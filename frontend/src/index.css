@@ -11,6 +11,8 @@ body {
 
 }
 
+/*header*/
+
 #header {
   height: 72px;
   background-color: #312E52;
@@ -55,6 +57,10 @@ body {
   margin-right: 32px;
   cursor: pointer;
 }
+
+/*end header*/
+
+/*menu bar*/
 
 #content {
   display: flex;
@@ -158,6 +164,14 @@ body {
     
 }
 
+/*The end of menu bar*/
+
+
+/*sub-content*/
+
+#assistant-view,
+#apikey-view,
+#library-view,
 #chatflow-view{
   width: 100%;
   height: fit-content;
@@ -168,16 +182,23 @@ body {
   padding: 16px;
 }
 
+#sub-content #apikey-view .header-chatflow,
+#sub-content #assistant-view .header-chatflow,
+#sub-content #library-view .header-chatflow,
 #sub-content #chatflow-view .header-chatflow{
   display: flex;
-  align-content:center;
+  justify-content: space-between; 
+  align-items: center;
   list-style-type: none;
 }
 
-
+#apikey-view .header-chatflow .chatflow-name,
+#assistant-view .header-chatflow .chatflow-name,
+#library-view .header-chatflow .chatflow-name,
 #chatflow-view .header-chatflow .chatflow-name{
   height: 56px;
-  width:64px;
+  width:fit-content;
+  padding: 0 16px 0 16px;
   font-size: 32px;
   background-color: #9F9EA2;
   border-radius: 8px;
@@ -186,6 +207,14 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.header-chatflow .left-header{
+  display: flex;
+}
+
+.header-chatflow .right-header{
+  display: flex;
 }
 
 .header-chatflow .add-directory{
@@ -197,6 +226,7 @@ body {
   color: #000000;
   cursor: pointer;
   display: flex;
+  float: right;
   justify-content: center;
   align-items: center;
 }
