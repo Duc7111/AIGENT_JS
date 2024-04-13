@@ -3,6 +3,7 @@ import torch
 from transformers import Pipeline, pipeline, AutoTokenizer, AutoModel
 
 from Module import Module
+from Container import Buffer
 
 class Model(Module):
     
@@ -12,6 +13,7 @@ class Model(Module):
         super.__init__()
         self.__model = None
         self.hyperparameters_list = AutoModel.from_pretrained.__code__.co_varnames
+        self.outputBuffer['output'] = Buffer('')
     
     def run(self) -> None:
         self.__model = AutoModel.from_pretrained(**self.hyperparameters)
@@ -23,8 +25,7 @@ class Model(Module):
             return
         try:
             res = self.__model(**self.input)
-            for key in res:
-                self.outputBuffer[key].set_val(res[key])
+            self.outputBuffer['output'].set_val(res)
         except:
             self.status = False
             return
@@ -38,6 +39,7 @@ class Tokenizer(Module):
         super().__init__()
         self.__tokenizer = None
         self.hyperparameters_list = AutoTokenizer.from_pretrained.__code__.co_varnames
+        self.outputBuffer['output'] = Buffer('')
         
     def run(self) -> None:
         self.__tokenizer = AutoTokenizer.from_pretrained(**self.hyperparameters)
@@ -49,8 +51,7 @@ class Tokenizer(Module):
             return
         try:
             res = self.__tokenizer(**self.input)
-            for key in res:
-                self.outputBuffer[key].set_val(res[key])
+            self.outputBuffer['output'].set_val(res)
         except:
             self.status = False
             return
@@ -63,6 +64,7 @@ class Pipeline(Module):
         super().__init__()
         self.___pipeline = None
         self.hyperparameters_list = pipeline.__code__.co_varnames
+        self.outputBuffer['output'] = Buffer('')
     
     def run(self) -> None:
         self.___pipeline = pipeline(**self.hyperparameters)
@@ -74,8 +76,7 @@ class Pipeline(Module):
             return
         try:
             res = self.___pipeline(**self.input)
-            for key in res:
-                self.outputBuffer[key].set_val(res[key])
+            self.outputBuffer['output'].set_val(res)
         except:
             self.status = False
             return
