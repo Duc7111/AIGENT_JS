@@ -66,7 +66,12 @@ def disconnect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey
     
 def run() -> dict:
     pipeline.run()
-    return {'status': pipeline.status, 'outputs': {key: pipeline.outputBuffer[key]._val for key in pipeline.outputBuffer}}
+    return {
+        'status': pipeline.status, 
+        'outputs': {
+            key: pipeline.outputBuffer[key]._val for key in pipeline.outputBuffer
+            }
+        }
 
 
 request = globals()

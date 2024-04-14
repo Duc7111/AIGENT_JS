@@ -20,6 +20,7 @@ class Module:
         self.hyperparameters_list = tuple()
         self.status = True
     
+    # Check if all inputs are available, call by child class run method
     def run(self) -> None:
         for key in self.inputBuffer:
             if self.inputBuffer[key] is None:
@@ -50,6 +51,7 @@ class Pipeline(Module):
         self.oRegistry = dict()
 
     def run(self) -> None:
+        super().run()
         for key in self.modules:
             self.threads[key].start()
         for key in self.modules:

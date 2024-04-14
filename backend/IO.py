@@ -9,6 +9,9 @@ class FileReader(Module):
         self.outputBuffer['output'] = Buffer('')
 
     def run(self) -> None:
+        super.run()
+        if self.status == False:
+            return
         try:
             file = open(self.hyperparameters['file'], 'r')
             self.outputBuffer['output'].set_val(id(self), file.read())
@@ -24,6 +27,9 @@ class FileWriter(Module):
         self.hyperparameters['file'] = file
 
     def run(self) -> None:
+        super.run()
+        if self.status == False:
+            return
         try:
             file = open(self.hyperparameters['file'], 'w')
             file.write(self.inputBuffer['input'].get_val(id(self)))
@@ -39,6 +45,9 @@ class TextHolder(Module):
         self.hyperparameters['text'] = text
 
     def run(self) -> None:
+        super.run()
+        if self.status == False:
+            return
         self.outputBuffer['output'].set_val(id(self), self.hyperparameters['text'])
         self.status = True
 
@@ -47,5 +56,8 @@ class TextGetter(Module):
         super().__init__()
 
     def run(self) -> None:
+        super.run()
+        if self.status == False:
+            return
         self.outputBuffer['output'].set_val(id(self), self.inputBuffer['input'].get_val(id(self)))
         self.status = True
