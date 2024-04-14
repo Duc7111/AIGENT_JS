@@ -1,0 +1,24 @@
+{
+    "inputBufffer": {
+
+    },
+    "outputBuffer": {
+        
+    },
+    "input": {
+        
+    },
+    "hyperparameters": {
+
+    },
+    "hyperparameters_list": [],
+    "modules": {
+        "key":{
+            "type": "",
+            "module": ""
+        }
+    },
+    "regDict": {
+        "reg" : []
+    }
+}

@@ -17,14 +17,35 @@ def load_pipeline(path: str) -> dict:
             data = json.load(f)
     except:
         return {'status': False, 'outputs': {}}
-    for key in data:
-        add_module(key, **data[key])
+    pipeline.inputBuffer = dict()
+    for key, val in data['inputBuffer']:
+        pipeline.inputBuffer[key] = Buffer(val)
+    pipeline.outputBuffer = dict()
+    for key, val in data['outputBuffer']:
+        pipeline.outputBuffer[key] = Buffer(val)
+    for key, val in data['hyperparameters']:
+        pipeline.hyperparameters[key] = val
+    pipeline.hyperparameters_list = data['hyperparameters_list']
+    pipeline.modules = dict()
+    for key, val in data['modules']:
+        res = add_module(key, **val)
+        if not res['status']:
+            return res
+    for key in data['regDict']:
+        key = key.split(',')
+        res = connect_modules(*key)
+        if not res['status']:
+            return res
     return {'status': True, 'outputs': {}}
 
 def save_pipeline(path: str) -> dict:
     data = dict()
-    for key in pipeline.modules:
-        data[key] = (pipeline.modules[key].__class__.__module__, pipeline.modules[key].__class__.__name__)
+    data['inputBuffer'] = {key: pipeline.inputBuffer[key]._val for key in pipeline.inputBuffer}
+    data['outputBuffer'] = {key: pipeline.outputBuffer[key]._val for key in pipeline.outputBuffer}
+    data['hyperparameters'] = pipeline.hyperparameters
+    data['hyperparameters_list'] = pipeline.hyperparameters_list
+    data['modules'] = {key: (type(val).__module__, type(val).__name__) for key, val in pipeline.modules.items()}
+    data['regDict'] = {key: None for key in pipeline.regDict}
     try:
         with open(path, 'w') as f:
             json.dump(data, f)

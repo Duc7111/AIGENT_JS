@@ -47,8 +47,7 @@ class Pipeline(Module):
         super().__init__()
         self.modules = dict()
         self.threads = dict()
-        self.iRegistry = dict()
-        self.oRegistry = dict()
+        self.regDict = dict()
 
     def run(self) -> None:
         super().run()
