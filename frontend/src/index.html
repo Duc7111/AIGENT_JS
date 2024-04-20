@@ -73,7 +73,6 @@
                   class="search_bar"
                   placeholder="Search.."
                   onclick="search()"
-                  onblur="reset()"
                 />
               </div>
             </div>
@@ -99,7 +98,6 @@
                   class="search_bar"
                   placeholder="Search.."
                   onclick="search()"
-                  onblur="reset()"
                 />
               </div>
             </div>
@@ -119,7 +117,6 @@
                   class="search_bar"
                   placeholder="Search.."
                   onclick="search()"
-                  onblur="reset()"
                 />
               </div>
             </div>
@@ -137,7 +134,6 @@
                   class="search_bar"
                   placeholder="Search.."
                   onclick="search()"
-                  onblur="reset()"
                 />
               </div>
             </div>
@@ -205,18 +201,6 @@
           }
         });
       });
-    </script>
-
-    <script>
-      function search() {
-        var baseDiv = document.querySelector(".base");
-        baseDiv.classList.add("clicked");
-      }
-
-      function resetBorder() {
-        var baseDiv = document.querySelector(".base");
-        baseDiv.classList.remove("clicked");
-      }
     </script>
 
     <script>
@@ -313,6 +297,38 @@
           listDirectory.appendChild(div);
         });
       }
+
+      function searchByName(name) {
+        var results = [];
+        jsonData.forEach((item) => {
+          if (item.name.toLowerCase().includes(name.toLowerCase())) {
+            results.push(item);
+          }
+        });
+        return results;
+      }
+
+      function search() {
+        var baseDiv = document.querySelector(".base");
+        baseDiv.classList.add("clicked");
+        var searchValue = document.querySelector(".search_bar").value;
+        var searchResults = searchByName(searchValue);
+        listDir(searchResults);
+      }
+
+      document
+        .querySelector(".search_bar")
+        .addEventListener("keydown", function (event) {
+          if (event.keyCode === 13) {
+            search();
+          }
+        });
+
+      document.addEventListener("wheel", function (event) {
+        if (!event.target.closest("#list-directory")) {
+          event.preventDefault();
+        }
+      });
 
       window.onload = function () {
         listDir(jsonData);
