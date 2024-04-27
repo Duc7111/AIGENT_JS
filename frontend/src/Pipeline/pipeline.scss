@@ -53,7 +53,7 @@
     height: 100vh;
     width: 100%;
     padding: 0 32px;
-    background-color: #312E52;
+    background-color: #1e1d2e;
 
     .content-bar{
       display: flex;
@@ -103,23 +103,100 @@
       }
     }
 
-    #workspace {
-      width: 100%;
-      height: 80vh;
-      overflow: hidden; 
-      position: relative;
-      background-color: #473e5098;
-      border: 1px solid #000000;
-    
-      canvas {
-        width: 3000px;
-        height: 3000px;
-        position: absolute;
-        top: 0;
-        left: 0; 
+    .main-content{
+      display: flex;
+      $background-color: #2d2d2d;
+      $text-color: white;
+      $search-background: #1a1a1a;
+      $item-border-color: #444;
+      $menu-padding: 20px;
+
+      .side-menu {
+        width: 315px;
+        margin-right: 8px;
+        border-radius: 8px;
+        background-color: #312E52;
+        color: #F4F3F3;
+        box-sizing: border-box;
+
+        .search-box {
+          padding: 10px;
+          border-radius: 8px;
+          margin: 8px;
+          background-color: #9290c3;
+          display: flex;
+          margin-bottom: $menu-padding;
+          input {
+            background-color: #9290c3;
+            margin-left: 8px;
+            border: none;
+            outline: none;
+            font: 700;
+            font-size: 16px;
+            color: #1B1A55;
+
+          }
+
+        }
+
+        .menu-section {
+          margin-bottom: $menu-padding;
+
+          .menu-header {
+            display: flex;
+            justify-content: space-between; 
+            padding: 10px;
+            font-weight: bold;
+            border-top: 2px solid #4d4b68;
+            border-bottom: 2px solid #4d4b68;
+            cursor: pointer;
+
+          }
+
+          .menu-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px 0;
+            .item {
+              width: 50%;  
+              padding: 8px 0; 
+              margin: 8px 0;
+              cursor: pointer;
+              .item-name {
+                display: flex;
+                justify-content: center;
+                align-items: center;  
+              }
+            }
+            
+          }
+        }
+
       }
-    
+
+      #workspace {
+        width: 100%;
+        height: 85vh;
+        overflow: hidden; 
+        position: relative;
+        background-color: #473e5098;
+        border: 1px solid #000000;
+      
+        canvas {
+          width: 3000px;
+          height: 3000px;
+          position: absolute;
+          top: 0;
+          left: 0; 
+        }
+      
+      }
     }
+
+
     
   }
 

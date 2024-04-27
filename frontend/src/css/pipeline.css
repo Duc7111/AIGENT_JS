@@ -68,7 +68,7 @@ body {
   height: 100vh;
   width: 100%;
   padding: 0 32px;
-  background-color: #312E52;
+  background-color: #1e1d2e;
 }
 
 .content .content-bar {
@@ -138,16 +138,106 @@ body {
   cursor: pointer;
 }
 
-.content #workspace {
+.content .main-content {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.content .main-content .side-menu {
+  width: 315px;
+  margin-right: 8px;
+  border-radius: 8px;
+  background-color: #312E52;
+  color: #F4F3F3;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.content .main-content .side-menu .search-box {
+  padding: 10px;
+  border-radius: 8px;
+  margin: 8px;
+  background-color: #9290c3;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.content .main-content .side-menu .search-box input {
+  background-color: #9290c3;
+  margin-left: 8px;
+  border: none;
+  outline: none;
+  font: 700;
+  font-size: 16px;
+  color: #1B1A55;
+}
+
+.content .main-content .side-menu .menu-section {
+  margin-bottom: 20px;
+}
+
+.content .main-content .side-menu .menu-section .menu-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  padding: 10px;
+  font-weight: bold;
+  border-top: 2px solid #4d4b68;
+  border-bottom: 2px solid #4d4b68;
+  cursor: pointer;
+}
+
+.content .main-content .side-menu .menu-section .menu-item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin-bottom: 10px;
+  padding: 10px 0;
+}
+
+.content .main-content .side-menu .menu-section .menu-item .item {
+  width: 50%;
+  padding: 8px 0;
+  margin: 8px 0;
+  cursor: pointer;
+}
+
+.content .main-content .side-menu .menu-section .menu-item .item .item-name {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.content .main-content #workspace {
   width: 100%;
-  height: 80vh;
+  height: 85vh;
   overflow: hidden;
   position: relative;
   background-color: #473e5098;
   border: 1px solid #000000;
 }
 
-.content #workspace canvas {
+.content .main-content #workspace canvas {
   width: 3000px;
   height: 3000px;
   position: absolute;

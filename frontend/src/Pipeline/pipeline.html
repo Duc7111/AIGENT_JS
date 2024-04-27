@@ -39,8 +39,31 @@
           </div>
         </div>
 
-        <div id="workspace">
-          <canvas id="gridCanvas"></canvas>
+        <div class="main-content">
+          <div class="side-menu">
+            <div class="search-box">
+              <img src="../image/ic_search.svg" />
+              <input type="text" placeholder="Search" id="searchInput" />
+            </div>
+
+            <div class="menu-section">
+              <div class="menu-header">
+                <span>Modules</span>
+                <img src="../image/ic_arrow_down.svg" class="ic-expand" />
+              </div>
+              <div class="menu-item">
+                <div class="item"><span class="item-name">ABC</span></div>
+                <div class="item"><span class="item-name">ABC1</span></div>
+                <div class="item"><span class="item-name">ABC2</span></div>
+                <div class="item"><span class="item-name">ABC3</span></div>
+                <div class="item"><span class="item-name">ABC4</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="workspace">
+            <canvas id="gridCanvas"></canvas>
+          </div>
         </div>
       </div>
     </div>
@@ -56,6 +79,41 @@
       });
 
       document.addEventListener("DOMContentLoaded", function () {
+        // Expand the menu section
+        const menuHeader = document.querySelector(".menu-header");
+        const menuItem = document.querySelector(".menu-item");
+        const iconExpand = menuHeader.querySelector(".ic-expand");
+
+        function toggleMenu() {
+          menuItem.style.display =
+            menuItem.style.display === "none" ? "flex" : "none";
+          const iconSrc = iconExpand.getAttribute("src");
+          iconExpand.setAttribute(
+            "src",
+            iconSrc.includes("ic_arrow_down.svg")
+              ? "../image/ic_arrow_up.svg"
+              : "../image/ic_arrow_down.svg"
+          );
+        }
+
+        menuHeader.addEventListener("click", toggleMenu);
+
+        // Search items
+        const searchInput = document.getElementById("searchInput");
+        const items = document.querySelectorAll(".menu-item .item");
+
+        searchInput.addEventListener("input", function () {
+          const searchTerm = searchInput.value.toLowerCase();
+
+          items.forEach((item) => {
+            const itemName = item
+              .querySelector(".item-name")
+              .textContent.toLowerCase();
+            item.style.display = itemName.includes(searchTerm) ? "" : "none";
+          });
+        });
+
+        // Create and move the canvas
         const workspace = document.getElementById("workspace");
         const canvas = document.getElementById("gridCanvas");
         const ctx = canvas.getContext("2d");
@@ -155,6 +213,116 @@
           canvas.style.width = `${newWidth}px`;
           canvas.style.height = `${newHeight}px`;
         });
+
+        // Drag and drop functionality
+        const menuItems = document.querySelectorAll(".menu-item .item");
+        let draggableItems = [];
+        let selectedItemIndex = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        menuItems.forEach((item) => {
+          item.draggable = true;
+          item.addEventListener("dragstart", function (e) {
+            const itemName = e.target.querySelector(".item-name").textContent;
+            e.dataTransfer.setData("text/plain", itemName);
+          });
+        });
+
+        workspace.addEventListener("dragover", function (e) {
+          e.preventDefault();
+        });
+
+        workspace.addEventListener("drop", function (e) {
+          e.preventDefault();
+          const itemName = e.dataTransfer.getData("text/plain");
+          const x = e.clientX - workspace.getBoundingClientRect().left;
+          const y = e.clientY - workspace.getBoundingClientRect().top;
+          draggableItems.push({ name: itemName, x: x, y: y, dragging: false });
+          drawItems();
+        });
+
+        function isMouseOverItem(mouseX, mouseY, item) {
+          return (
+            mouseX >= item.x &&
+            mouseX <= item.x + ctx.measureText(item.name).width &&
+            mouseY >= item.y - 16 &&
+            mouseY <= item.y
+          );
+        }
+
+        // Function to draw items on the canvas
+        canvas.addEventListener("mousedown", function (e) {
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+
+          draggableItems.forEach((item, index) => {
+            const hitbox = {
+              x: item.x * scale,
+              y: (item.y - 16) * scale,
+              width: ctx.measureText(item.name).width * scale,
+              height: 16 * scale,
+            };
+            if (
+              mouseX >= hitbox.x &&
+              mouseX <= hitbox.x + hitbox.width &&
+              mouseY >= hitbox.y &&
+              mouseY <= hitbox.y + hitbox.height
+            ) {
+              selectedItemIndex = index;
+              dragOffsetX = mouseX - hitbox.x;
+              dragOffsetY = mouseY - hitbox.y;
+              isDragging = false;
+            }
+          });
+        });
+
+        canvas.addEventListener("mousemove", function (e) {
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = (e.clientX - rect.left) / scale;
+          const mouseY = (e.clientY - rect.top) / scale;
+          let isOverItem = false;
+
+          draggableItems.forEach((item, index) => {
+            if (isMouseOverItem(mouseX, mouseY, item)) {
+              isOverItem = true;
+              if (selectedItemIndex === null) {
+                canvas.style.cursor = "pointer";
+              }
+            }
+          });
+
+          if (!isOverItem && selectedItemIndex === null) {
+            canvas.style.cursor = "default";
+          }
+          if (selectedItemIndex !== null) {
+            draggableItems[selectedItemIndex].x = mouseX - dragOffsetX;
+            draggableItems[selectedItemIndex].y = mouseY - dragOffsetY;
+
+            drawItems();
+          }
+        });
+
+        canvas.addEventListener("mouseup", function () {
+          selectedItemIndex = null;
+        });
+
+        canvas.addEventListener("mouseleave", function () {
+          selectedItemIndex = null;
+        });
+
+        function drawItems() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          drawGrid();
+          draggableItems.forEach((item) => {
+            ctx.save();
+            ctx.scale(scale, scale);
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "white";
+            ctx.fillText(item.name, item.x, item.y);
+            ctx.restore();
+          });
+        }
       });
     </script>
   </body>
