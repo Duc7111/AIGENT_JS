@@ -53,7 +53,7 @@
               </div>
               <div class="menu-item">
                 <div class="item"><span class="item-name">ABC</span></div>
-                <div class="item"><span class="item-name">ABC1</span></div>
+                <div class="item"><span class="item-name">Pipeline</span></div>
                 <div class="item"><span class="item-name">ABC2</span></div>
                 <div class="item"><span class="item-name">ABC3</span></div>
                 <div class="item"><span class="item-name">ABC4</span></div>
@@ -76,6 +76,11 @@
       const icSave = document.getElementById("ic-save");
       icSave.addEventListener("click", function () {
         window.electron.savePipeline();
+      });
+
+      const btn_run = document.getElementById("btn-run");
+      btn_run.addEventListener("click", function () {
+        window.electron.runPipeline();
       });
 
       document.addEventListener("DOMContentLoaded", function () {
@@ -235,6 +240,8 @@
         workspace.addEventListener("drop", function (e) {
           e.preventDefault();
           const itemName = e.dataTransfer.getData("text/plain");
+          console.log(itemName);
+          window.electron.addModule(itemName, "HuggingFace", "Pipeline");
           const x = e.clientX - workspace.getBoundingClientRect().left;
           const y = e.clientY - workspace.getBoundingClientRect().top;
           draggableItems.push({ name: itemName, x: x, y: y, dragging: false });

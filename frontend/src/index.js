@@ -38,6 +38,22 @@ const createWindow = () => {
     clientSocket.write(JSON.stringify(data));
   });
 
+  ipcMain.on('add-module', (event, data) => {
+    clientSocket.write(JSON.stringify(data));
+  });
+
+  ipcMain.on('set-module-hyperparameters', (event, data) => {
+    clientSocket.write(JSON.stringify(data));
+  });
+
+  ipcMain.on('remove-module', (event, data) => {
+    clientSocket.write(JSON.stringify(data));
+  });
+
+  ipcMain.on('run',(event,data) =>{
+    clientSocket.write(JSON.stringify(data));
+  })
+
   // Open the DevTools.
   //mainWindow.webContents.openDevTools();
 };
