@@ -29,6 +29,18 @@ contextBridge.exposeInMainWorld('electron', {
             },
         });
     },
+    connectModule:(module1,module2,id1_name, id2_name) => {
+       console.log("connectModule called",module1,module2,id1_name,id2_name);
+        ipcRenderer.send('connect-module', {
+            request: "connect_modules",
+            inputs: {
+                srcModuleKey: module1,
+                tgtModuleKey: module2,
+                srcKey: id1_name,
+                tgtKey: id2_name,
+            },
+        }); 
+    },
     setHyperparameters: (id_name,hyperparameters) => {
         console.log("set_hyperparameters called");
         ipcRenderer.send('set-module-hyperparameters', {
@@ -48,6 +60,18 @@ contextBridge.exposeInMainWorld('electron', {
             },
         });
     },
+    disconnectModule: (module1,module2,id1_name, id2_name) => {
+        console.log("disconnectModule called");
+        ipcRenderer.send('disconnect-module', {
+            request: "disconnect_modules",
+            inputs: {
+                srcModuleKey: module1,
+                tgtModuleKey: module2,
+                srcKey: id1_name,
+                tgtKey: id2_name,
+            },
+        });
+     },
     runPipeline: () => {
         console.log("runPipeline called");
         ipcRenderer.send('run',{

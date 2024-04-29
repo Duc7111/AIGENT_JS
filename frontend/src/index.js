@@ -50,9 +50,17 @@ const createWindow = () => {
     clientSocket.write(JSON.stringify(data));
   });
 
-  ipcMain.on('run',(event,data) =>{
+  ipcMain.on('disconnect-module',(event,data) =>{
+    clientSocket.write(JSON.stringify(data));
+  });
+
+  ipcMain.on('connect-module',(event,data) =>{
     clientSocket.write(JSON.stringify(data));
   })
+
+  ipcMain.on('run',(event,data) =>{
+    clientSocket.write(JSON.stringify(data));
+  });
 
   // Open the DevTools.
   //mainWindow.webContents.openDevTools();
