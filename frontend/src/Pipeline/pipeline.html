@@ -191,12 +191,6 @@
         let lastPosX = 0;
         let lastPosY = 0;
 
-        canvas.addEventListener("mousedown", function (e) {
-          isDragging = true;
-          lastPosX = e.clientX;
-          lastPosY = e.clientY;
-        });
-
         canvas.addEventListener("mousemove", function (e) {
           if (isDragging) {
             const deltaX = e.clientX - lastPosX;
@@ -261,7 +255,7 @@
 
         // Drag and drop functionality
         const menuItems = document.querySelectorAll(".menu-item .item");
-        let draggableItems = [];
+        const draggableItems = [];
         let selectedItemIndex = null;
         let dragOffsetX = 0;
         let dragOffsetY = 0;
@@ -281,7 +275,7 @@
           e.preventDefault();
           const itemName = e.dataTransfer.getData("text/plain");
 
-          // add module to the pipeline
+          // Add module to the pipeline
           const draggedElement = document.querySelector(
             `[f-name="${itemName}"]`
           );
@@ -299,8 +293,7 @@
 
           const x = e.clientX - workspace.getBoundingClientRect().left;
           const y = e.clientY - workspace.getBoundingClientRect().top;
-          draggableItems.push({ name: itemName, x: x, y: y, dragging: false });
-          drawItems();
+          addItemToWorkspace(itemName, x, y);
         });
 
         function isMouseOverItem(mouseX, mouseY, item) {
@@ -315,8 +308,8 @@
         // Function to draw items on the canvas
         canvas.addEventListener("mousedown", function (e) {
           const rect = canvas.getBoundingClientRect();
-          const mouseX = e.clientX - rect.left;
-          const mouseY = e.clientY - rect.top;
+          const mouseX = (e.clientX - rect.left) / scale;
+          const mouseY = (e.clientY - rect.top) / scale;
 
           draggableItems.forEach((item, index) => {
             const hitbox = {
@@ -335,6 +328,7 @@
               dragOffsetX = mouseX - hitbox.x;
               dragOffsetY = mouseY - hitbox.y;
               isDragging = false;
+              handleItemClick(item);
             }
           });
         });
@@ -384,6 +378,48 @@
             ctx.fillText(item.name, item.x, item.y);
             ctx.restore();
           });
+
+          connectedItems.forEach((connection) => {
+            drawLine(
+              connection.start.x,
+              connection.start.y,
+              connection.end.x,
+              connection.end.y
+            );
+          });
+        }
+
+        // Initialize variables to store previous clicked item and connected items
+        let prevClickedItem = null;
+        const connectedItems = [];
+
+        // Function to draw a line between two points
+        function drawLine(startX, startY, endX, endY) {
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(endX, endY);
+          ctx.stroke();
+        }
+
+        function handleItemClick(item) {
+          if (prevClickedItem) {
+            // Draw a line from the previous clicked item to the current item
+            const startX = prevClickedItem.x;
+            const startY = prevClickedItem.y;
+            const endX = item.x;
+            const endY = item.y;
+            drawLine(startX, startY, endX, endY);
+
+            // Store the connection between items
+            connectedItems.push({ start: prevClickedItem, end: item });
+          }
+          // Store the current item as the previous clicked item
+          prevClickedItem = item;
+        }
+
+        function addItemToWorkspace(itemName, x, y) {
+          draggableItems.push({ name: itemName, x: x, y: y });
+          drawItems();
         }
       });
     </script>
