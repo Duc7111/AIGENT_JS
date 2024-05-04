@@ -74,6 +74,7 @@ def set_module_hyperparameters(key: str, hyperparameters: dict) -> dict:
         }
 
 def connect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> dict:
+    print(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
     return {
         'status': pipeline.connect(srcModuleKey, tgtModuleKey, srcKey, tgtKey), 
         'outputs': {}

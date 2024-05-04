@@ -29,15 +29,15 @@ contextBridge.exposeInMainWorld('electron', {
             },
         });
     },
-    connectModule:(module1,module2,id1_name, id2_name) => {
-       console.log("connectModule called",module1,module2,id1_name,id2_name);
+    connectModule:(id1_name,id2_name,output1, input2) => {
+       console.log("connectModule called",id1_name,id2_name,output1, input2);
         ipcRenderer.send('connect-module', {
             request: "connect_modules",
             inputs: {
-                srcModuleKey: module1,
-                tgtModuleKey: module2,
-                srcKey: id1_name,
-                tgtKey: id2_name,
+                srcModuleKey: id1_name,
+                tgtModuleKey: id2_name,
+                srcKey: output1,
+                tgtKey: input2,
             },
         }); 
     },
@@ -60,15 +60,15 @@ contextBridge.exposeInMainWorld('electron', {
             },
         });
     },
-    disconnectModule: (module1,module2,id1_name, id2_name) => {
+    disconnectModule: (id1_name,id2_name,output1, input2) => {
         console.log("disconnectModule called");
         ipcRenderer.send('disconnect-module', {
             request: "disconnect_modules",
             inputs: {
-                srcModuleKey: module1,
-                tgtModuleKey: module2,
-                srcKey: id1_name,
-                tgtKey: id2_name,
+                srcModuleKey: id1_name,
+                tgtModuleKey: id2_name,
+                srcKey: output1,
+                tgtKey: input2,
             },
         });
      },
