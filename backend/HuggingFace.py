@@ -10,7 +10,7 @@ class Model(Module):
     __model: AutoModel | None
     
     def __init__(self):
-        super.__init__()
+        super().__init__()
         self.__model = None
         self.hyperparameters_list = AutoModel.from_pretrained.__code__.co_varnames
         self.outputBuffer['output'] = Buffer('')

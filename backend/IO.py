@@ -9,7 +9,7 @@ class FileReader(Module):
         self.outputBuffer['output'] = Buffer('')
 
     def run(self) -> None:
-        super.run()
+        super().run()
         if self.status == False:
             return
         try:
@@ -27,7 +27,7 @@ class FileWriter(Module):
         self.hyperparameters['file'] = file
 
     def run(self) -> None:
-        super.run()
+        super().run()
         if self.status == False:
             return
         try:
@@ -46,7 +46,7 @@ class TextHolder(Module):
         self.hyperparameters['text'] = text
 
     def run(self) -> None:
-        super.run()
+        super().run()
         if self.status == False:
             return
         self.outputBuffer['output'].set_val(id(self), self.hyperparameters['text'])
@@ -58,7 +58,7 @@ class TextGetter(Module):
         super().__init__()
 
     def run(self) -> None:
-        super.run()
+        super().run()
         if self.status == False:
             return
         self.outputBuffer['output'].set_val(id(self), self.inputBuffer['input'].get_val(id(self)))
@@ -70,7 +70,7 @@ class VectorHolder(Module):
         self.hyperparameters['vector'] = vector
 
     def run(self) -> None:
-        super.run()
+        super().run()
         if self.status == False:
             return
         self.outputBuffer['output'].set_val(id(self), self.hyperparameters['vector'])
@@ -82,7 +82,7 @@ class MatrixHolder(Module):
         self.hyperparameters['matrix'] = matrix
 
     def run(self) -> None:
-        super.run()
+        super().run()
         if self.status == False:
             return
         self.outputBuffer['output'].set_val(id(self), self.hyperparameters['matrix'])
