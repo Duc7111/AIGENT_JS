@@ -46,32 +46,84 @@
               <input type="text" placeholder="Search" id="searchInput" />
             </div>
 
+            <!-- Search result -->
+            <div class="search-result">
+              <div class="menu-header" style="color: rgba(0, 255, 255, 0.707)">
+                <div>Search Result</div>
+              </div>
+              <div class="menu-item"></div>
+            </div>
+
+            <!-- IO module -->
             <div class="menu-section">
               <div class="menu-header">
-                <span>Modules</span>
+                <span>Input/Output</span>
                 <img src="../image/ic_arrow_down.svg" class="ic-expand" />
               </div>
               <div class="menu-item">
                 <div class="item">
                   <span
                     class="item-name"
-                    f-name="Input"
+                    f-name="FileReader"
                     module-name="FileReader"
                     file-module="IO"
                     input-name="FileReader_Input"
                     output-name="FileReader_Output"
-                    >Input</span
+                    >File Reader</span
                   >
                 </div>
                 <div class="item">
                   <span
                     class="item-name"
-                    f-name="Pipeline"
-                    module-name="Pipeline"
+                    f-name="FileWriter"
+                    module-name="FileWriter"
+                    file-module="IO"
+                    input-name="FileWriter_Input"
+                    output-name="FileWriter_Output"
+                    >File Writer</span
+                  >
+                </div>
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="TextHolder"
+                    module-name="TextHolder"
+                    file-module="IO"
+                    input-name="TextHolder_Input"
+                    output-name="TextHolder_Output"
+                    >Text Holder</span
+                  >
+                </div>
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="TextGetter"
+                    module-name="TextGetter"
+                    file-module="IO"
+                    input-name="TextGetter_Input"
+                    output-name="TextGetter_Output"
+                    >Text Getter</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Hugging Face -->
+            <div class="menu-section">
+              <div class="menu-header">
+                <span>Hugging Face</span>
+                <img src="../image/ic_arrow_down.svg" class="ic-expand" />
+              </div>
+              <div class="menu-item">
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="Model"
+                    module-name="Model"
                     file-module="HuggingFace"
-                    input-name="Pipeline_Input"
-                    output-name="Pipeline_Output"
-                    >Pipeline</span
+                    input-name="Model_Input"
+                    output-name="Model_Output"
+                    >Model</span
                   >
                 </div>
                 <div class="item">
@@ -88,21 +140,44 @@
                 <div class="item">
                   <span
                     class="item-name"
-                    f-name="Output"
-                    module-name="FileWriter"
-                    file-module="IO"
-                    input-name="FileWriter_Input"
-                    output-name="FileWriter_Output"
-                    >Output</span
+                    f-name="Pipeline"
+                    module-name="Pipeline"
+                    file-module="HuggingFace"
+                    input-name="Pipeline_Input"
+                    output-name="Pipeline_Output"
+                    >Pipeline</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- NN -->
+            <div class="menu-section">
+              <div class="menu-header">
+                <span>Neural Network</span>
+                <img src="../image/ic_arrow_down.svg" class="ic-expand" />
+              </div>
+              <div class="menu-item">
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="Perceptron"
+                    module-name="Perceptron"
+                    file-module="NN"
+                    input-name="Perceptron_Input"
+                    output-name="Perceptron_Output"
+                    >Perceptron</span
                   >
                 </div>
                 <div class="item">
                   <span
                     class="item-name"
-                    f-name="ABC4"
-                    module-name="ABC4"
-                    file-module="ABC4"
-                    >ABC4</span
+                    f-name="NeuralUnit"
+                    module-name="NeuralUnit"
+                    file-module="NN"
+                    input-name="NeuralUnit_Input"
+                    output-name="NeuralUnit_Output"
+                    >NeuralUnit</span
                   >
                 </div>
               </div>
@@ -131,39 +206,93 @@
         window.electron.runPipeline();
       });
 
+      let draggableItems = [];
       document.addEventListener("DOMContentLoaded", function () {
-        // Expand the menu section
-        const menuHeader = document.querySelector(".menu-header");
-        const menuItem = document.querySelector(".menu-item");
-        const iconExpand = menuHeader.querySelector(".ic-expand");
+        // show default first section in the new access
+        const menuSections = document.querySelectorAll(".menu-section");
+        for (let i = 1; i < menuSections.length; i++) {
+          const menuSection = menuSections[i];
+          const menuItem = menuSection.querySelector(".menu-item");
+          menuItem.style.display = "none";
 
-        function toggleMenu() {
-          menuItem.style.display =
-            menuItem.style.display === "none" ? "flex" : "none";
-          const iconSrc = iconExpand.getAttribute("src");
-          iconExpand.setAttribute(
-            "src",
-            iconSrc.includes("ic_arrow_down.svg")
-              ? "../image/ic_arrow_up.svg"
-              : "../image/ic_arrow_down.svg"
-          );
+          const iconExpand = menuSection.querySelector(".ic-expand");
+          iconExpand.setAttribute("src", "../image/ic_arrow_up.svg");
         }
 
-        menuHeader.addEventListener("click", toggleMenu);
+        // Expand the menu section when toggle display of menu item
+        const menuHeaders = document.querySelectorAll(".menu-header");
+        var menuItems = document.querySelectorAll(".menu-item .item");
+        console.log("Menu Items Outer:", menuItems);
+
+        menuHeaders.forEach((header) => {
+          const menuItem = header.nextElementSibling;
+          const iconExpand = header.querySelector(".ic-expand");
+
+          header.addEventListener("click", () => {
+            menuItem.style.display =
+              menuItem.style.display === "none" ? "flex" : "none";
+            const iconSrc = iconExpand.getAttribute("src");
+            iconExpand.setAttribute(
+              "src",
+              iconSrc.includes("ic_arrow_down.svg")
+                ? "../image/ic_arrow_up.svg"
+                : "../image/ic_arrow_down.svg"
+            );
+          });
+        });
+
+        // Not shown the search result initially
+        const searchResult = document.querySelector(".search-result");
+        const searchItem = searchResult.querySelector(".menu-item");
+        searchResult.style.display = "none";
 
         // Search items
         const searchInput = document.getElementById("searchInput");
         const items = document.querySelectorAll(".menu-item .item");
 
-        searchInput.addEventListener("input", function () {
-          const searchTerm = searchInput.value.toLowerCase();
+        let hasResults = false;
+        let search_click = false;
+        searchInput.addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            const searchTerm = searchInput.value.trim().toLowerCase();
 
-          items.forEach((item) => {
-            const itemName = item
-              .querySelector(".item-name")
-              .textContent.toLowerCase();
-            item.style.display = itemName.includes(searchTerm) ? "" : "none";
-          });
+            searchItem.innerHTML = "";
+            hasResults = false;
+
+            if (searchTerm !== "") {
+              items.forEach((item) => {
+                const itemName = item
+                  .querySelector(".item-name")
+                  .textContent.toLowerCase();
+
+                if (itemName.includes(searchTerm)) {
+                  const cloneItem = item.cloneNode(true);
+                  searchItem.appendChild(cloneItem);
+                  hasResults = true;
+                }
+              });
+            }
+
+            if (hasResults) {
+              searchResult.style.display = "block";
+              search_click = true;
+              menuItems = document.querySelectorAll(".menu-item .item");
+              menuItems.forEach((item) => {
+                item.draggable = true;
+                item.addEventListener("dragstart", function (e) {
+                  const originalItemName =
+                    e.target.querySelector(".item-name").textContent;
+                  if (search_click == true) {
+                    const itemName = generateUniqueItemName(originalItemName);
+                    e.dataTransfer.setData("text/plain", itemName);
+                  }
+                });
+              });
+            } else {
+              searchResult.style.display = "none";
+              search_click = false;
+            }
+          }
         });
 
         // Create and move the canvas
@@ -198,6 +327,12 @@
         let isDragging = false;
         let lastPosX = 0;
         let lastPosY = 0;
+
+        canvas.addEventListener("mousedown", function (e) {
+          isDragging = true;
+          lastPosX = e.clientX;
+          lastPosY = e.clientY;
+        });
 
         canvas.addEventListener("mousemove", function (e) {
           if (isDragging) {
@@ -246,8 +381,8 @@
           scale = Math.min(scale, 4);
 
           const rect = canvas.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
+          const x = (e.clientX - rect.left) / scale;
+          const y = (e.clientY - rect.top) / scale;
 
           const newWidth = canvas.width * scale;
           const newHeight = canvas.height * scale;
@@ -259,23 +394,26 @@
 
           canvas.style.width = `${newWidth}px`;
           canvas.style.height = `${newHeight}px`;
+          drawItems();
         });
 
         // Drag and drop functionality
-        const menuItems = document.querySelectorAll(".menu-item .item");
-        const draggableItems = [];
         let unique_item_name = [];
         let draggedItem = null;
         let selectedItemIndex = null;
         let dragOffsetX = 0;
         let dragOffsetY = 0;
+
+        menuItems = document.querySelectorAll(".menu-item .item");
         menuItems.forEach((item) => {
           item.draggable = true;
           item.addEventListener("dragstart", function (e) {
             const originalItemName =
               e.target.querySelector(".item-name").textContent;
-            const itemName = generateUniqueItemName(originalItemName);
-            e.dataTransfer.setData("text/plain", itemName);
+            if (search_click == false) {
+              const itemName = generateUniqueItemName(originalItemName);
+              e.dataTransfer.setData("text/plain", itemName);
+            }
           });
         });
 
@@ -299,10 +437,8 @@
         workspace.addEventListener("drop", function (e) {
           e.preventDefault();
           const itemName = e.dataTransfer.getData("text/plain");
-          const x = e.clientX - workspace.getBoundingClientRect().left;
-          const y = e.clientY - workspace.getBoundingClientRect().top;
-          addItemToWorkspace(itemName, x, y);
-          // Add module to the pipeline
+
+          // add module to the pipeline
           const draggedElement = document.querySelector(
             `[f-name="${itemName}"]`
           );
@@ -317,17 +453,83 @@
 
             window.electron.addModule(itemName, fileModule, moduleName);
           }
+
+          const x = e.clientX - workspace.getBoundingClientRect().left;
+          const y = e.clientY - workspace.getBoundingClientRect().top;
+
+          if (itemName.includes("File Reader")) {
+            draggableItems.push({
+              originalName: itemName,
+              name: "Click to choose file",
+              x: x,
+              y: y,
+              dragging: false,
+            });
+          } else {
+            draggableItems.push({
+              originalName: itemName,
+              name: itemName,
+              x: x,
+              y: y,
+              dragging: false,
+            });
+          }
+          drawItems();
+        });
+
+        workspace.addEventListener("click", function (e) {
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = (e.clientX - rect.left) / scale;
+          const mouseY = (e.clientY - rect.top) / scale;
+
+          draggableItems.forEach((item) => {
+            const hitbox = {
+              x: item.x * scale,
+              y: (item.y - 16) * scale,
+              width: ctx.measureText(item.name).width * scale,
+              height: 16 * scale,
+            };
+            if (
+              mouseX >= hitbox.x &&
+              mouseX <= hitbox.x + hitbox.width &&
+              mouseY >= hitbox.y &&
+              mouseY <= hitbox.y + hitbox.height
+            ) {
+              if (item.originalName.includes("File Reader")) {
+                const inputFile = document.createElement("input");
+                inputFile.type = "file";
+                inputFile.click();
+
+                inputFile.addEventListener("change", function (e) {
+                  const selectedFile = e.target.files[0];
+                  const fileName = selectedFile
+                    ? selectedFile.name
+                    : "No file chosen";
+                  item.name = fileName;
+                  drawItems();
+                  console.log("Selected file:", selectedFile.path);
+                });
+              }
+            }
+          });
         });
 
         function isMouseOverItem(mouseX, mouseY, item) {
+          const hitbox = {
+            x: item.x * scale,
+            y: (item.y - 16) * scale,
+            width: ctx.measureText(item.name).width * scale,
+            height: 16 * scale,
+          };
           return (
-            mouseX >= item.x &&
-            mouseX <= item.x + ctx.measureText(item.name).width &&
-            mouseY >= item.y - 16 &&
-            mouseY <= item.y
+            mouseX >= hitbox.x &&
+            mouseX <= hitbox.x + hitbox.width &&
+            mouseY >= hitbox.y &&
+            mouseY <= hitbox.y + hitbox.height
           );
         }
 
+        // Function to draw items on the canvas
         canvas.addEventListener("mousedown", function (e) {
           const rect = canvas.getBoundingClientRect();
           const mouseX = (e.clientX - rect.left) / scale;
@@ -350,12 +552,10 @@
               dragOffsetX = mouseX - hitbox.x;
               dragOffsetY = mouseY - hitbox.y;
               isDragging = false;
-              handleItemClick(item);
             }
           });
         });
 
-        // Xử lý sự kiện khi di chuyển chuột (mousemove) trên canvas
         canvas.addEventListener("mousemove", function (e) {
           const rect = canvas.getBoundingClientRect();
           const mouseX = (e.clientX - rect.left) / scale;
@@ -398,120 +598,9 @@
             ctx.scale(scale, scale);
             ctx.font = "16px Arial";
             ctx.fillStyle = "white";
-            /*if (!item.name.includes("Input")) {
-              ctx.fillText(item.name, item.x, item.y);
-            }*/
+            ctx.fillText(item.name, item.x, item.y);
             ctx.restore();
           });
-
-          connectedItems.forEach((connection) => {
-            drawLine(
-              connection.start.x,
-              connection.start.y,
-              connection.end.x,
-              connection.end.y
-            );
-          });
-        }
-
-        // Initialize variables to store previous clicked item and connected items
-        let prevClickedItem = null;
-        const connectedItems = [];
-
-        // Function to draw a line between two points
-        function drawLine(startX, startY, endX, endY) {
-          ctx.beginPath();
-          ctx.moveTo(startX, startY);
-          ctx.lineTo(endX, endY);
-          ctx.stroke();
-        }
-
-        function handleItemClick(item) {
-          if (prevClickedItem) {
-            // Draw a line from the previous clicked item to the current item
-            const startX = prevClickedItem.x;
-            const startY = prevClickedItem.y;
-            const endX = item.x;
-            const endY = item.y;
-            drawLine(startX, startY, endX, endY);
-
-            // Store the connection between items
-            connectedItems.push({ start: prevClickedItem, end: item });
-            /*window.electron.connectModule(
-              prevClickedItem.getAttribute("f-name"),
-              item.getAttribute("f-name"),
-              prevClickedItem.getAttribute("output-name"),
-              item.getAttribute("input-name")
-            );*/
-          }
-          // Store the current item as the previous clicked item
-          prevClickedItem = item;
-        }
-
-        function addItemToWorkspace(itemName, x, y) {
-          draggableItems.push({ name: itemName, x: x, y: y });
-          if (itemName.includes("Input")) {
-            const inputFile = createInputFileElement(itemName, x, y);
-            workspace.appendChild(inputFile);
-          } else if (itemName.includes("Pipeline")) {
-            const pipeline = createPipelineElement(itemName, x, y);
-            workspace.appendChild(pipeline);
-          }
-
-          drawItems();
-        }
-
-        function createInputFileElement(itemName, x, y) {
-          // Create new input elements with unique IDs
-          const inputFile = document.createElement("input");
-          inputFile.type = "file";
-          //inputFile.name = itemName;
-          inputFile.setAttribute("f-name", itemName);
-          inputFile.setAttribute("module-name", "FileReader");
-          inputFile.setAttribute("file-module", "IO");
-          inputFile.setAttribute("input-name", "FileReader_Input");
-          inputFile.setAttribute("output-name", "FileReader_Output");
-
-          // Position the input element
-          inputFile.style.position = "absolute";
-          inputFile.style.left = `${x}px`;
-          inputFile.style.top = `${y}px`;
-          inputFile.style.padding = "10px";
-
-          // Add event listener to handle file selection
-          inputFile.addEventListener("change", function (e) {
-            const selectedFile = e.target.files[0];
-            console.log("Selected file:", selectedFile);
-            // Perform actions with the selected file
-          });
-          return inputFile;
-        }
-
-        function createPipelineElement(itemName, x, y) {
-          const divElement = document.createElement("div");
-          divElement.innerHTML = `
-            <h2>Pipeline</h2>
-            <p>ABBBBBBB</p>
-          `;
-
-          //inputFile.name = itemName;
-          divElement.setAttribute("f-name", itemName);
-          divElement.setAttribute("module-name", "FileReader");
-          divElement.setAttribute("file-module", "IO");
-          divElement.setAttribute("input-name", "FileReader_Input");
-          divElement.setAttribute("output-name", "FileReader_Output");
-
-          // Position the input element
-          divElement.style.border = "1px solid #ccc";
-          divElement.style.position = "absolute";
-          divElement.style.left = `${x}px`;
-          divElement.style.top = `${y}px`;
-          divElement.style.padding = "10px";
-          divElement.style.fontSize = "16px";
-          divElement.style.color = "white";
-
-          // Trả về element div đã được tạo
-          return divElement;
         }
       });
     </script>
