@@ -15,7 +15,7 @@ class Module:
     def __init__(self) -> None:
         self.inputBuffer = dict()
         self.outputBuffer = dict()
-        self.outputBuffer['msg'] = Buffer()
+        self.outputBuffer['msg'] = Buffer(None)
         self.input = dict()
         self.hyperparameters = dict()
         self.hyperparameters_list = tuple()
@@ -107,7 +107,7 @@ class Pipeline(Module):
     
     def input_register(self, key: str, tgtModelKey: str, tgtKey: str) -> bool:
         if key not in self.inputBuffer:
-            self.inputBuffer[key] = Buffer()
+            self.inputBuffer[key] = Buffer(None)
         if tgtModelKey not in self.modules or tgtKey not in self.modules[tgtModelKey].inputBuffer:
             return False
         self.inputBuffer[key].register(id(self.modules[tgtModelKey].inputBuffer[tgtKey]))
@@ -116,7 +116,7 @@ class Pipeline(Module):
         
     def output_register(self, key: str, srcModelKey: str, srcKey: str) -> bool:
         if key not in self.outputBuffer:
-            self.outputBuffer[key] = Buffer()
+            self.outputBuffer[key] = Buffer(None)
         if srcModelKey not in self.modules or srcKey not in self.modules[srcModelKey].outputBuffer:
             return False
         self.modules[srcModelKey].outputBuffer[srcKey].register(id(self.outputBuffer[key]))
