@@ -85,6 +85,18 @@ def disconnect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey
         'status': pipeline.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey), 
         'outputs': {}
         }
+
+def input_register(key: str, tgtModuleKey: str, tgtKey: str) -> dict:
+    return {
+        'status': pipeline.input_register(key, tgtModuleKey, tgtKey), 
+        'outputs': {}
+        }
+
+def output_register(key: str, srcModuleKey: str, srcKey: str) -> dict:
+    return {
+        'status': pipeline.output_register(key, srcModuleKey, srcKey), 
+        'outputs': {}
+        }
     
 def run() -> dict:
     pipeline.run()

@@ -55,6 +55,7 @@ class Buffer:
         if id in self.__listeners:
             self.__listeners[id].acquire()
             val = deepcopy(self._val)
+            self._val = None
         self.__mutex.acquire()
         self.__unread -= 1
         self.__mutex.release()
