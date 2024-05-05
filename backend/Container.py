@@ -56,9 +56,12 @@ class Buffer:
             self.__listeners[id].acquire()
             val = deepcopy(self._val)
             self._val = None
-        self.__mutex.acquire()
-        self.__unread -= 1
-        self.__mutex.release()
+            self.__mutex.acquire()
+            self.__unread -= 1
+            self.__mutex.release()
+        # if not registered, return the value
+        else:
+            val = deepcopy(self._val)
         return val
     
     def set_val(self, val: any) -> None:
