@@ -1,5 +1,4 @@
 
-import os
 import socket
 import json
 from importlib import import_module
@@ -56,6 +55,7 @@ def save_pipeline(path: str) -> dict:
 def add_module(key: str, type: str, module: str) -> dict:
     type = import_module(type)
     module = getattr(type, module)
+    module = module()
     return {
         'status': pipeline.add_module(key, module), 
         'outputs': {}

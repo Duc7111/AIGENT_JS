@@ -44,21 +44,23 @@ class Module:
 class Pipeline(Module):
     
     modules: dict[str, Module]
-    threads: dict[str, Thread]
     regDict: dict[tuple[str, str, str, str], None]
     
     def __init__(self):
         super().__init__()
         self.modules = dict()
-        self.threads = dict()
         self.regDict = dict()
 
     def run(self) -> None:
         super().run()
+        if self.status == False:
+            return
+        threads: dict[str, Thread] = dict()
         for key in self.modules:
-            self.threads[key].start()
+            threads[key] = Thread(target=self.modules[key].run)
+            threads[key].start()
         for key in self.modules:
-            self.threads[key].join()
+            threads[key].join()
         for key in self.modules:
             if not self.modules[key].status:
                 self.status = False
@@ -68,7 +70,6 @@ class Pipeline(Module):
         if key in self.modules:
             return False
         self.modules[key] = module
-        self.threads[key] = Thread(target = self.modules[key].run)
         return True
     
     def remove_module(self, key: str) -> bool:
@@ -79,7 +80,6 @@ class Pipeline(Module):
                     self.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
                     del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]
             del self.modules[key]
-            del self.threads[key]
             return True
         return False
         
