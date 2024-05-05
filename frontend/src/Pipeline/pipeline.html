@@ -131,6 +131,7 @@
         window.electron.runPipeline();
       });
 
+      let draggableItems = [];
       document.addEventListener("DOMContentLoaded", function () {
         // Expand the menu section
         const menuHeader = document.querySelector(".menu-header");
@@ -252,8 +253,8 @@
           scale = Math.min(scale, 4);
 
           const rect = canvas.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
+          const x = (e.clientX - rect.left) / scale;
+          const y = (e.clientY - rect.top) / scale;
 
           const newWidth = canvas.width * scale;
           const newHeight = canvas.height * scale;
@@ -265,11 +266,11 @@
 
           canvas.style.width = `${newWidth}px`;
           canvas.style.height = `${newHeight}px`;
+          drawItems();
         });
 
         // Drag and drop functionality
         const menuItems = document.querySelectorAll(".menu-item .item");
-        let draggableItems = [];
         let unique_item_name = [];
         let draggedItem = null;
         let selectedItemIndex = null;
@@ -324,31 +325,84 @@
 
           const x = e.clientX - workspace.getBoundingClientRect().left;
           const y = e.clientY - workspace.getBoundingClientRect().top;
-          draggableItems.push({ name: itemName, x: x, y: y, dragging: false });
+
           if (itemName.includes("Input")) {
-            const inputFile = createInputFileElement(itemName, x, y);
-            workspace.appendChild(inputFile);
-          } else if (itemName.includes("Pipeline")) {
-            const pipeline = createPipelineElement(itemName, x, y);
-            workspace.appendChild(pipeline);
+            draggableItems.push({
+              originalName: itemName,
+              name: "Click to choose file",
+              x: x,
+              y: y,
+              dragging: false,
+            });
+          } else {
+            draggableItems.push({
+              originalName: itemName,
+              name: itemName,
+              x: x,
+              y: y,
+              dragging: false,
+            });
           }
           drawItems();
         });
 
+        workspace.addEventListener("click", function (e) {
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = (e.clientX - rect.left) / scale;
+          const mouseY = (e.clientY - rect.top) / scale;
+
+          draggableItems.forEach((item) => {
+            const hitbox = {
+              x: item.x * scale,
+              y: (item.y - 16) * scale,
+              width: ctx.measureText(item.name).width * scale,
+              height: 16 * scale,
+            };
+            if (
+              mouseX >= hitbox.x &&
+              mouseX <= hitbox.x + hitbox.width &&
+              mouseY >= hitbox.y &&
+              mouseY <= hitbox.y + hitbox.height
+            ) {
+              if (item.originalName.includes("Input")) {
+                const inputFile = document.createElement("input");
+                inputFile.type = "file";
+                inputFile.click();
+
+                inputFile.addEventListener("change", function (e) {
+                  const selectedFile = e.target.files[0];
+                  const fileName = selectedFile
+                    ? selectedFile.name
+                    : "No file chosen";
+                  item.name = fileName;
+                  drawItems();
+                  console.log("Selected file:", selectedFile.path);
+                });
+              }
+            }
+          });
+        });
+
         function isMouseOverItem(mouseX, mouseY, item) {
+          const hitbox = {
+            x: item.x * scale,
+            y: (item.y - 16) * scale,
+            width: ctx.measureText(item.name).width * scale,
+            height: 16 * scale,
+          };
           return (
-            mouseX >= item.x &&
-            mouseX <= item.x + ctx.measureText(item.name).width &&
-            mouseY >= item.y - 16 &&
-            mouseY <= item.y
+            mouseX >= hitbox.x &&
+            mouseX <= hitbox.x + hitbox.width &&
+            mouseY >= hitbox.y &&
+            mouseY <= hitbox.y + hitbox.height
           );
         }
 
         // Function to draw items on the canvas
         canvas.addEventListener("mousedown", function (e) {
           const rect = canvas.getBoundingClientRect();
-          const mouseX = e.clientX - rect.left;
-          const mouseY = e.clientY - rect.top;
+          const mouseX = (e.clientX - rect.left) / scale;
+          const mouseY = (e.clientY - rect.top) / scale;
 
           draggableItems.forEach((item, index) => {
             const hitbox = {
@@ -413,62 +467,9 @@
             ctx.scale(scale, scale);
             ctx.font = "16px Arial";
             ctx.fillStyle = "white";
-            // ctx.fillText(item.name, item.x, item.y);
+            ctx.fillText(item.name, item.x, item.y);
             ctx.restore();
           });
-        }
-
-        function createInputFileElement(itemName, x, y) {
-          // Create new input elements with unique IDs
-          const inputFile = document.createElement("input");
-          inputFile.type = "file";
-          //inputFile.name = itemName;
-          inputFile.setAttribute("f-name", itemName);
-          inputFile.setAttribute("module-name", "FileReader");
-          inputFile.setAttribute("file-module", "IO");
-          inputFile.setAttribute("input-name", "FileReader_Input");
-          inputFile.setAttribute("output-name", "FileReader_Output");
-
-          // Position the input element
-          inputFile.style.position = "absolute";
-          inputFile.style.left = `${x}px`;
-          inputFile.style.top = `${y}px`;
-          inputFile.style.padding = "10px";
-
-          // Add event listener to handle file selection
-          inputFile.addEventListener("change", function (e) {
-            const selectedFile = e.target.files[0];
-            console.log("Selected file:", selectedFile);
-            // Perform actions with the selected file
-          });
-          return inputFile;
-        }
-
-        function createPipelineElement(itemName, x, y) {
-          const divElement = document.createElement("div");
-          divElement.innerHTML = `
-            <h2>Pipeline</h2>
-            <p>ABBBBBBB</p>
-          `;
-
-          //inputFile.name = itemName;
-          divElement.setAttribute("f-name", itemName);
-          divElement.setAttribute("module-name", "FileReader");
-          divElement.setAttribute("file-module", "IO");
-          divElement.setAttribute("input-name", "FileReader_Input");
-          divElement.setAttribute("output-name", "FileReader_Output");
-
-          // Position the input element
-          divElement.style.border = "1px solid #ccc";
-          divElement.style.position = "absolute";
-          divElement.style.left = `${x}px`;
-          divElement.style.top = `${y}px`;
-          divElement.style.padding = "10px";
-          divElement.style.fontSize = "16px";
-          divElement.style.color = "white";
-
-          // Trả về element div đã được tạo
-          return divElement;
         }
       });
     </script>
