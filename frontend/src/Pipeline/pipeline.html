@@ -11,7 +11,13 @@
       <div id="header">
         <div id="header-left">
           <img id="ic-back" class="ic" src="../image/ic_back.svg" />
-          <button id="btn-project" class="btn">Project Name</button>
+          <input
+            type="text"
+            id="btn-project"
+            class="btn"
+            value="Project Name"
+            readonly
+          />
           <img id="ic-edit" class="ic" src="../image/ic_edit.svg" />
         </div>
         <div id="header-right">
@@ -105,6 +111,18 @@
                     >Text Getter</span
                   >
                 </div>
+
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="VectorHolder"
+                    module-name="VectorHolder"
+                    file-module="IO"
+                    input-name="VectorHolder_Input"
+                    output-name="VectorHolder_Output"
+                    >Vector Holder</span
+                  >
+                </div>
               </div>
             </div>
 
@@ -180,6 +198,97 @@
                     >NeuralUnit</span
                   >
                 </div>
+
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="InputLayer"
+                    module-name="NeuralUnit"
+                    file-module="NN"
+                    input-name="InputLayer_Input"
+                    output-name="InputLayer_Output"
+                    >Input Layer</span
+                  >
+                </div>
+
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="FullyHiddenLayer"
+                    module-name="NeuralUnit"
+                    file-module="NN"
+                    input-name="FullyHiddenLayer_Input"
+                    output-name="FullyHiddenLayer_Output"
+                    >FullyHiddenLayer</span
+                  >
+                </div>
+
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="OutputLayer"
+                    module-name="NeuralUnit"
+                    file-module="NN"
+                    input-name="OutputLayer_Input"
+                    output-name="OutputLayer_Output"
+                    >Output Layer</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Caster -->
+            <div class="menu-section">
+              <div class="menu-header">
+                <span>Caster</span>
+                <img src="../image/ic_arrow_down.svg" class="ic-expand" />
+              </div>
+              <div class="menu-item">
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="DictSplitter"
+                    module-name="DictSplitter"
+                    file-module="Caster"
+                    input-name="DictSplitter_Input"
+                    output-name="DictSplitter_Output"
+                    >Dict Splitter</span
+                  >
+                </div>
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="DictMerger"
+                    module-name="DictMerger"
+                    file-module="Caster"
+                    input-name="DictMerger_Input"
+                    output-name="DictMerger_Output"
+                    >Dict Merger</span
+                  >
+                </div>
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="ArraySplitter"
+                    module-name="ArraySplitter"
+                    file-module="Caster"
+                    input-name="ArraySplitter_Input"
+                    output-name="ArraySplitter_Output"
+                    >Array Splitter</span
+                  >
+                </div>
+
+                <div class="item">
+                  <span
+                    class="item-name"
+                    f-name="ArrayMerger"
+                    module-name="ArrayMerger"
+                    file-module="Caster"
+                    input-name="ArrayMerger_Input"
+                    output-name="ArrayMerger_Output"
+                    >Array Merger</span
+                  >
+                </div>
               </div>
             </div>
           </div>
@@ -204,6 +313,65 @@
       const btn_run = document.getElementById("btn-run");
       btn_run.addEventListener("click", function () {
         window.electron.runPipeline();
+      });
+
+      // open/close side menu
+      const icPlus = document.getElementById("ic-plus");
+      const sideMenu = document.querySelector(".side-menu");
+      icPlus.addEventListener("click", function () {
+        sideMenu.style.display =
+          sideMenu.style.display === "none" ? "block" : "none";
+        const icon_icPlus = icPlus.getAttribute("src");
+        icPlus.setAttribute(
+          "src",
+          icon_icPlus.includes("ic_minus")
+            ? "../image/ic_plus.svg"
+            : "../image/ic_minus.svg"
+        );
+      });
+
+      // edit project name
+      const editIcon = document.getElementById("ic-edit");
+      const projectNameInput = document.getElementById("btn-project");
+      let clickOutside = false;
+      editIcon.addEventListener("click", () => {
+        click = true;
+        enableEdit();
+      });
+
+      document.addEventListener("click", (event) => {
+        const targetElement = event.target;
+
+        //
+        if (targetElement != editIcon && click) {
+          saveProjectName();
+        }
+      });
+
+      function enableEdit() {
+        projectNameInput.removeAttribute("readonly");
+        projectNameInput.focus();
+
+        if (projectNameInput) {
+          const length = projectNameInput.value.length;
+
+          // move pointer to end of text
+          projectNameInput.setSelectionRange(length, length);
+        }
+      }
+
+      function saveProjectName() {
+        click = false;
+        projectNameInput.setAttribute("readonly", true);
+        const updatedProjectName = projectNameInput.value;
+        console.log("Updated Project Name: ", updatedProjectName);
+      }
+
+      projectNameInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          saveProjectName();
+        }
       });
 
       let draggableItems = [];
