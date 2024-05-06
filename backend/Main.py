@@ -74,12 +74,16 @@ def remove_module(key: str) -> dict:
 def set_module_hyperparameters(key: str, hyperparameters: dict) -> dict:
     module = pipeline.modules[key]
     status = module.set_hyperparameters(hyperparameters)
-    outputs = {
-        'hyperparameters': pipeline.modules[key].hyperparameters_list,
-        'inputs': module.inputBuffer.keys(),
-        'outputs': module.outputBuffer.keys()
-        } if pipeline.changed else {}
-    pipeline.changed = False
+    if pipeline.changed:
+        outputs = {
+            'hyperparameters': pipeline.modules[key].hyperparameters_list,
+            'inputs': module.inputBuffer.keys(),
+            'outputs': module.outputBuffer.keys()
+            }
+        pipeline.full_disconnect(key)
+        pipeline.changed = False
+    else:
+        outputs = {}
     return {
         'status': status,
         'outputs': outputs
