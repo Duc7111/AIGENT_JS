@@ -11,6 +11,7 @@ class Module:
     hyperparameters: dict[str, any]
     hyperparameters_list: tuple[str]
     status: bool
+    changed: bool
 
     def __init__(self) -> None:
         self.inputBuffer = dict()
@@ -20,6 +21,7 @@ class Module:
         self.hyperparameters = dict()
         self.hyperparameters_list = tuple()
         self.status = True
+        self.changed = False
     
     # Check if all inputs are available, call by child class run method
     def run(self) -> None:
@@ -45,7 +47,7 @@ class Pipeline(Module):
     
     modules: dict[str, Module]
     regDict: dict[tuple[str, str, str, str], None]
-    
+
     def __init__(self):
         super().__init__()
         self.modules = dict()
@@ -111,6 +113,24 @@ class Pipeline(Module):
             del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]
         return True
     
+    def full_disconnect(self, key: str = None) -> None:
+        if key is not None:
+            for (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in list(self.regDict.keys()):
+                if srcModuleKey == key or tgtModuleKey == key:
+                    self.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
+                    del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]
+            for (type, key) in list(self.regDict.keys()):
+                if self.regDict[(type, key)][0] == key or self.regDict[(type, key)][1] == key:
+                    if type: self.input_unregister(key)
+                    else: self.output_unregister(key)
+        else:
+            for (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in list(self.regDict.keys()):
+                self.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
+                del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]
+            for (type, key) in list(self.regDict.keys()):
+                if type: self.input_unregister(key)
+                else: self.output_unregister(key)
+    
     def input_register(self, key: str, tgtModelKey: str, tgtKey: str) -> bool:
         if key not in self.inputBuffer:
             self.inputBuffer[key] = Buffer(None)
@@ -118,6 +138,18 @@ class Pipeline(Module):
             return False
         self.inputBuffer[key].register(id(self.modules[tgtModelKey].inputBuffer[tgtKey]))
         self.modules[tgtModelKey].inputBuffer[tgtKey] = self.inputBuffer[key]
+        self.regDict[(True, key)] = [tgtModelKey, tgtKey]   
+        return True
+    
+    def input_unregister(self, key: str) -> bool:
+        if key not in self.inputBuffer:
+            return False
+        if (True, key) in self.regDict:
+            tgtModelKey, tgtKey = self.regDict[(True, key)]
+            self.inputBuffer[key].unregister(id(self.modules[tgtModelKey].inputBuffer[tgtKey]))
+            self.modules[tgtModelKey].inputBuffer[tgtKey] = None
+            del self.inputBuffer[key]
+            del self.regDict[(True, key)]
         return True
         
     def output_register(self, key: str, srcModelKey: str, srcKey: str) -> bool:
@@ -127,4 +159,15 @@ class Pipeline(Module):
             return False
         self.modules[srcModelKey].outputBuffer[srcKey].register(id(self.outputBuffer[key]))
         self.outputBuffer[key] = self.modules[srcModelKey].outputBuffer[srcKey]
+        self.regDict[(False, key)] = [srcModelKey, srcKey]
+        return True
+    
+    def output_unregister(self, key: str) -> bool:
+        if key not in self.outputBuffer:
+            return False
+        if (False, key) in self.regDict:
+            srcModelKey, srcKey = self.regDict[(False, key)]
+            self.modules[srcModelKey].outputBuffer[srcKey].unregister(id(self.outputBuffer[key]))
+            del self.outputBuffer[key]
+            del self.regDict[(False, key)]
         return True

@@ -72,9 +72,17 @@ def remove_module(key: str) -> dict:
         }
 
 def set_module_hyperparameters(key: str, hyperparameters: dict) -> dict:
+    module = pipeline.modules[key]
+    status = module.set_hyperparameters(hyperparameters)
+    outputs = {
+        'hyperparameters': pipeline.modules[key].hyperparameters_list,
+        'inputs': module.inputBuffer.keys(),
+        'outputs': module.outputBuffer.keys()
+        } if pipeline.changed else {}
+    pipeline.changed = False
     return {
-        'status': pipeline.modules[key].set_hyperparameters(hyperparameters),
-        'outputs': {}
+        'status': status,
+        'outputs': outputs
         }
 
 def connect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> dict:
@@ -96,9 +104,21 @@ def input_register(key: str, tgtModuleKey: str, tgtKey: str) -> dict:
         'outputs': {}
         }
 
+def input_unregister(key: str) -> dict:
+    return {
+        'status': pipeline.input_unregister(key), 
+        'outputs': {}
+        }
+
 def output_register(key: str, srcModuleKey: str, srcKey: str) -> dict:
     return {
         'status': pipeline.output_register(key, srcModuleKey, srcKey), 
+        'outputs': {}
+        }
+
+def output_unregister(key: str) -> dict:
+    return {
+        'status': pipeline.output_unregister(key), 
         'outputs': {}
         }
     
