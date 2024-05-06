@@ -56,15 +56,21 @@ class Pipeline(Module):
         if self.status == False:
             return
         threads: dict[str, Thread] = dict()
-        for key in self.modules:
-            threads[key] = Thread(target=self.modules[key].run)
-            threads[key].start()
-        for key in self.modules:
-            threads[key].join()
-        for key in self.modules:
-            if not self.modules[key].status:
-                self.status = False
-                return
+        try:
+            for key in self.modules:
+                threads[key] = Thread(target=self.modules[key].run)
+                threads[key].start()
+            for key in self.modules:
+                threads[key].join()
+            for key in self.modules:
+                if not self.modules[key].status:
+                    self.status = False
+                    self.outputBuffer['msg'].set_val(id(self), "Error in " + key)
+                    return
+        except Exception as e:
+            self.status = False
+            self.outputBuffer['msg'].set_val(id(self), str(e))
+            return
 
     def add_module(self, key: str, module: Module) -> bool:
         if key in self.modules:

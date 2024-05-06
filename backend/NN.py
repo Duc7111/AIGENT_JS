@@ -1,5 +1,6 @@
 
 from Module import Module
+from Container import Buffer
 
 class Perceptron(Module):
     
@@ -8,6 +9,8 @@ class Perceptron(Module):
         self.hyperparameters_list = ('weights', 'bias')
         self.hyperparameters['weights'] = None
         self.hyperparameters['bias'] = None
+        self.outputBuffer['output'] = Buffer(0)
+        self.inputBuffer['input'] = None
 
     def run(self) -> None:
         super().run()
@@ -30,6 +33,8 @@ class NeuralUnit(Module):
         self.hyperparameters['weights'] = None
         self.hyperparameters['bias'] = None
         self.hyperparameters['activation'] = lambda x: x
+        self.outputBuffer['output'] = Buffer(0)
+        self.inputBuffer['input'] = None
 
     def run(self) -> None:
         super().run()
@@ -50,6 +55,8 @@ class InputLayer(Module):
         super().__init__()
         self.hyperparameters_list = ('input_shape')
         self.hyperparameters['input_shape'] = None
+        self.outputBuffer['output'] = Buffer(None)
+        self.inputBuffer['input'] = None
 
     def run(self) -> None:
         super().run()
@@ -78,6 +85,8 @@ class FullyConnectedHiddenLayer(Module):
         self.hyperparameters['#input'] = 0
         self.hyperparameters['weights'] = None
         self.hyperparameters['activations'] = [] # list of activation functions
+        self.outputBuffer['output'] = Buffer(None)
+        self.inputBuffer['input'] = None
 
     def run(self) -> None:
         super().run()
@@ -103,6 +112,8 @@ class OutputLayer(Module):
         self.hyperparameters['#input'] = 0
         self.hyperparameters['weights'] = None
         self.hyperparameters['normailizer'] = lambda x: x
+        self.outputBuffer['output'] = Buffer(None)
+        self.inputBuffer['input'] = None
 
     def run(self) -> None:
         super().run()

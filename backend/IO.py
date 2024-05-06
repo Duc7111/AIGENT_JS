@@ -25,6 +25,7 @@ class FileWriter(Module):
         super().__init__()
         self.hyperparameters_list = ('file')
         self.hyperparameters['file'] = ""
+        self.inputBuffer['input'] = None
 
     def run(self) -> None:
         super().run()
@@ -59,6 +60,7 @@ class TextGetter(Module):
     def __init__(self) -> None:
         super().__init__()
         self.outputBuffer['output'] = Buffer('')
+        self.inputBuffer['input'] = None
 
     def run(self) -> None:
         super().run()

@@ -58,7 +58,11 @@ def add_module(key: str, type: str, module: str) -> dict:
     module = module()
     return {
         'status': pipeline.add_module(key, module), 
-        'outputs': {}
+        'outputs': {
+            'hyperparameters': module.hyperparameters_list,
+            'inputs': module.inputBuffer.keys(),
+            'outputs': module.outputBuffer.keys()
+        }
         }
 
 def remove_module(key: str) -> dict:
