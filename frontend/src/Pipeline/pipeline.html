@@ -305,14 +305,44 @@
         window.electron.navigateBack();
       });
 
-      const icSave = document.getElementById("ic-save");
-      icSave.addEventListener("click", function () {
-        window.electron.savePipeline();
-      });
-
       const btn_run = document.getElementById("btn-run");
       btn_run.addEventListener("click", function () {
         window.electron.runPipeline();
+      });
+
+      const currentUrl = window.location.href;
+      const currentWorkingDirectory = new URL(currentUrl).pathname;
+
+      //split the URL by '/' to get the current working directory
+      const pathParts = currentWorkingDirectory.split("/");
+
+      // Discard the last 5 parts of the URL to get the parent directory
+      pathParts.pop();
+      pathParts.pop();
+      pathParts.pop();
+      pathParts.pop();
+
+      // Create the parent directory path
+      let parentDirectory = pathParts.join("/");
+      parentDirectory = parentDirectory + "/__cache__";
+      parentDirectory = parentDirectory.substring(1);
+      parentDirectory = parentDirectory
+        .replace(/%20/g, " ")
+        .replace(/\\/g, "\\\\");
+      console.log("Parent Directory:", parentDirectory);
+
+      //Function: save pipeline
+      const icSave = document.getElementById("ic-save");
+      icSave.addEventListener("click", function () {
+        console.log(draggableItems);
+        const transferData = [
+          draggableItems,
+          parentDirectory,
+          projectNameInput.value,
+        ];
+        console.log("Transfer Data:", transferData);
+        window.electron.saveJsonToFile(transferData);
+        //window.electron.savePipeline();
       });
 
       // open/close side menu
@@ -335,7 +365,7 @@
       const projectNameInput = document.getElementById("btn-project");
       let clickOutside = false;
       editIcon.addEventListener("click", () => {
-        click = true;
+        clickOutside = true;
         enableEdit();
       });
 
@@ -343,7 +373,7 @@
         const targetElement = event.target;
 
         //
-        if (targetElement != editIcon && click) {
+        if (targetElement != editIcon && clickOutside) {
           saveProjectName();
         }
       });
@@ -361,7 +391,7 @@
       }
 
       function saveProjectName() {
-        click = false;
+        clickOutside = false;
         projectNameInput.setAttribute("readonly", true);
         const updatedProjectName = projectNameInput.value;
         console.log("Updated Project Name: ", updatedProjectName);

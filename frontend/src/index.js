@@ -1,9 +1,10 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, remote } = require('electron');
 const path = require('path');
 const net = require('net');
 const HOST = '127.0.0.1';
 const PORT = 7777;
 
+var fsExtra = require('fs-extra');
 
 let clientSocket = new net.Socket();
 
@@ -25,6 +26,21 @@ const createWindow = () => {
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
+
+  ipcMain.on('save-json-file', (event, data) => {
+    console.log("saveJsonToFile called initial",data);
+    const filePath = `${data[1]}/${data[2]}.json`;
+    console.log("saveJsonToFile called",data[0],filePath);
+    const jsonStrings = data[0].map(item => JSON.stringify(item, null, 2));
+    fsExtra.writeFile(filePath, `[${jsonStrings.join(',\n')}]`, (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log('File saved successfully');
+      }
+        
+    });
+  });
 
   ipcMain.on('open-pipeline', (event) => {
     mainWindow.loadFile(path.join(__dirname, 'Pipeline', 'pipeline.html'));

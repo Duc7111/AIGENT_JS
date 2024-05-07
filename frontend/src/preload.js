@@ -1,6 +1,23 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, app } = require('electron');
+
+// function saveJsonToFile(jsonData, folderPath, projectName) {
+
+    
+
+//     ipcRenderer.on("save-json-file-response", (event, success, error) => {
+//       if (success) {
+//         console.log("File saved successfully");
+//       } else {
+//         console.error("Error saving file:", error);
+//       }
+//     });
+// };
 
 contextBridge.exposeInMainWorld('electron', {
+    saveJsonToFile: (transferData)=> {
+        console.log("saveJsonToFile called",transferData[0],transferData[1],transferData[2]);
+        ipcRenderer.send('save-json-file', transferData);
+    },
     openPipeline: () => {
         console.log("openPipeline called");
         ipcRenderer.send('open-pipeline');
