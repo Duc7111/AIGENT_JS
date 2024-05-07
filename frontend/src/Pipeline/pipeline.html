@@ -577,7 +577,9 @@
 
         workspace.addEventListener("drop", function (e) {
           e.preventDefault();
-          const itemName = e.dataTransfer.getData("text/plain");
+          const itemName = e.dataTransfer
+            .getData("text/plain")
+            .replace(/\s/g, "");
 
           // add module to the pipeline
           const draggedElement = document.querySelector(
@@ -587,7 +589,6 @@
           if (draggedElement) {
             const moduleName = draggedElement.getAttribute("module-name");
             const fileModule = draggedElement.getAttribute("file-module");
-
             console.log("Item dragged:", itemName);
             console.log("Module Name:", moduleName);
             console.log("File Module:", fileModule);
