@@ -67,8 +67,8 @@ class Buffer:
         while True:
             if self.__unread > 0:
                 sleep(0.01*self.__unread)
-                continue
-            break
+            else: 
+                break
         self.__mutex.acquire()
         self._val = val
         self.__unread = self.__cread

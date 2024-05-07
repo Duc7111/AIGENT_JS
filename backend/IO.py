@@ -32,13 +32,12 @@ class FileWriter(Module):
         if self.status == False:
             return
         try:
-            file = open(self.hyperparameters['file'], 'w')
-            file.write(self.inputBuffer['input'].get_val(id(self)))
-            self.status = True
-        except:
+            with open(self.hyperparameters['file'], 'w') as file:
+                file.write(self.inputBuffer['input'].get_val(id(self)))
+                self.status = True
+        except Exception as e:
             self.status = False
-        finally:
-            file.close()
+            print(str(e))
 
 # take a string in hyperparameters and output it
 class TextHolder(Module):

@@ -16,25 +16,37 @@ def load_pipeline(path: str) -> dict:
             data = json.load(f)
     except:
         return {'status': False, 'outputs': {}}
-    pipeline.inputBuffer = dict()
-    for key, val in data['inputBuffer']:
+    
+    # Clear pipeline
+    pipeline.modules = {}
+    pipeline.regDict = {}
+    pipeline.inputBuffer = {}
+    pipeline.outputBuffer = {}
+    pipeline.hyperparameters = {}
+    pipeline.hyperparameters_list = []
+
+    for key, val in data['inputBuffer'].items():
         pipeline.inputBuffer[key] = Buffer(val)
-    pipeline.outputBuffer = dict()
-    for key, val in data['outputBuffer']:
+
+    for key, val in data['outputBuffer'].items():
         pipeline.outputBuffer[key] = Buffer(val)
-    for key, val in data['hyperparameters']:
+    
+    for key, val in data['hyperparameters'].items():
         pipeline.hyperparameters[key] = val
+
     pipeline.hyperparameters_list = data['hyperparameters_list']
-    pipeline.modules = dict()
-    for key, val in data['modules']:
-        res = add_module(key, **val)
+
+    for key, val in data['modules'].items():
+        res = add_module(key, val['type'], val['module'])
         if not res['status']:
             return res
+        res = set_module_hyperparameters(key, val['hyperparameters'])
+        if not res['status']:
+            return res
+
     for key in data['regDict']:
         parsed_key = tuple(map(str, key.split(', ')))
         if len(parsed_key) == 4:
-            # remove the quotes
-            parsed_key = tuple(map(lambda x: x[1:-1], parsed_key))
             res = connect_modules(*parsed_key)
             if not res['status']:
                 return res
@@ -47,14 +59,17 @@ def load_pipeline(path: str) -> dict:
                 return res  
     return {'status': True, 'outputs': {}}
 
+def __tuple_to_str(t: tuple) -> str:
+    return ', '.join(map(str, t))
+
 def save_pipeline(path: str) -> dict:
     data = dict()
     data['inputBuffer'] = {key: pipeline.inputBuffer[key]._val for key in pipeline.inputBuffer}
     data['outputBuffer'] = {key: pipeline.outputBuffer[key]._val for key in pipeline.outputBuffer}
     data['hyperparameters'] = pipeline.hyperparameters
     data['hyperparameters_list'] = pipeline.hyperparameters_list
-    data['modules'] = {key: (type(val).__module__, type(val).__name__) for key, val in pipeline.modules.items()}
-    data['regDict'] = {str(key): pipeline.regDict[key] for key in pipeline.regDict}
+    data['modules'] = {key: {'type': type(val).__module__, 'module': type(val).__name__, 'hyperparameters': val.hyperparameters} for key, val in pipeline.modules.items()}
+    data['regDict'] = {__tuple_to_str(key): val for key, val in pipeline.regDict.items()}
     try:
         with open(path, 'w') as f:
             json.dump(data, f)

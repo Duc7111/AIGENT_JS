@@ -67,11 +67,11 @@ class Pipeline(Module):
             for key in self.modules:
                 if not self.modules[key].status:
                     self.status = False
-                    self.outputBuffer['msg'].set_val(id(self), "Error in " + key)
+                    self.outputBuffer['msg'].set_val("Error in " + key)
                     return
         except Exception as e:
             self.status = False
-            self.outputBuffer['msg'].set_val(id(self), str(e))
+            self.outputBuffer['msg'].set_val(str(e))
             return
 
     def add_module(self, key: str, module: Module) -> bool:
