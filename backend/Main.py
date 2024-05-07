@@ -85,8 +85,8 @@ def add_module(key: str, type: str, module: str) -> dict:
         'status': pipeline.add_module(key, module), 
         'outputs': {
             'hyperparameters': module.hyperparameters_list,
-            'inputs': module.inputBuffer.keys(),
-            'outputs': module.outputBuffer.keys()
+            'inputs': list(module.inputBuffer.keys()),
+            'outputs': list(module.outputBuffer.keys())
         }
         }
 
@@ -177,4 +177,5 @@ if __name__ == '__main__':
                     break
                 data = json.loads(data)
                 res = request[data['request']](**data['inputs'])
+                print(res)
                 conn.sendall(json.dumps(res).encode())
