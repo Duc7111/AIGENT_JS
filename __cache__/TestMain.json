@@ -1,0 +1,1 @@
+{"inputBuffer": {}, "outputBuffer": {"msg": null, "output": "test string"}, "hyperparameters": {}, "hyperparameters_list": [], "modules": {"fileReader": ["IO", "FileReader"], "textHolder": ["IO", "TextHolder"], "fileWriter": ["IO", "FileWriter"]}, "regDict": {"(False, 'output')": ["fileReader", "output"], "('textHolder', 'fileWriter', 'output', 'input')": null}}

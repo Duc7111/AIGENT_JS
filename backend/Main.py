@@ -31,10 +31,20 @@ def load_pipeline(path: str) -> dict:
         if not res['status']:
             return res
     for key in data['regDict']:
-        key = key.split(',')
-        res = connect_modules(*key)
-        if not res['status']:
-            return res
+        parsed_key = tuple(map(str, key.split(', ')))
+        if len(parsed_key) == 4:
+            # remove the quotes
+            parsed_key = tuple(map(lambda x: x[1:-1], parsed_key))
+            res = connect_modules(*parsed_key)
+            if not res['status']:
+                return res
+        elif len(parsed_key) == 2:
+            if parsed_key[0] == 'True':
+                res = input_register(parsed_key[1], *data['regDict'][key])
+            else:
+                res = output_register(parsed_key[1], *data['regDict'][key])
+            if not res['status']:
+                return res  
     return {'status': True, 'outputs': {}}
 
 def save_pipeline(path: str) -> dict:
@@ -44,7 +54,7 @@ def save_pipeline(path: str) -> dict:
     data['hyperparameters'] = pipeline.hyperparameters
     data['hyperparameters_list'] = pipeline.hyperparameters_list
     data['modules'] = {key: (type(val).__module__, type(val).__name__) for key, val in pipeline.modules.items()}
-    data['regDict'] = {key: None for key in pipeline.regDict}
+    data['regDict'] = {str(key): pipeline.regDict[key] for key in pipeline.regDict}
     try:
         with open(path, 'w') as f:
             json.dump(data, f)
@@ -90,7 +100,6 @@ def set_module_hyperparameters(key: str, hyperparameters: dict) -> dict:
         }
 
 def connect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> dict:
-    print(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
     return {
         'status': pipeline.connect(srcModuleKey, tgtModuleKey, srcKey, tgtKey), 
         'outputs': {}
