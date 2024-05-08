@@ -100,8 +100,8 @@ class ArrayMerger(Module):
     
     def __init__(self) -> None:
         super().__init__()
-        self.hyperparameters_list = ('index')
-        self.hyperparameters['index'] = []
+        self.hyperparameters_list = ('size')
+        self.hyperparameters['size'] = 0
         self.outputBuffer['output'] = Buffer(None)
         self.inputBuffer['input'] = None
     
@@ -110,7 +110,7 @@ class ArrayMerger(Module):
         if self.status == False:
             return
         try:
-            res = [self.input[i] for i in self.hyperparameters['index']]
+            res = [self.input[str(i)] for i in range(self.hyperparameters['size'])]
             self.outputBuffer['output'].set_val(res)
             self.status = True
         except:
@@ -123,7 +123,7 @@ class ArrayMerger(Module):
         if not super().set_hyperparameters(hyperparameters): 
             return False
         self.inputBuffer = dict() # clear inputBuffer
-        for i in hyperparameters['index']:
-            self.inputBuffer[i] = None
+        for i in range(hyperparameters['size']):
+            self.inputBuffer[str(i)] = None
         self.changed = True
         return True

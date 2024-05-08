@@ -1,12 +1,11 @@
 from Main import *
 from pathlib import Path
-from TestMain import parent_path
 
-#parent_path = Path(__file__).resolve().parents[1]
+parent_path = Path(__file__).resolve().parents[1]
 
-load_pipeline(parent_path / '__cache__' / 'TestMain.json')
+load_pipeline(parent_path / '__cache__' / 'TestNN.json')
 res = run()
 if res['status']:
-    print(res['outputs']['output'])
+    print(res['outputs'])
 else:
     print(res['outputs']['msg'])
