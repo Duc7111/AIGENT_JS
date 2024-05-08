@@ -6,6 +6,8 @@ const PORT = 7777;
 
 var fsExtra = require('fs-extra');
 
+let mainWindow;
+
 const defaultDownloadsPath = app.getPath('downloads');
 
 var uniqueName = [];
@@ -152,7 +154,7 @@ async  function readJsonFile(uiPath, BePath) {
 
 const createWindow = () => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1920,
     height: 1080,
     webPreferences: {
@@ -273,6 +275,7 @@ const client = () => {
   }); 
   clientSocket.on('data', (data) => {
     console.log('Received from server:', data.toString());
+    mainWindow.webContents.send('received-data', data.toString())
   });
   clientSocket.on('close', () => {
     console.log('Connection closed');

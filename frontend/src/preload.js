@@ -48,6 +48,14 @@ contextBridge.exposeInMainWorld('electron', {
         });
     },
 
+    receivedData: () => {
+        return new Promise((resolve, reject) => {
+            ipcRenderer.on('received-data', (event, receivedData) => {
+                resolve(receivedData);
+            });
+        });
+    },
+
     sendListProjectName: (listProjectName) => {
         ipcRenderer.send('list-project-name', listProjectName);
     },

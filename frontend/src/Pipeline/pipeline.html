@@ -420,6 +420,7 @@
 
       let draggableItems = [];
       let listAvailableProjectName = [];
+      let receivedData = "";
       document.addEventListener("DOMContentLoaded", function () {
         // get params from the homepage
         const urlParams = new URLSearchParams(window.location.search);
@@ -460,6 +461,11 @@
             "Project Names in getProjectNames():",
             listAvailableProjectName
           );
+        }
+
+        async function getReceivedData() {
+          receivedData = await window.electron.receivedData();
+          console.log("Received Data:", receivedData);
         }
 
         async function getDataFromGivenFile(givenFilePath) {
@@ -707,6 +713,7 @@
             console.log("File Module:", fileModule);
 
             window.electron.addModule(itemName, fileModule, moduleName);
+            getReceivedData();
           }
 
           const x = e.clientX - workspace.getBoundingClientRect().left;
