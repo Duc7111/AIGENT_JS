@@ -204,98 +204,89 @@
     </script>
 
     <script>
-      var jsonData = [
-        {
-          name: "b1",
-          icon1: "icon1.svg",
-          icon2: "icon2.svg",
-          icon3: "icon3.svg",
-          icon4: "icon4.svg",
-        },
-        {
-          name: "b2",
-          icon1: "icon1.svg",
-          icon2: "icon2.svg",
-          icon3: "icon3.svg",
-          icon4: "icon4.svg",
-        },
-        {
-          name: "b3",
-          icon1: "icon1.svg",
-          icon2: "icon2.svg",
-          icon3: "icon3.svg",
-          icon4: "icon4.svg",
-        },
-        {
-          name: "b4",
-          icon1: "icon1.svg",
-          icon2: "icon2.svg",
-          icon3: "icon3.svg",
-          icon4: "icon4.svg",
-        },
-        {
-          name: "b5",
-          icon1: "icon1.svg",
-          icon2: "icon2.svg",
-          icon3: "icon3.svg",
-          icon4: "icon4.svg",
-        },
-        {
-          name: "b6",
-          icon1: "icon1.svg",
-          icon2: "icon2.svg",
-          icon3: "icon3.svg",
-          icon4: "icon4.svg",
-        },
-        {
-          name: "b7",
-          icon1: "icon1.svg",
-          icon2: "icon2.svg",
-          icon3: "icon3.svg",
-          icon4: "icon4.svg",
-        },
-        {
-          name: "b8",
-          icon1: "icon1.svg",
-          icon2: "icon2.svg",
-          icon3: "icon3.svg",
-          icon4: "icon4.svg",
-        },
-        {
-          name: "b9",
-          icon1: "icon1.svg",
-          icon2: "icon2.svg",
-          icon3: "icon3.svg",
-          icon4: "icon4.svg",
-        },
-        {
-          name: "b10",
-          icon1: "icon1.svg",
-          icon2: "icon2.svg",
-          icon3: "icon3.svg",
-          icon4: "icon4.svg",
-        },
-      ];
+      var jsonData = [];
+      let icon1 = "icon1.svg";
+      let icon2 = "icon2.svg";
+      let icon3 = "icon3.svg";
+      let icon4 = "icon4.svg";
 
       function listDir(data) {
         var listDirectory = document.getElementById("list-directory");
+        const uniqueNames = new Set();
 
+        jsonData.forEach((fileName) => {
+          // use regex to remove the .json and .UI.json extensions
+          const baseName = fileName.replace(/\.ui\.json|\.json$/, "");
+
+          // add the base name to the set
+          uniqueNames.add(baseName);
+        });
+
+        // convert the set to an array
+        const uniqueNameArray = Array.from(uniqueNames);
+        console.log("uniqueNameArray", uniqueNameArray);
         // clear existing content
         listDirectory.innerHTML = "";
-        data.forEach((item) => {
+        uniqueNameArray.forEach((item) => {
           var div = document.createElement("div");
           div.className = "directory-content";
           div.innerHTML = `
-            <div class="directory-name">${item.name}</div>
+            <div class="directory-name">${item}</div>
             <div class="directory-icons">
-              <img src="./image/icmodel/${item.icon1}" class="icon_model" />
-              <img src="./image/icmodel/${item.icon2}" class="icon_model" />
-              <img src="./image/icmodel/${item.icon3}" class="icon_model" />
-              <img src="./image/icmodel/${item.icon4}" class="icon_model" />
+              <img src="./image/icmodel/${icon1}" class="icon_model" />
+              <img src="./image/icmodel/${icon2}" class="icon_model" />
+              <img src="./image/icmodel/${icon3}" class="icon_model" />
+              <img src="./image/icmodel/${icon4}" class="icon_model" />
           </div>
         `;
           listDirectory.appendChild(div);
+
+          div.addEventListener("click", () => {
+            handleDirectoryClick(item);
+          });
         });
+      }
+
+      handleDirectoryClick = (item) => {
+        console.log("Clicked on", item);
+        const paramsJson = jsonData.filter((fName) => {
+          return fName.includes(item);
+        });
+        console.log("paramsJson", paramsJson);
+        window.location.href = `Pipeline\\pipeline.html?names=${JSON.stringify(
+          paramsJson
+        )}`;
+        //window.electron.openPipeline();
+      };
+
+      function GetFolderPath() {
+        const currentUrl = window.location.href;
+        const currentWorkingDirectory = new URL(currentUrl).pathname;
+
+        //split the URL by '/' to get the current working directory
+        const pathParts = currentWorkingDirectory.split("/");
+
+        // Discard the last 4 parts of the URL to get the parent directory
+        pathParts.pop();
+        pathParts.pop();
+        pathParts.pop();
+
+        // Create the parent directory path
+        let parentDirectory = pathParts.join("/");
+        parentDirectory = parentDirectory + "/__cache__";
+        parentDirectory = parentDirectory.substring(1);
+        parentDirectory = parentDirectory
+          .replace(/%20/g, " ")
+          .replace(/\\/g, "\\\\");
+        console.log("Parent Directory:", parentDirectory);
+        return parentDirectory;
+      }
+
+      async function ListFileName() {
+        const folderPath = GetFolderPath();
+        jsonData = await window.electron.getListFileName(folderPath);
+        console.log("jsonData", jsonData);
+        listDir(jsonData);
       }
 
       function searchByName(name) {
@@ -331,7 +322,7 @@
       });
 
       window.onload = function () {
-        listDir(jsonData);
+        ListFileName();
       };
     </script>
   </body>

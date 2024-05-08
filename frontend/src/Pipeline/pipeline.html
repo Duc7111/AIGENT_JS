@@ -406,6 +406,45 @@
 
       let draggableItems = [];
       document.addEventListener("DOMContentLoaded", function () {
+        // get params from the homepage
+        const urlParams = new URLSearchParams(window.location.search);
+        const namesString = urlParams.get("names");
+        const names = JSON.parse(namesString);
+        console.log("Pass Params:", names);
+        if (names) {
+          const uniqueProjectName = getUniqueName(names);
+          projectNameInput.value = uniqueProjectName;
+          const givenFileNamePath = `${parentDirectory}/${uniqueProjectName}.ui.json`;
+          getDataFromGivenFile(givenFileNamePath);
+        }
+
+        async function getDataFromGivenFile(givenFilePath) {
+          const dataFile = await window.electron.readFileGivenName(
+            givenFilePath
+          );
+          draggableItems = JSON.parse(dataFile);
+          console.log("Data from given file:", draggableItems);
+          drawItems();
+        }
+
+        //get unique file name
+        function getUniqueName(listNames) {
+          const uniqueNames = new Set();
+
+          listNames.forEach((fileName) => {
+            // use regex to remove the .json and .UI.json extensions
+            const baseName = fileName.replace(/\.ui\.json|\.json$/, "");
+
+            // add the base name to the set
+            uniqueNames.add(baseName);
+          });
+
+          // convert the set to an array
+          const uniqueNameArray = Array.from(uniqueNames);
+
+          return uniqueNameArray;
+        }
+
         // show default first section in the new access
         const menuSections = document.querySelectorAll(".menu-section");
         for (let i = 1; i < menuSections.length; i++) {
