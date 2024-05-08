@@ -77,9 +77,13 @@
               </div>
             </div>
             <div class="right-header">
+              <button id="btn-import" class="btn">
+                <img id="ic-import" src="./image/ic_import.svg" />
+                <span class="btn-content">Import</span>
+              </button>
               <button class="add-directory" id="addNewBtn">
                 <img src="./image/add_icon.svg" class="icon" />
-                <span class="text">Add New</span>
+                <span class="text">Add</span>
               </button>
             </div>
           </div>
@@ -211,6 +215,14 @@
       let icon2 = "icon2.svg";
       let icon3 = "icon3.svg";
       let icon4 = "icon4.svg";
+
+      //import function
+      const btnImport = document.getElementById("btn-import");
+      btnImport.addEventListener("click", async () => {
+        const importFileDialog = [giveUniqueName(jsonData), GetFolderPath()];
+        await window.electron.importFileFromDialog(importFileDialog);
+        await ListFileName();
+      });
 
       function giveUniqueName(data) {
         const uniqueNames = new Set();
