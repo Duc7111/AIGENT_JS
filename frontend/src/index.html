@@ -159,6 +159,7 @@
         const chatflowsBtn = document.getElementById("addNewBtn");
         chatflowsBtn.addEventListener("click", (e) => {
           e.preventDefault();
+          window.electron.sendListProjectName(giveUniqueName(jsonData));
           window.electron.openPipeline();
         });
       });

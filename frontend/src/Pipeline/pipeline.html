@@ -303,6 +303,12 @@
     <script>
       document.getElementById("ic-back").addEventListener("click", () => {
         window.electron.navigateBack();
+        const transferData = [
+          draggableItems,
+          parentDirectory,
+          projectNameInput.value,
+        ];
+        window.electron.saveJsonToFile(transferData);
       });
 
       const btn_run = document.getElementById("btn-run");
@@ -405,6 +411,7 @@
       });
 
       let draggableItems = [];
+      let listAvailableProjectName = [];
       document.addEventListener("DOMContentLoaded", function () {
         // get params from the homepage
         const urlParams = new URLSearchParams(window.location.search);
@@ -416,6 +423,35 @@
           projectNameInput.value = uniqueProjectName;
           const givenFileNamePath = `${parentDirectory}/${uniqueProjectName}.ui.json`;
           getDataFromGivenFile(givenFileNamePath);
+        } else {
+          getProjectNames();
+          generateUniqueProjectName();
+        }
+
+        async function generateUniqueProjectName() {
+          const defaultProjectName = projectNameInput.value;
+          let projectIndex = 1;
+          let newProjectName = defaultProjectName;
+          await getProjectNames();
+          console.log(
+            "Project Names in generateUniqueProjectName():",
+            listAvailableProjectName
+          );
+
+          while (listAvailableProjectName.includes(newProjectName)) {
+            newProjectName = `${defaultProjectName}${projectIndex}`;
+            ++projectIndex;
+          }
+          projectNameInput.value = newProjectName;
+        }
+
+        async function getProjectNames() {
+          listAvailableProjectName =
+            await window.electron.receivedListProjectName();
+          console.log(
+            "Project Names in getProjectNames():",
+            listAvailableProjectName
+          );
         }
 
         async function getDataFromGivenFile(givenFilePath) {

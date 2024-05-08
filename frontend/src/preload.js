@@ -23,6 +23,20 @@ contextBridge.exposeInMainWorld('electron', {
     //     });
     // },
 
+    receivedListProjectName: () => {
+        return new Promise((resolve, reject) => {
+            ipcRenderer.send('list-available-project-name');
+            ipcRenderer.on('received-list-project-name', (event, listProjectName) => {
+                console.log('Received list project name from main process:', listProjectName);
+                resolve(listProjectName);
+            });
+        });
+    },
+
+    sendListProjectName: (listProjectName) => {
+        ipcRenderer.send('list-project-name', listProjectName);
+    },
+
     readFileGivenName: (filePath) => {
         return new Promise((resolve, reject) => {
             ipcRenderer.send('read-file-given-name', filePath);

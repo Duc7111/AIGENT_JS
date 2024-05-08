@@ -6,6 +6,8 @@ const PORT = 7777;
 
 var fsExtra = require('fs-extra');
 
+var uniqueName = [];
+
 let clientSocket = new net.Socket();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -27,6 +29,13 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
+  ipcMain.on('list-available-project-name',(event) => {
+    mainWindow.webContents.send('received-list-project-name', uniqueName);
+  });
+
+  ipcMain.on('list-project-name', (event, data) => {
+    uniqueName = data;
+  });
   ipcMain.on('read-file-given-name',(event, data) => {
     fsExtra.readFile(data, 'utf8', (err, fileData) => {
       if (err) {
