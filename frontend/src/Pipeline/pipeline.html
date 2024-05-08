@@ -612,7 +612,7 @@
           ctx.stroke();
         }
 
-        drawGrid();
+        // drawGrid();
 
         let isDragging = false;
         let lastPosX = 0;
@@ -738,16 +738,6 @@
               }
 
               draggableItems.push(newItem);
-
-              console.log("Draggable Items check: ", draggableItems);
-              console.log(
-                "Draggable Items Inputs:",
-                receivedData.outputs.inputs
-              );
-              console.log(
-                "Draggable Items Outputs:",
-                receivedData.outputs.outputs
-              );
               drawItems();
             });
           }
@@ -810,7 +800,6 @@
         let isDraggingMarker = false;
         let startItemIndex = null;
 
-        // Function to draw items on the canvas
         canvas.addEventListener("mousedown", function (e) {
           isDragging = true;
           lastPosX = e.clientX;
@@ -928,7 +917,7 @@
 
         function drawItems() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          drawGrid();
+          // drawGrid();
           draggableItems.forEach((item) => {
             ctx.save();
             ctx.scale(scale, scale);
@@ -936,13 +925,64 @@
             ctx.fillStyle = "white";
             ctx.fillText(item.name, item.x, item.y);
 
-            const markerSize = 6;
-            const markerX = item.x + ctx.measureText(item.name).width + 5;
-            const markerY = item.y - 8;
-            ctx.fillStyle = item.markerColor || "red";
-            ctx.beginPath();
-            ctx.arc(markerX, markerY, markerSize, 0, 2 * Math.PI);
-            ctx.fill();
+            const itemNameWidth = ctx.measureText(item.name).width;
+            const itemNameHeight = 16; // Font size 16
+            const centerInputY = item.y - itemNameHeight / 2;
+            const centerOutputY = item.y - itemNameHeight / 2;
+
+            ctx.fillText(item.name, item.x, item.y);
+
+            if (item.inputs) {
+              const inputSpacing = 20;
+              let inputY = centerInputY - (item.inputs.length * 16) / 2;
+              item.inputs.forEach((input) => {
+                ctx.fillStyle = "red";
+                ctx.beginPath();
+                ctx.arc(
+                  item.x - inputSpacing - ctx.measureText(input).width,
+                  inputY,
+                  6,
+                  0,
+                  2 * Math.PI
+                );
+                ctx.fill();
+
+                ctx.fillStyle = "red";
+                ctx.fillText(
+                  input,
+                  item.x - inputSpacing - ctx.measureText(input).width + 10,
+                  inputY + 16
+                );
+
+                inputY += 32;
+              });
+            }
+
+            if (item.outputs) {
+              const outputSpacing = 20;
+              let outputY = centerOutputY - (item.outputs.length * 16) / 2;
+              item.outputs.forEach((output) => {
+                ctx.fillStyle = "red";
+                ctx.beginPath();
+                ctx.arc(
+                  item.x + itemNameWidth + outputSpacing,
+                  outputY,
+                  6,
+                  0,
+                  2 * Math.PI
+                );
+                ctx.fill();
+
+                ctx.fillStyle = "red";
+                ctx.fillText(
+                  output,
+                  item.x + itemNameWidth + outputSpacing + 10,
+                  outputY + 16
+                );
+
+                outputY += 32;
+              });
+            }
 
             ctx.restore();
           });
