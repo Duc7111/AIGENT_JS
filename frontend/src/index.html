@@ -220,8 +220,13 @@
       const btnImport = document.getElementById("btn-import");
       btnImport.addEventListener("click", async () => {
         const importFileDialog = [giveUniqueName(jsonData), GetFolderPath()];
-        await window.electron.importFileFromDialog(importFileDialog);
-        await ListFileName();
+        const checkImport = await window.electron.importFileFromDialog(
+          importFileDialog
+        );
+        console.log("checkImport", checkImport);
+        if (checkImport) {
+          ListFileName();
+        }
       });
 
       function giveUniqueName(data) {

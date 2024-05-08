@@ -23,8 +23,14 @@ contextBridge.exposeInMainWorld('electron', {
     //     });
     // },
 
-    importFileFromDialog: (importfile) => {
-        ipcRenderer.send('import-file-dialog', importfile);
+    importFileFromDialog: (importFile) => {
+        return new Promise((resolve, reject) => {
+            ipcRenderer.send('import-file-dialog', importFile);
+            ipcRenderer.on('import-file-response', (event, data) => {
+                console.log('import-file-response:', data);
+                resolve(data);
+            });
+        });
     },
 
     exportToJsonl: (transferData)=>{
@@ -36,7 +42,7 @@ contextBridge.exposeInMainWorld('electron', {
         return new Promise((resolve, reject) => {
             ipcRenderer.send('list-available-project-name');
             ipcRenderer.on('received-list-project-name', (event, listProjectName) => {
-                console.log('Received list project name from main process:', listProjectName);
+                console.log('Received list project name:', listProjectName);
                 resolve(listProjectName);
             });
         });

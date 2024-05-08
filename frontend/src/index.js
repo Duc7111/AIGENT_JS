@@ -21,6 +21,8 @@ let combinedData = [];
 const defaultProjectName = "Project Name";
 let index =1;
 
+let checkFileImport = false;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -80,9 +82,11 @@ async function openImportFileDialog(listUniqueProjectName, saveLocalPath) {
                   console.error(`Error saving file from import ${beFilePath}:`, err);
               } else {
                   console.log(`Successfully saved file from import ${beFilePath}`);
-              }
+                }
           });
 
+          checkFileImport = true;
+          
       }
   } catch (error) {
       console.error('Error open import file dialog:', error);
@@ -159,8 +163,9 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
-  ipcMain.on('import-file-dialog', (event, data) => {
-    openImportFileDialog(data[0],data[1]);
+  ipcMain.on('import-file-dialog', async (event, data) => {
+    await openImportFileDialog(data[0],data[1]);
+    await event.sender.send('import-file-response', checkFileImport);
   });
 
   ipcMain.on('export-jsonl-file', (event, data) => {
