@@ -205,16 +205,16 @@
 
     <script>
       var jsonData = [];
+      let uniqueNameArray = [];
       let icon1 = "icon1.svg";
       let icon2 = "icon2.svg";
       let icon3 = "icon3.svg";
       let icon4 = "icon4.svg";
 
-      function listDir(data) {
-        var listDirectory = document.getElementById("list-directory");
+      function giveUniqueName(data) {
         const uniqueNames = new Set();
 
-        jsonData.forEach((fileName) => {
+        data.forEach((fileName) => {
           // use regex to remove the .json and .UI.json extensions
           const baseName = fileName.replace(/\.ui\.json|\.json$/, "");
 
@@ -223,7 +223,15 @@
         });
 
         // convert the set to an array
-        const uniqueNameArray = Array.from(uniqueNames);
+        uniqueNameArray = Array.from(uniqueNames);
+        console.log("uniqueNameArray", uniqueNameArray);
+        return uniqueNameArray;
+      }
+
+      function listDir(data) {
+        var listDirectory = document.getElementById("list-directory");
+
+        uniqueNameArray = giveUniqueName(data);
         console.log("uniqueNameArray", uniqueNameArray);
         // clear existing content
         listDirectory.innerHTML = "";
@@ -291,8 +299,9 @@
 
       function searchByName(name) {
         var results = [];
-        jsonData.forEach((item) => {
-          if (item.name.toLowerCase().includes(name.toLowerCase())) {
+        uniqueNameArray = giveUniqueName(jsonData);
+        uniqueNameArray.forEach((item) => {
+          if (item.toLowerCase().includes(name.toLowerCase())) {
             results.push(item);
           }
         });
