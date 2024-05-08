@@ -31,7 +31,7 @@ class Module:
             self.input[key] = self.inputBuffer[key].get_val(id(self))
             if self.input[key] is None:
                 self.status = False
-                self.outputBuffer['msg'].set_val(id(self), "Input " + key + " is not available")
+                self.outputBuffer['msg'].set_val("Input " + str(key) + " is not available")
                 return
         self.status = True
 
@@ -67,7 +67,7 @@ class Pipeline(Module):
             for key in self.modules:
                 if not self.modules[key].status:
                     self.status = False
-                    self.outputBuffer['msg'].set_val("Error in " + key)
+                    self.outputBuffer['msg'].set_val("Error in " + key + ": " + self.modules[key].outputBuffer['msg'].get_val(0))
                     return
         except Exception as e:
             self.status = False

@@ -47,7 +47,7 @@ class DictMerger(Module):
         if self.status == False:
             return
         try:
-            res = {key: self.input['input'][key] for key in self.hyperparameters['keys']}
+            res = {key: self.input[key] for key in self.hyperparameters['keys']}
             self.outputBuffer['output'].set_val(res)
             self.status = True
         except:
@@ -110,7 +110,7 @@ class ArrayMerger(Module):
         if self.status == False:
             return
         try:
-            res = [self.input['input'][i] for i in self.hyperparameters['index']]
+            res = [self.input[i] for i in self.hyperparameters['index']]
             self.outputBuffer['output'].set_val(res)
             self.status = True
         except:
