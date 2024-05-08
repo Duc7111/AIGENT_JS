@@ -23,6 +23,15 @@ contextBridge.exposeInMainWorld('electron', {
     //     });
     // },
 
+    importFileFromDialog: (importfile) => {
+        ipcRenderer.send('import-file-dialog', importfile);
+    },
+
+    exportToJsonl: (transferData)=>{
+        console.log("ExportToJsonl called",transferData[0],transferData[1],transferData[2]);
+        ipcRenderer.send('export-jsonl-file', transferData);
+    },
+
     receivedListProjectName: () => {
         return new Promise((resolve, reject) => {
             ipcRenderer.send('list-available-project-name');

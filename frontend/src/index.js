@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, remote } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const net = require('net');
 const HOST = '127.0.0.1';
@@ -6,13 +6,143 @@ const PORT = 7777;
 
 var fsExtra = require('fs-extra');
 
+const defaultDownloadsPath = app.getPath('downloads');
+
 var uniqueName = [];
 
+let uiJsonData = [];
+
+let beJsonData = [];
+
 let clientSocket = new net.Socket();
+
+let combinedData = [];
+
+const defaultProjectName = "Project Name";
+let index =1;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
+}
+
+function saveJsonToFile(data) {
+  const filePath = `${data[1]}/${data[2]}.ui.json`;
+    console.log("saveJsonToFile called",data[0],filePath);
+    const jsonStrings = data[0].map(item => JSON.stringify(item, null, 2));
+    fsExtra.writeFile(filePath, `[${jsonStrings.join(',\n')}]`, (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log('File saved successfully');
+      }   
+    });
+};
+
+async function openImportFileDialog(listUniqueProjectName, saveLocalPath) {
+  try {
+      const result = await dialog.showOpenDialog({
+          properties: ['openFile'],
+          filters: [
+              { name: 'JSON Lines', extensions: ['jsonl'] },
+              { name: 'All Files', extensions: ['*'] }
+          ]
+      });
+
+      const filePath = result.filePaths[0];
+
+      if (filePath) {
+            //get file name
+          const fileName = filePath.split('\\').pop();
+          const fileContent = await fsExtra.readFile(filePath, 'utf8');
+          const newProjectName = fileName.split('.')[0];
+          while(listUniqueProjectName.includes(newProjectName)) {
+            newProjectName = `${defaultProjectName}${index}`;
+            index++;
+          }
+          const parsedData = JSON.parse(fileContent);
+
+          const { ui, be } = parsedData;
+
+          const uiFilePath = `${saveLocalPath}/${newProjectName}.ui.json`;
+          const beFilePath = `${saveLocalPath}/${newProjectName}.json`;
+
+          fsExtra.writeFile(uiFilePath, JSON.stringify(ui, null, 2), (err) => {
+              if (err) {
+                  console.error(`Error saving file from import ${uiFilePath}:`, err);
+              } else {
+                  console.log(`Successfully saved file from import ${uiFilePath}`);
+              }
+          });
+
+          fsExtra.writeFile(beFilePath, JSON.stringify(be, null, 2), (err) => {
+              if (err) {
+                  console.error(`Error saving file from import ${beFilePath}:`, err);
+              } else {
+                  console.log(`Successfully saved file from import ${beFilePath}`);
+              }
+          });
+
+      }
+  } catch (error) {
+      console.error('Error open import file dialog:', error);
+  }
+}
+
+function openSaveFileDialog() {
+  dialog.showSaveDialog({
+      title: 'Save JSONL File',
+      buttonLabel: 'Save',
+      defaultPath: defaultDownloadsPath,
+      filters: [
+          { name: 'JSON Lines', extensions: ['jsonl'] },
+          { name: 'All Files', extensions: ['*'] }
+      ]
+  }).then((result) => {
+      if (!result.canceled && result.filePath) {
+          const filePath = result.filePath;
+          console.log('Selected file path:', filePath);
+ 
+          const fileName = filePath.split('\\').pop();
+          console.log('Selected file name:', fileName);
+
+          writeJsonlFile(filePath, combinedData);
+
+      }
+  }).catch((err) => {
+      console.error('Error opening save dialog:', err);
+  });
+}
+
+function writeJsonlFile(jsonlFilePath, jsonData) {
+  try {
+      const jsonlData = JSON.stringify(jsonData, null, 2);
+      fsExtra.writeFileSync(jsonlFilePath, jsonlData);
+      console.log(`Successfully created JSONL file: ${jsonlFilePath}`);
+  } catch (err) {
+      console.error(`Error writing JSONL file ${jsonlFilePath}:`, err);
+  }
+};
+
+async function combinedToOneData(){
+  console.log("uiJsonData, beJsonData called",uiJsonData,beJsonData);
+  if (uiJsonData && beJsonData) {
+    combinedData = {"ui": JSON.parse(uiJsonData), "be": JSON.parse(beJsonData)};
+  } else if(uiJsonData){
+    combinedData = {"ui": JSON.parse(uiJsonData), "be":{}};
+  } else if(beJsonData){
+    combinedData = {"ui":{},"be": JSON.parse(beJsonData)};
+  }
+}
+
+async  function readJsonFile(uiPath, BePath) {
+  try {
+      uiJsonData = await fsExtra.readFile(uiPath, 'utf8');
+      beJsonData = await fsExtra.readFile(BePath, 'utf8');
+      await combinedToOneData();
+  } catch (err) {
+      console.error(`Error reading JSON file ${filePath}:`, err);
+  }
 }
 
 
@@ -28,6 +158,20 @@ const createWindow = () => {
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
+
+  ipcMain.on('import-file-dialog', (event, data) => {
+    openImportFileDialog(data[0],data[1]);
+  });
+
+  ipcMain.on('export-jsonl-file', (event, data) => {
+    console.log("export-jsonl-file called initial",data);
+    saveJsonToFile(data);
+    const fileUiPath = `${data[1]}/${data[2]}.ui.json`;
+    const fileBePath = `${data[1]}/${data[2]}.json`;
+    
+    readJsonFile(fileUiPath, fileBePath);
+    openSaveFileDialog();
+  });
 
   ipcMain.on('list-available-project-name',(event) => {
     mainWindow.webContents.send('received-list-project-name', uniqueName);
@@ -56,8 +200,7 @@ const createWindow = () => {
         console.error(err);
       } else {
         console.log('File saved successfully');
-      }
-        
+      }   
     });
   });
 

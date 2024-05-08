@@ -30,10 +30,6 @@
         <div class="content-bar">
           <div class="bar-left">
             <img id="ic-plus" class="ic" src="../image/ic_plus.svg" />
-            <button id="btn-import" class="btn">
-              <img id="ic-import" src="../image/ic_import.svg" />
-              <span class="btn-content">Import</span>
-            </button>
           </div>
 
           <div class="bar-right">
@@ -301,6 +297,18 @@
     </div>
 
     <script>
+      // function export
+      const btnExport = document.getElementById("btn-export");
+      btnExport.addEventListener("click", function () {
+        const path2Files = [
+          draggableItems,
+          parentDirectory,
+          projectNameInput.value,
+        ];
+        //window.electron.saveJsonToFile(path2Files);
+        window.electron.exportToJsonl(path2Files);
+      });
+
       document.getElementById("ic-back").addEventListener("click", () => {
         window.electron.navigateBack();
         const transferData = [
