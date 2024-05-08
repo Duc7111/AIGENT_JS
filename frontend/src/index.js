@@ -6,6 +6,8 @@ const PORT = 7777;
 
 var fsExtra = require('fs-extra');
 
+var uniqueName = [];
+
 let clientSocket = new net.Socket();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -27,9 +29,26 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
+  ipcMain.on('list-available-project-name',(event) => {
+    mainWindow.webContents.send('received-list-project-name', uniqueName);
+  });
+
+  ipcMain.on('list-project-name', (event, data) => {
+    uniqueName = data;
+  });
+  ipcMain.on('read-file-given-name',(event, data) => {
+    fsExtra.readFile(data, 'utf8', (err, fileData) => {
+      if (err) {
+        console.error(err);
+      } else {
+        mainWindow.webContents.send('read-file-response', fileData);
+      }
+    });
+  });
+
   ipcMain.on('save-json-file', (event, data) => {
     console.log("saveJsonToFile called initial",data);
-    const filePath = `${data[1]}/${data[2]}.json`;
+    const filePath = `${data[1]}/${data[2]}.ui.json`;
     console.log("saveJsonToFile called",data[0],filePath);
     const jsonStrings = data[0].map(item => JSON.stringify(item, null, 2));
     fsExtra.writeFile(filePath, `[${jsonStrings.join(',\n')}]`, (err) => {
@@ -42,8 +61,23 @@ const createWindow = () => {
     });
   });
 
+  ipcMain.on('get-list-file-name', (event, data) => {
+    
+    fsExtra.readdir(data, (err, files) => {
+      if (err) {
+        console.error(err);
+      } else {
+        mainWindow.webContents.send('list-file-name', files);
+      }
+    });
+  });
+
   ipcMain.on('open-pipeline', (event) => {
     mainWindow.loadFile(path.join(__dirname, 'Pipeline', 'pipeline.html'));
+    // console.log(path.join(__dirname, 'Pipeline', 'pipeline.html'));
+    // mainWindow.once('send-params-to-next-page', (event, params) => {
+    //   mainWindow.webContents.send('pass-params', params);
+    // });
   });
 
   ipcMain.on('navigate-back', (event) => {

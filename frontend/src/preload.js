@@ -14,6 +14,53 @@ const { contextBridge, ipcRenderer, app } = require('electron');
 // };
 
 contextBridge.exposeInMainWorld('electron', {
+    // receivedParams: () => {
+    //     return new Promise((resolve, reject) => {
+    //         ipcRenderer.on('pass-params', (event, params) => {
+    //             console.log('Received params from main process:', params);
+    //             resolve(params);
+    //         });
+    //     });
+    // },
+
+    receivedListProjectName: () => {
+        return new Promise((resolve, reject) => {
+            ipcRenderer.send('list-available-project-name');
+            ipcRenderer.on('received-list-project-name', (event, listProjectName) => {
+                console.log('Received list project name from main process:', listProjectName);
+                resolve(listProjectName);
+            });
+        });
+    },
+
+    sendListProjectName: (listProjectName) => {
+        ipcRenderer.send('list-project-name', listProjectName);
+    },
+
+    readFileGivenName: (filePath) => {
+        return new Promise((resolve, reject) => {
+            ipcRenderer.send('read-file-given-name', filePath);
+            ipcRenderer.on('read-file-response', (event, data) => {
+                console.log('Received data from main process:', data);
+                resolve(data);
+            });
+        });
+    },
+    sendParamsToNextPage: (params) => {
+        console.log("sendParamsToNextPage called",params);
+        ipcRenderer.send('send-params-to-next-page', params);
+    },
+    getListFileName: (folderPath) => {
+        return new Promise((resolve, reject) => {
+            ipcRenderer.send('get-list-file-name', folderPath);
+            
+            ipcRenderer.on('list-file-name', (event, files) => {
+              console.log('Received file list from main process:', files);
+              resolve(files);
+            });
+    
+          });
+    },
     saveJsonToFile: (transferData)=> {
         console.log("saveJsonToFile called",transferData[0],transferData[1],transferData[2]);
         ipcRenderer.send('save-json-file', transferData);

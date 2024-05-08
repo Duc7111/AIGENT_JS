@@ -303,6 +303,12 @@
     <script>
       document.getElementById("ic-back").addEventListener("click", () => {
         window.electron.navigateBack();
+        const transferData = [
+          draggableItems,
+          parentDirectory,
+          projectNameInput.value,
+        ];
+        window.electron.saveJsonToFile(transferData);
       });
 
       const btn_run = document.getElementById("btn-run");
@@ -405,7 +411,76 @@
       });
 
       let draggableItems = [];
+      let listAvailableProjectName = [];
       document.addEventListener("DOMContentLoaded", function () {
+        // get params from the homepage
+        const urlParams = new URLSearchParams(window.location.search);
+        const namesString = urlParams.get("names");
+        const names = JSON.parse(namesString);
+        console.log("Pass Params:", names);
+        if (names) {
+          const uniqueProjectName = getUniqueName(names);
+          projectNameInput.value = uniqueProjectName;
+          const givenFileNamePath = `${parentDirectory}/${uniqueProjectName}.ui.json`;
+          getDataFromGivenFile(givenFileNamePath);
+        } else {
+          getProjectNames();
+          generateUniqueProjectName();
+        }
+
+        async function generateUniqueProjectName() {
+          const defaultProjectName = projectNameInput.value;
+          let projectIndex = 1;
+          let newProjectName = defaultProjectName;
+          await getProjectNames();
+          console.log(
+            "Project Names in generateUniqueProjectName():",
+            listAvailableProjectName
+          );
+
+          while (listAvailableProjectName.includes(newProjectName)) {
+            newProjectName = `${defaultProjectName}${projectIndex}`;
+            ++projectIndex;
+          }
+          projectNameInput.value = newProjectName;
+        }
+
+        async function getProjectNames() {
+          listAvailableProjectName =
+            await window.electron.receivedListProjectName();
+          console.log(
+            "Project Names in getProjectNames():",
+            listAvailableProjectName
+          );
+        }
+
+        async function getDataFromGivenFile(givenFilePath) {
+          const dataFile = await window.electron.readFileGivenName(
+            givenFilePath
+          );
+          draggableItems = JSON.parse(dataFile);
+          console.log("Data from given file:", draggableItems);
+          drawItems();
+        }
+
+        //get unique file name
+        function getUniqueName(listNames) {
+          const uniqueNames = new Set();
+
+          listNames.forEach((fileName) => {
+            // use regex to remove the .json and .UI.json extensions
+            const baseName = fileName.replace(/\.ui\.json|\.json$/, "");
+
+            // add the base name to the set
+            uniqueNames.add(baseName);
+          });
+
+          // convert the set to an array
+          const uniqueNameArray = Array.from(uniqueNames);
+
+          return uniqueNameArray;
+        }
+
         // show default first section in the new access
         const menuSections = document.querySelectorAll(".menu-section");
         for (let i = 1; i < menuSections.length; i++) {
