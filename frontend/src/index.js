@@ -275,7 +275,7 @@ const client = () => {
   }); 
   clientSocket.on('data', (data) => {
     console.log('Received from server:', data.toString());
-    mainWindow.webContents.send('received-data', data.toString())
+    mainWindow.webContents.send('received-data', data.toString());
   });
   clientSocket.on('close', () => {
     console.log('Connection closed');

@@ -420,7 +420,7 @@
 
       let draggableItems = [];
       let listAvailableProjectName = [];
-      let receivedData = "";
+      let receivedData;
       document.addEventListener("DOMContentLoaded", function () {
         // get params from the homepage
         const urlParams = new URLSearchParams(window.location.search);
@@ -466,6 +466,9 @@
         async function getReceivedData() {
           receivedData = await window.electron.receivedData();
           console.log("Received Data:", receivedData);
+          receivedData = JSON.parse(receivedData);
+          console.log("Received Data Inputs:", receivedData.outputs.inputs);
+          console.log("Received Data Outputs:", receivedData.outputs.outputs);
         }
 
         async function getDataFromGivenFile(givenFilePath) {
@@ -713,30 +716,41 @@
             console.log("File Module:", fileModule);
 
             window.electron.addModule(itemName, fileModule, moduleName);
-            getReceivedData();
-          }
+            getReceivedData().then(() => {
+              const x = e.clientX - workspace.getBoundingClientRect().left;
+              const y = e.clientY - workspace.getBoundingClientRect().top;
 
-          const x = e.clientX - workspace.getBoundingClientRect().left;
-          const y = e.clientY - workspace.getBoundingClientRect().top;
+              let newItem = {
+                originalName: itemName,
+                name: itemName,
+                x: x,
+                y: y,
+                dragging: false,
+              };
 
-          if (itemName.includes("File Reader")) {
-            draggableItems.push({
-              originalName: itemName,
-              name: "Click to choose file",
-              x: x,
-              y: y,
-              dragging: false,
-            });
-          } else {
-            draggableItems.push({
-              originalName: itemName,
-              name: itemName,
-              x: x,
-              y: y,
-              dragging: false,
+              if (receivedData) {
+                newItem.inputs = receivedData.outputs.inputs;
+                newItem.outputs = receivedData.outputs.outputs;
+              }
+
+              if (itemName.includes("FileReader")) {
+                newItem.name = "Click to choose file";
+              }
+
+              draggableItems.push(newItem);
+
+              console.log("Draggable Items check: ", draggableItems);
+              console.log(
+                "Draggable Items Inputs:",
+                receivedData.outputs.inputs
+              );
+              console.log(
+                "Draggable Items Outputs:",
+                receivedData.outputs.outputs
+              );
+              drawItems();
             });
           }
-          drawItems();
         });
 
         workspace.addEventListener("click", function (e) {
