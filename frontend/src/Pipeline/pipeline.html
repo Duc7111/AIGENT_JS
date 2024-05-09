@@ -377,17 +377,22 @@
       // edit project name
       const editIcon = document.getElementById("ic-edit");
       const projectNameInput = document.getElementById("btn-project");
-      let clickOutside = false;
-      editIcon.addEventListener("click", () => {
-        clickOutside = true;
-        enableEdit();
+      let clickInside = false;
+      let projectNameCurrent = "";
+      editIcon.addEventListener("click", async () => {
+        clickInside = true;
+        projectNameCurrent = projectNameInput.value;
+        listAvailableProjectName =
+          await window.electron.receivedListProjectName();
+        console.log("Project Names in edit:", listAvailableProjectName);
+        await enableEdit();
       });
 
       document.addEventListener("click", (event) => {
         const targetElement = event.target;
 
         //
-        if (targetElement != editIcon && clickOutside) {
+        if (targetElement != editIcon && clickInside) {
           saveProjectName();
         }
       });
@@ -405,10 +410,16 @@
       }
 
       function saveProjectName() {
-        clickOutside = false;
+        clickInside = false;
         projectNameInput.setAttribute("readonly", true);
         const updatedProjectName = projectNameInput.value;
         console.log("Updated Project Name: ", updatedProjectName);
+
+        if (updatedProjectName !== projectNameCurrent) {
+          if (listAvailableProjectName.includes(updatedProjectName)) {
+            projectNameInput.value = projectNameCurrent;
+          }
+        }
       }
 
       projectNameInput.addEventListener("keydown", (event) => {

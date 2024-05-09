@@ -267,18 +267,19 @@
         `;
           listDirectory.appendChild(div);
 
-          div.addEventListener("click", () => {
-            handleDirectoryClick(item);
+          div.addEventListener("click", async () => {
+            await handleDirectoryClick(item);
           });
         });
       }
 
-      handleDirectoryClick = (item) => {
+      handleDirectoryClick = async (item) => {
         console.log("Clicked on", item);
         const paramsJson = jsonData.filter((fName) => {
           return fName.includes(item);
         });
         console.log("paramsJson", paramsJson);
+        await window.electron.sendListProjectName(giveUniqueName(jsonData));
         window.location.href = `Pipeline\\pipeline.html?names=${JSON.stringify(
           paramsJson
         )}`;
