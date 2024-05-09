@@ -776,19 +776,26 @@
               mouseY >= hitbox.y &&
               mouseY <= hitbox.y + hitbox.height
             ) {
-              if (item.originalName.includes("File Reader")) {
+              if (item.originalName.includes("FileReader")) {
                 const inputFile = document.createElement("input");
                 inputFile.type = "file";
                 inputFile.click();
 
                 inputFile.addEventListener("change", function (e) {
                   const selectedFile = e.target.files[0];
-                  const fileName = selectedFile
+                  const filePath = selectedFile
+                    ? selectedFile.path.replace(/\\/g, "\\\\")
+                    : "";
+                  item.name = selectedFile
                     ? selectedFile.name
                     : "No file chosen";
-                  item.name = fileName;
-                  drawItems();
-                  console.log("Selected file:", selectedFile.path);
+                  window.electron.setHyperparameters(
+                    item.originalName,
+                    filePath
+                  );
+                  window.electron.drawItems();
+                  console.log("original name:", item.originalName);
+                  console.log("Selected file:", filePath);
                 });
               }
             }
@@ -816,6 +823,10 @@
         let lineStartY = null;
         let lineEndX = null;
         let lineEndY = null;
+        let srcModuleKey = null;
+        let tgtModuleKey = null;
+        let srcKey = null;
+        let tgtKey = null;
 
         let startItem = null;
         let endItem = null;
@@ -916,85 +927,9 @@
 
           // Redraw items and connection line
           if (isDraggingMarker) {
-            drawConnectionLine(lineStartX, lineStartY, lineEndX, lineEndY);
             lineEndX = null;
             lineEndY = null;
           }
-        });
-
-        canvas.addEventListener("mouseup", function (e) {
-          const rect = canvas.getBoundingClientRect();
-          const mouseX = (e.clientX - rect.left) / scale;
-          const mouseY = (e.clientY - rect.top) / scale;
-          selectedItemIndex = null;
-          isDragging = false;
-
-          if (isDraggingMarker) {
-            // Check if the mouse is released over an item
-            draggableItems.forEach((item, index) => {
-              const itemNameWidth = ctx.measureText(item.name).width;
-              const itemNameHeight = 16;
-              const centerY = item.y - itemNameHeight / 2;
-
-              if (item.inputs) {
-                item.inputs.forEach((input, inputIndex) => {
-                  const inputHitbox = {
-                    x: item.x - 20 - ctx.measureText(input).width,
-                    y:
-                      centerY - (item.inputs.length * 16) / 2 + inputIndex * 32,
-                    width: 12,
-                    height: 16,
-                  };
-                  if (
-                    mouseX >= inputHitbox.x &&
-                    mouseX <= inputHitbox.x + inputHitbox.width &&
-                    mouseY >= inputHitbox.y &&
-                    mouseY <= inputHitbox.y + inputHitbox.height
-                  ) {
-                    endItem = "input";
-                    lineEndX = inputHitbox.x;
-                    lineEndY = inputHitbox.y;
-                  }
-                });
-              }
-
-              if (item.outputs) {
-                item.outputs.forEach((output, outputIndex) => {
-                  const outputHitbox = {
-                    x: item.x + ctx.measureText(item.name).width + 20,
-                    y:
-                      centerY -
-                      (item.outputs.length * 16) / 2 +
-                      outputIndex * 32,
-                    width: 12,
-                    height: 16,
-                  };
-                  if (
-                    mouseX >= outputHitbox.x &&
-                    mouseX <= outputHitbox.x + outputHitbox.width &&
-                    mouseY >= outputHitbox.y &&
-                    mouseY <= outputHitbox.y + outputHitbox.height
-                  ) {
-                    endItem = "output";
-                    lineEndX = outputHitbox.x;
-                    lineEndY = outputHitbox.y;
-                  }
-                });
-              }
-            });
-
-            if (areCompatibleMarkers(startItem, endItem)) {
-              addConnectionLine(lineStartX, lineStartY, lineEndX, lineEndY);
-            }
-          }
-
-          isDraggingMarker = false;
-          lineStartX = null;
-          lineStartY = null;
-          lineEndX = null;
-          lineEndY = null;
-          startItem = null;
-          endItem = null;
         });
 
         canvas.addEventListener("mousedown", function (e) {
@@ -1050,6 +985,8 @@
                   console.log("Input Marker: ", input);
                   isDraggingMarker = true;
                   startItem = "input";
+                  tgtModuleKey = item.originalName;
+                  tgtKey = input;
                   lineStartX = inputHitbox.x;
                   lineStartY = inputHitbox.y;
                 }
@@ -1077,12 +1014,118 @@
                   console.log("Output Marker: ", output);
                   isDraggingMarker = true;
                   startItem = "output";
+                  srcModuleKey = item.originalName;
+                  srcKey = output;
                   lineStartX = outputHitbox.x;
                   lineStartY = outputHitbox.y;
                 }
               });
             }
           });
+        });
+
+        canvas.addEventListener("mouseup", function (e) {
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = (e.clientX - rect.left) / scale;
+          const mouseY = (e.clientY - rect.top) / scale;
+          selectedItemIndex = null;
+          isDragging = false;
+
+          if (isDraggingMarker) {
+            draggableItems.forEach((item, index) => {
+              const itemNameWidth = ctx.measureText(item.name).width;
+              const itemNameHeight = 16;
+              const centerY = item.y - itemNameHeight / 2;
+
+              if (item.inputs) {
+                item.inputs.forEach((input, inputIndex) => {
+                  const inputHitbox = {
+                    x: item.x - 20 - ctx.measureText(input).width,
+                    y:
+                      centerY - (item.inputs.length * 16) / 2 + inputIndex * 32,
+                    width: 12,
+                    height: 16,
+                  };
+                  if (
+                    mouseX >= inputHitbox.x &&
+                    mouseX <= inputHitbox.x + inputHitbox.width &&
+                    mouseY >= inputHitbox.y &&
+                    mouseY <= inputHitbox.y + inputHitbox.height
+                  ) {
+                    endItem = "input";
+                    tgtModuleKey = item.originalName;
+                    tgtKey = input;
+                    lineEndX = inputHitbox.x;
+                    lineEndY = inputHitbox.y;
+                  }
+                });
+              }
+
+              if (item.outputs) {
+                item.outputs.forEach((output, outputIndex) => {
+                  const outputHitbox = {
+                    x: item.x + ctx.measureText(item.name).width + 20,
+                    y:
+                      centerY -
+                      (item.outputs.length * 16) / 2 +
+                      outputIndex * 32,
+                    width: 12,
+                    height: 16,
+                  };
+                  if (
+                    mouseX >= outputHitbox.x &&
+                    mouseX <= outputHitbox.x + outputHitbox.width &&
+                    mouseY >= outputHitbox.y &&
+                    mouseY <= outputHitbox.y + outputHitbox.height
+                  ) {
+                    endItem = "output";
+                    srcModuleKey = item.originalName;
+                    srcKey = output;
+                    lineEndX = outputHitbox.x;
+                    lineEndY = outputHitbox.y;
+                  }
+                });
+              }
+            });
+
+            if (areCompatibleMarkers(startItem, endItem)) {
+              addConnectionLine(
+                lineStartX,
+                lineStartY,
+                lineEndX,
+                lineEndY,
+                srcModuleKey,
+                tgtModuleKey,
+                srcKey,
+                tgtKey
+              );
+              console.log(
+                "Connect module test: ",
+                srcModuleKey,
+                tgtModuleKey,
+                srcKey,
+                tgtKey
+              );
+              window.electron.connectModule(
+                srcModuleKey,
+                tgtModuleKey,
+                srcKey,
+                tgtKey
+              );
+            }
+          }
+
+          isDraggingMarker = false;
+          lineStartX = null;
+          lineStartY = null;
+          lineEndX = null;
+          lineEndY = null;
+          startItem = null;
+          endItem = null;
+          srcModuleKey = null;
+          tgtModuleKey = null;
+          srcKey = null;
+          tgtKey = null;
         });
 
         canvas.addEventListener("mouseleave", function () {
@@ -1174,8 +1217,26 @@
           });
         }
 
-        function addConnectionLine(startX, startY, endX, endY) {
-          connectionLines.push({ startX, startY, endX, endY });
+        function addConnectionLine(
+          startX,
+          startY,
+          endX,
+          endY,
+          srcModuleKey,
+          tgtModuleKey,
+          srcKey,
+          tgtKey
+        ) {
+          connectionLines.push({
+            startX,
+            startY,
+            endX,
+            endY,
+            srcModuleKey,
+            tgtModuleKey,
+            srcKey,
+            tgtKey,
+          });
           drawConnectionLines();
         }
 
