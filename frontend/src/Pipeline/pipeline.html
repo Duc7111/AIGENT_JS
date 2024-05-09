@@ -592,6 +592,7 @@
         const gridSize = 40;
         const width = workspace.clientWidth;
         const height = workspace.clientHeight;
+        ctx.font = "16px Arial";
         canvas.width = width;
         canvas.height = height;
 
@@ -726,6 +727,8 @@
                 x: x,
                 y: y,
                 dragging: false,
+                inputs: [],
+                outputs: [],
               };
 
               if (receivedData) {
@@ -794,11 +797,12 @@
             mouseY <= hitbox.y + hitbox.height
           );
         }
-
-        let markerX = 0;
-        let markerY = 0;
         let isDraggingMarker = false;
-        let startItemIndex = null;
+
+        let lineStartX = null;
+        let lineStartY = null;
+        let lineEndX = null;
+        let lineEndY = null;
 
         canvas.addEventListener("mousedown", function (e) {
           isDragging = true;
@@ -828,17 +832,60 @@
               isDragging = false;
             }
 
-            if (
-              mouseX >= item.x + ctx.measureText(item.name).width &&
-              mouseX <= item.x + ctx.measureText(item.name).width + 12 &&
-              mouseY >= item.y - 8 &&
-              mouseY <= item.y + 8
-            ) {
-              console.log("Marker");
-              isDraggingMarker = true;
-              startItemIndex = index;
-              markerX = mouseX;
-              markerY = mouseY;
+            const itemNameWidth = ctx.measureText(item.name).width;
+            const itemNameHeight = 16;
+            const centerY = item.y - itemNameHeight / 2;
+
+            if (item.inputs) {
+              item.inputs.forEach((input, inputIndex) => {
+                const inputHitbox = {
+                  x: (item.x - 20 - ctx.measureText(input).width) * scale,
+                  y:
+                    (centerY -
+                      (item.inputs.length * 16) / 2 +
+                      inputIndex * 32) *
+                    scale,
+                  width: 12 * scale,
+                  height: 16 * scale,
+                };
+                if (
+                  mouseX >= inputHitbox.x &&
+                  mouseX <= inputHitbox.x + inputHitbox.width &&
+                  mouseY >= inputHitbox.y &&
+                  mouseY <= inputHitbox.y + inputHitbox.height
+                ) {
+                  console.log("Input Marker: ", input);
+                  isDraggingMarker = true;
+                  lineStartX = inputHitbox.x;
+                  lineStartY = inputHitbox.y;
+                }
+              });
+            }
+
+            if (item.outputs) {
+              item.outputs.forEach((output, outputIndex) => {
+                const outputHitbox = {
+                  x: (item.x + ctx.measureText(item.name).width + 20) * scale,
+                  y:
+                    (centerY -
+                      (item.outputs.length * 16) / 2 +
+                      outputIndex * 32) *
+                    scale,
+                  width: 12 * scale,
+                  height: 16 * scale,
+                };
+                if (
+                  mouseX >= outputHitbox.x &&
+                  mouseX <= outputHitbox.x + outputHitbox.width &&
+                  mouseY >= outputHitbox.y &&
+                  mouseY <= outputHitbox.y + outputHitbox.height
+                ) {
+                  console.log("Output Marker: ", output);
+                  isDraggingMarker = true;
+                  lineStartX = outputHitbox.x;
+                  lineStartY = outputHitbox.y;
+                }
+              });
             }
           });
         });
@@ -858,22 +905,60 @@
               }
             }
 
-            if (
-              mouseX >= item.x + ctx.measureText(item.name).width &&
-              mouseX <= item.x + ctx.measureText(item.name).width + 12 &&
-              mouseY >= item.y - 8 &&
-              mouseY <= item.y + 8
-            ) {
-              isOverMarker = true;
-              draggableItems[index].markerColor = "blue";
-              drawItems();
-            } else {
-              draggableItems[index].markerColor = "red";
-              drawItems();
+            const itemNameWidth = ctx.measureText(item.name).width;
+            const itemNameHeight = 16;
+            const centerY = item.y - itemNameHeight / 2;
+
+            if (item.inputs) {
+              item.inputs.forEach((input, inputIndex) => {
+                const inputHitbox = {
+                  x: (item.x - 20 - ctx.measureText(input).width) * scale,
+                  y:
+                    (centerY -
+                      (item.inputs.length * 16) / 2 +
+                      inputIndex * 32) *
+                    scale,
+                  width: 12 * scale,
+                  height: 16 * scale,
+                };
+                if (
+                  mouseX >= inputHitbox.x &&
+                  mouseX <= inputHitbox.x + inputHitbox.width &&
+                  mouseY >= inputHitbox.y &&
+                  mouseY <= inputHitbox.y + inputHitbox.height
+                ) {
+                  isOverMarker = true;
+                  canvas.style.cursor = "pointer";
+                }
+              });
+            }
+
+            if (item.outputs) {
+              item.outputs.forEach((output, outputIndex) => {
+                const outputHitbox = {
+                  x: (item.x + ctx.measureText(item.name).width + 20) * scale,
+                  y:
+                    (centerY -
+                      (item.outputs.length * 16) / 2 +
+                      outputIndex * 32) *
+                    scale,
+                  width: 12 * scale,
+                  height: 16 * scale,
+                };
+                if (
+                  mouseX >= outputHitbox.x &&
+                  mouseX <= outputHitbox.x + outputHitbox.width &&
+                  mouseY >= outputHitbox.y &&
+                  mouseY <= outputHitbox.y + outputHitbox.height
+                ) {
+                  isOverMarker = true;
+                  canvas.style.cursor = "pointer";
+                }
+              });
             }
           });
 
-          if (!isOverItem && selectedItemIndex === null) {
+          if (!isOverItem && !isOverMarker && selectedItemIndex === null) {
             canvas.style.cursor = "default";
           }
 
@@ -895,19 +980,85 @@
           }
 
           if (isDraggingMarker) {
-            markerX = mouseX;
-            markerY = mouseY;
+            lineEndX = mouseX;
+            lineEndY = mouseY;
+          }
+
+          // Redraw items and connection line
+          if (isDraggingMarker) {
+            drawConnectionLine(lineStartX, lineStartY, lineEndX, lineEndY);
+            lineEndX = null;
+            lineEndY = null;
           }
         });
 
-        canvas.addEventListener("mouseup", function () {
+        canvas.addEventListener("mouseup", function (e) {
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = (e.clientX - rect.left) / scale;
+          const mouseY = (e.clientY - rect.top) / scale;
           selectedItemIndex = null;
           isDragging = false;
 
           if (isDraggingMarker) {
-            isDraggingMarker = false;
-            startItemIndex = null;
+            // Check if the mouse is released over an item
+            draggableItems.forEach((item, index) => {
+              const itemNameWidth = ctx.measureText(item.name).width;
+              const itemNameHeight = 16;
+              const centerY = item.y - itemNameHeight / 2;
+
+              if (item.inputs) {
+                item.inputs.forEach((input, inputIndex) => {
+                  const inputHitbox = {
+                    x: item.x - 20 - ctx.measureText(input).width,
+                    y:
+                      centerY - (item.inputs.length * 16) / 2 + inputIndex * 32,
+                    width: 12,
+                    height: 16,
+                  };
+                  if (
+                    mouseX >= inputHitbox.x &&
+                    mouseX <= inputHitbox.x + inputHitbox.width &&
+                    mouseY >= inputHitbox.y &&
+                    mouseY <= inputHitbox.y + inputHitbox.height
+                  ) {
+                    lineEndX = inputHitbox.x;
+                    lineEndY = inputHitbox.y;
+                  }
+                });
+              }
+
+              if (item.outputs) {
+                item.outputs.forEach((output, outputIndex) => {
+                  const outputHitbox = {
+                    x: item.x + ctx.measureText(item.name).width + 20,
+                    y:
+                      centerY -
+                      (item.outputs.length * 16) / 2 +
+                      outputIndex * 32,
+                    width: 12,
+                    height: 16,
+                  };
+                  if (
+                    mouseX >= outputHitbox.x &&
+                    mouseX <= outputHitbox.x + outputHitbox.width &&
+                    mouseY >= outputHitbox.y &&
+                    mouseY <= outputHitbox.y + outputHitbox.height
+                  ) {
+                    lineEndX = outputHitbox.x;
+                    lineEndY = outputHitbox.y;
+                  }
+                });
+              }
+            });
+
+            drawConnectionLine(lineStartX, lineStartY, lineEndX, lineEndY);
           }
+
+          isDraggingMarker = false;
+          lineStartX = null;
+          lineStartY = null;
+          lineEndX = null;
+          lineEndY = null;
         });
 
         canvas.addEventListener("mouseleave", function () {
@@ -921,20 +1072,18 @@
           draggableItems.forEach((item) => {
             ctx.save();
             ctx.scale(scale, scale);
-            ctx.font = "16px Arial";
             ctx.fillStyle = "white";
             ctx.fillText(item.name, item.x, item.y);
 
             const itemNameWidth = ctx.measureText(item.name).width;
             const itemNameHeight = 16; // Font size 16
-            const centerInputY = item.y - itemNameHeight / 2;
-            const centerOutputY = item.y - itemNameHeight / 2;
+            const centerY = item.y - itemNameHeight / 2;
 
             ctx.fillText(item.name, item.x, item.y);
 
             if (item.inputs) {
               const inputSpacing = 20;
-              let inputY = centerInputY - (item.inputs.length * 16) / 2;
+              let inputY = centerY - (item.inputs.length * 16) / 2;
               item.inputs.forEach((input) => {
                 ctx.fillStyle = "red";
                 ctx.beginPath();
@@ -960,7 +1109,7 @@
 
             if (item.outputs) {
               const outputSpacing = 20;
-              let outputY = centerOutputY - (item.outputs.length * 16) / 2;
+              let outputY = centerY - (item.outputs.length * 16) / 2;
               item.outputs.forEach((output) => {
                 ctx.fillStyle = "red";
                 ctx.beginPath();
@@ -986,20 +1135,17 @@
 
             ctx.restore();
           });
+        }
 
-          draggableItems.forEach((item, index) => {
-            if (index !== startItemIndex && isDraggingMarker) {
-              ctx.beginPath();
-              ctx.moveTo(
-                item.x + ctx.measureText(item.name).width + 5,
-                item.y - 8
-              );
-              ctx.lineTo(markerX, markerY);
-              ctx.strokeStyle = "red";
-              ctx.lineWidth = 1;
-              ctx.stroke();
-            }
-          });
+        function drawConnectionLine(startX, startY, endX, endY) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          drawItems();
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(endX, endY);
+          ctx.strokeStyle = "red";
+          ctx.lineWidth = 1;
+          ctx.stroke();
         }
       });
     </script>
