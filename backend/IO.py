@@ -17,8 +17,10 @@ class FileReader(Module):
             with open(self.hyperparameters['file'], 'r') as file:
                 self.outputBuffer['output'].set_val(file.read())
                 self.status = True
-        except:
+        except Exception as e:
             self.status = False
+            self.outputBuffer['output'].set_val(None)
+            self.outputBuffer['msg'].set_val(str(e))
 
 class FileWriter(Module):
     def __init__(self) -> None:
@@ -37,7 +39,7 @@ class FileWriter(Module):
                 self.status = True
         except Exception as e:
             self.status = False
-            print(str(e))
+            self.outputBuffer['msg'].set_val(str(e))
 
 # take a string in hyperparameters and output it
 class TextHolder(Module):
@@ -51,8 +53,13 @@ class TextHolder(Module):
         super().run()
         if self.status == False:
             return
-        self.outputBuffer['output'].set_val(self.hyperparameters['text'])
-        self.status = True
+        try:
+            self.outputBuffer['output'].set_val(self.hyperparameters['text'])
+            self.status = True
+        except Exception as e:
+            self.status = False
+            self.outputBuffer['output'].set_val(None)
+            self.outputBuffer['msg'].set_val(str(e))
 
 # take a string in input and output it, kind of useless
 class TextGetter(Module):
@@ -65,8 +72,13 @@ class TextGetter(Module):
         super().run()
         if self.status == False:
             return
-        self.outputBuffer['output'].set_val(self.inputBuffer['input'].get_val(id(self)))
-        self.status = True
+        try:
+            self.outputBuffer['output'].set_val(self.inputBuffer['input'].get_val(id(self)))
+            self.status = True
+        except Exception as e:
+            self.status = False
+            self.outputBuffer['output'].set_val(None)
+            self.outputBuffer['msg'].set_val(str(e))
 
 class VectorHolder(Module):
     def __init__(self) -> None:
@@ -79,8 +91,13 @@ class VectorHolder(Module):
         super().run()
         if self.status == False:
             return
-        self.outputBuffer['output'].set_val(self.hyperparameters['vector'])
-        self.status = True
+        try:
+            self.outputBuffer['output'].set_val(self.hyperparameters['vector'])
+            self.status = True
+        except Exception as e:
+            self.status = False
+            self.outputBuffer['output'].set_val(None)
+            self.outputBuffer['msg'].set_val(str(e))
 
     def set_hyperparameters(self, hyperparameters: dict[str, any]) -> bool:
         if not super().set_hyperparameters(hyperparameters):

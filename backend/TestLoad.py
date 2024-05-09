@@ -8,4 +8,4 @@ res = run()
 if res['status']:
     print(res['outputs'])
 else:
-    print(res['outputs']['msg'])
+    print(res['msg'])

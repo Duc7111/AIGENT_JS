@@ -10,54 +10,60 @@ PORT = 7777
 
 pipeline: Pipeline = Pipeline()
 
-def load_pipeline(path: str) -> dict:
-    try:
-        with open(path, 'r') as f:
-            data = json.load(f)
-    except:
-        return {'status': False, 'outputs': {}}
-    
-    # Clear pipeline
-    pipeline.modules = {}
-    pipeline.regDict = {}
-    pipeline.inputBuffer = {}
-    pipeline.outputBuffer = {}
-    pipeline.hyperparameters = {}
-    pipeline.hyperparameters_list = []
-
+def __json_to_pipeline(path: str) -> Pipeline:
+    resPipeline = Pipeline()
+    with open(path, 'r') as f:
+        data = json.load(f)
     for key, val in data['inputBuffer'].items():
-        pipeline.inputBuffer[key] = Buffer(val)
-
+        resPipeline.inputBuffer[key] = Buffer(val)
     for key, val in data['outputBuffer'].items():
-        pipeline.outputBuffer[key] = Buffer(val)
-    
+        resPipeline.outputBuffer[key] = Buffer(val) 
     for key, val in data['hyperparameters'].items():
-        pipeline.hyperparameters[key] = val
-
-    pipeline.hyperparameters_list = data['hyperparameters_list']
-
-    for key, val in data['modules'].items():
+        resPipeline.hyperparameters[key] = val
+    resPipeline.hyperparameters_list = data['hyperparameters_list']
+    for key, val in data['modules'].items():    
         res = add_module(key, val['type'], val['module'])
         if not res['status']:
-            return res
+            raise Exception (res['msg'])
         res = set_module_hyperparameters(key, val['hyperparameters'])
         if not res['status']:
-            return res
-
+            raise Exception (res['msg'])
     for key in data['regDict']:
         parsed_key = tuple(map(str, key.split(', ')))
         if len(parsed_key) == 4:
             res = connect_modules(*parsed_key)
             if not res['status']:
-                return res
+                raise Exception (res['msg'])
         elif len(parsed_key) == 2:
             if parsed_key[0] == 'True':
                 res = input_register(parsed_key[1], *data['regDict'][key])
             else:
                 res = output_register(parsed_key[1], *data['regDict'][key])
             if not res['status']:
-                return res  
-    return {'status': True, 'outputs': {}}
+                raise Exception (res['msg'])
+    return resPipeline  
+
+def load_pipeline(path: str) -> dict:
+    try:
+        global pipeline
+        pipeline = __json_to_pipeline(path)
+    except Exception as e:
+        return {'status': False, 'outputs': {}, 'msg': str(e)}
+    
+def load_pipeline_as_module(key: str, path: str) -> dict:
+    try:
+        res = __json_to_pipeline(path)
+    except Exception as e:
+        return {'status': False, 'outputs': {}, 'msg': str(e)}
+    return {
+        'status': pipeline.add_module(key, res), 
+        'outputs': {
+            'hyperparameters': res.hyperparameters_list,
+            'inputs': list(res.inputBuffer.keys()), 
+            'outputs': list(res.outputBuffer.keys())
+        }, 
+        'msg': pipeline.outputBuffer['msg']._val
+        }
 
 def __tuple_to_str(t: tuple) -> str:
     return ', '.join(map(str, t))
@@ -74,26 +80,28 @@ def save_pipeline(path: str) -> dict:
         with open(path, 'w') as f:
             json.dump(data, f)
     except Exception as e:
-        return {'status': False, 'message': str(e), 'outputs': {}}
-    return {'status': True, 'outputs': {}}
+        return {'status': False, 'outputs': {}, 'msg': str(e)}
+    return {'status': True, 'outputs': {}, 'msg': None}
                 
 def add_module(key: str, type: str, module: str) -> dict:
     type = import_module(type)
     module = getattr(type, module)
-    module = module()
+    module: Module = module()
     return {
         'status': pipeline.add_module(key, module), 
         'outputs': {
             'hyperparameters': module.hyperparameters_list,
             'inputs': list(module.inputBuffer.keys()),
             'outputs': list(module.outputBuffer.keys())
-        }
+        },
+        'msg': pipeline.outputBuffer['msg']._val
         }
 
 def remove_module(key: str) -> dict:
     return {
         'status': pipeline.remove_module(key), 
-        'outputs': {}
+        'outputs': {},
+        'msg': pipeline.outputBuffer['msg']._val
         }
 
 def set_module_hyperparameters(key: str, hyperparameters: dict) -> dict:
@@ -111,52 +119,62 @@ def set_module_hyperparameters(key: str, hyperparameters: dict) -> dict:
         outputs = {}
     return {
         'status': status,
-        'outputs': outputs
+        'outputs': outputs,
+        'msg': pipeline.outputBuffer['msg']._val
         }
 
 def connect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> dict:
     return {
         'status': pipeline.connect(srcModuleKey, tgtModuleKey, srcKey, tgtKey), 
-        'outputs': {}
+        'outputs': {},
+        'msg': pipeline.outputBuffer['msg']._val
         }
 
 def disconnect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> dict:
     return {
         'status': pipeline.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey), 
-        'outputs': {}
+        'outputs': {},
+        'msg': pipeline.outputBuffer['msg']._val
         }
 
 def input_register(key: str, tgtModuleKey: str, tgtKey: str) -> dict:
     return {
         'status': pipeline.input_register(key, tgtModuleKey, tgtKey), 
-        'outputs': {}
+        'outputs': {},
+        'msg': pipeline.outputBuffer['msg']._val
         }
 
 def input_unregister(key: str) -> dict:
     return {
         'status': pipeline.input_unregister(key), 
-        'outputs': {}
+        'outputs': {},
+        'msg': pipeline.outputBuffer['msg']._val
         }
 
 def output_register(key: str, srcModuleKey: str, srcKey: str) -> dict:
     return {
         'status': pipeline.output_register(key, srcModuleKey, srcKey), 
-        'outputs': {}
+        'outputs': {},
+        'msg': pipeline.outputBuffer['msg']._val
         }
 
 def output_unregister(key: str) -> dict:
     return {
         'status': pipeline.output_unregister(key), 
-        'outputs': {}
+        'outputs': {},
+        'msg': pipeline.outputBuffer['msg']._val
         }
     
 def run() -> dict:
     pipeline.run()
+    outputs = {}
+    for key in pipeline.outputBuffer:
+        if key != 'msg':
+            outputs[key] = pipeline.outputBuffer[key]._val
     return {
         'status': pipeline.status, 
-        'outputs': {
-            key: pipeline.outputBuffer[key]._val for key in pipeline.outputBuffer
-            }
+        'outputs': outputs,
+        'msg': pipeline.outputBuffer['msg']._val
         }
 
 

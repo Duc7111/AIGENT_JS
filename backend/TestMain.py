@@ -18,9 +18,9 @@ connect_modules('textHolder', 'fileWriter', 'output', 'input')
 
 res = run()
 if res['status']:
-    print(res['outputs']['output'])
+    print(res['outputs'])
 else: 
-    print('Error')
+    print(res['msg'])
 
 # Save pipeline to file
 save_pipeline(parent_path / '__cache__' / 'TestMain.json')

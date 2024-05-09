@@ -75,8 +75,6 @@ class NeuralUnit(Module):
         try:
             self.activation = getattr(Activation, self.hyperparameters['activation'])
         except:
-            self.status = False
-            self.outputBuffer['output'].set_val(None)
             self.outputBuffer['msg'].set_val("Activation function not found")
             self.hyperparameters['activation'] = 'none'
             self.activation = Activation.none
@@ -146,8 +144,6 @@ class FullyConnectedHiddenLayer(Module):
         try:
             self.activation = getattr(Activation, self.hyperparameters['activation'])
         except:
-            self.status = False
-            self.outputBuffer['output'].set_val(None)
             self.outputBuffer['msg'].set_val("Activation function not found")
             self.hyperparameters['activation'] = 'none'
             self.activation = Activation.none
@@ -190,8 +186,6 @@ class OutputLayer(Module):
         try:
             self.normalizer = getattr(Normalizer, self.hyperparameters['normalizer'])
         except:
-            self.status = False
-            self.outputBuffer['output'].set_val(None)
             self.outputBuffer['msg'].set_val("Normalizer function not found")
             self.hyperparameters['normalizer'] = 'none'
             self.normalizer = Normalizer.none

@@ -18,11 +18,10 @@ class DictSplitter(Module):
             for key in self.hyperparameters['keys']:
                 self.outputBuffer[key].set_val(self.input['input'][key])
             self.status = True
-        except:
+        except Exception as e:
             self.status = False
             self.outputBuffer['output'].set_val(None)
-            self.outputBuffer['msg'].set_val("Error in DictSplitter")
-            return
+            self.outputBuffer['msg'].set_val(str(e))   
         
     def set_hyperparameters(self, hyperparameters: dict[str, any]) -> bool:
         if not super().set_hyperparameters(hyperparameters): 
@@ -50,12 +49,11 @@ class DictMerger(Module):
             res = {key: self.input[key] for key in self.hyperparameters['keys']}
             self.outputBuffer['output'].set_val(res)
             self.status = True
-        except:
+        except Exception as e:
             self.status = False
             self.outputBuffer['output'].set_val(None)
-            self.outputBuffer['msg'].set_val("Error in DictMerger")
-            return
-        
+            self.outputBuffer['msg'].set_val(str(e))
+       
     def set_hyperparameters(self, hyperparameters: dict[str, any]) -> bool:
         if not super().set_hyperparameters(hyperparameters): 
             return False
@@ -81,12 +79,11 @@ class ArraySplitter(Module):
             for i in self.hyperparameters['index']:
                 self.outputBuffer[str(i)].set_val(self.input['input'][i])
             self.status = True
-        except:
+        except Exception as e:
             self.status = False
             self.outputBuffer['output'].set_val(None)
-            self.outputBuffer['msg'].set_val("Error in ArraySplitter")
-            return
-        
+            self.outputBuffer['msg'].set_val(str(e))
+
     def set_hyperparameters(self, hyperparameters: dict[str, any]) -> bool:
         if not super().set_hyperparameters(hyperparameters): 
             return False
@@ -113,12 +110,11 @@ class ArrayMerger(Module):
             res = [self.input[str(i)] for i in range(self.hyperparameters['size'])]
             self.outputBuffer['output'].set_val(res)
             self.status = True
-        except:
+        except Exception as e:
             self.status = False
             self.outputBuffer['output'].set_val(None)
-            self.outputBuffer['msg'].set_val("Error in ArrayMerger")
-            return
-        
+            self.outputBuffer['msg'].set_val(str(e))
+    
     def set_hyperparameters(self, hyperparameters: dict[str, any]) -> bool:
         if not super().set_hyperparameters(hyperparameters): 
             return False

@@ -14,6 +14,7 @@ class Model(Module):
         self.__model = None
         self.hyperparameters_list = AutoModel.from_pretrained.__code__.co_varnames
         self.outputBuffer['output'] = Buffer('')
+        self.inputBuffer['input'] = None
     
     def run(self) -> None:
         self.__model = AutoModel.from_pretrained(**self.hyperparameters)
@@ -26,11 +27,11 @@ class Model(Module):
         try:
             res = self.__model(**self.input)
             self.outputBuffer['output'].set_val(res)
-        except:
+        except Exception as e:
             self.status = False
-            return
+            self.outputBuffer['output'].set_val(None)
+            self.outputBuffer['msg'].set_val(str(e))
         
-
 class Tokenizer(Module):
     
     __tokenizer: AutoTokenizer | None
@@ -40,6 +41,7 @@ class Tokenizer(Module):
         self.__tokenizer = None
         self.hyperparameters_list = AutoTokenizer.from_pretrained.__code__.co_varnames
         self.outputBuffer['output'] = Buffer('')
+        self.inputBuffer['input'] = None
         
     def run(self) -> None:
         self.__tokenizer = AutoTokenizer.from_pretrained(**self.hyperparameters)
@@ -52,9 +54,10 @@ class Tokenizer(Module):
         try:
             res = self.__tokenizer(**self.input)
             self.outputBuffer['output'].set_val(res)
-        except:
+        except Exception as e:
             self.status = False
-            return
+            self.outputBuffer['output'].set_val(None)
+            self.outputBuffer['msg'].set_val(str(e))
 
 class Pipeline(Module):
     
@@ -75,7 +78,6 @@ class Pipeline(Module):
         super().run()
         if self.status == False:
             self.outputBuffer['output'].set_val(None)
-            self.outputBuffer['msg'].set_val("Input error")
             return
         try:
             res = self.___pipeline(**self.input['input'])
@@ -84,4 +86,3 @@ class Pipeline(Module):
             self.status = False
             self.outputBuffer['output'].set_val(None)
             self.outputBuffer['msg'].set_val(str(e))
-            return

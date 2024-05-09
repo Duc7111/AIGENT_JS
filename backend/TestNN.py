@@ -40,6 +40,6 @@ res = run()
 if res['status']:
     print(res['outputs'])
 else:
-    print('error:' + res['outputs']['msg'])
+    print(res['msg'])
 
 save_pipeline(parent_path / '__cache__' / 'TestNN.json')
