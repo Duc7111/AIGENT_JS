@@ -670,6 +670,7 @@
           canvas.style.width = `${newWidth}px`;
           canvas.style.height = `${newHeight}px`;
           drawItems();
+          drawConnectionLines();
         });
 
         // Drag and drop functionality
@@ -809,97 +810,15 @@
           );
         }
         let isDraggingMarker = false;
+        let connectionLines = [];
 
         let lineStartX = null;
         let lineStartY = null;
         let lineEndX = null;
         let lineEndY = null;
 
-        canvas.addEventListener("mousedown", function (e) {
-          isDragging = true;
-          lastPosX = e.clientX;
-          lastPosY = e.clientY;
-
-          const rect = canvas.getBoundingClientRect();
-          const mouseX = (e.clientX - rect.left) / scale;
-          const mouseY = (e.clientY - rect.top) / scale;
-
-          draggableItems.forEach((item, index) => {
-            const hitbox = {
-              x: item.x * scale,
-              y: (item.y - 16) * scale,
-              width: ctx.measureText(item.name).width * scale,
-              height: 16 * scale,
-            };
-            if (
-              mouseX >= hitbox.x &&
-              mouseX <= hitbox.x + hitbox.width &&
-              mouseY >= hitbox.y &&
-              mouseY <= hitbox.y + hitbox.height
-            ) {
-              selectedItemIndex = index;
-              dragOffsetX = mouseX - hitbox.x;
-              dragOffsetY = mouseY - hitbox.y;
-              isDragging = false;
-            }
-
-            const itemNameWidth = ctx.measureText(item.name).width;
-            const itemNameHeight = 16;
-            const centerY = item.y - itemNameHeight / 2;
-
-            if (item.inputs) {
-              item.inputs.forEach((input, inputIndex) => {
-                const inputHitbox = {
-                  x: (item.x - 20 - ctx.measureText(input).width) * scale,
-                  y:
-                    (centerY -
-                      (item.inputs.length * 16) / 2 +
-                      inputIndex * 32) *
-                    scale,
-                  width: 12 * scale,
-                  height: 16 * scale,
-                };
-                if (
-                  mouseX >= inputHitbox.x &&
-                  mouseX <= inputHitbox.x + inputHitbox.width &&
-                  mouseY >= inputHitbox.y &&
-                  mouseY <= inputHitbox.y + inputHitbox.height
-                ) {
-                  console.log("Input Marker: ", input);
-                  isDraggingMarker = true;
-                  lineStartX = inputHitbox.x;
-                  lineStartY = inputHitbox.y;
-                }
-              });
-            }
-
-            if (item.outputs) {
-              item.outputs.forEach((output, outputIndex) => {
-                const outputHitbox = {
-                  x: (item.x + ctx.measureText(item.name).width + 20) * scale,
-                  y:
-                    (centerY -
-                      (item.outputs.length * 16) / 2 +
-                      outputIndex * 32) *
-                    scale,
-                  width: 12 * scale,
-                  height: 16 * scale,
-                };
-                if (
-                  mouseX >= outputHitbox.x &&
-                  mouseX <= outputHitbox.x + outputHitbox.width &&
-                  mouseY >= outputHitbox.y &&
-                  mouseY <= outputHitbox.y + outputHitbox.height
-                ) {
-                  console.log("Output Marker: ", output);
-                  isDraggingMarker = true;
-                  lineStartX = outputHitbox.x;
-                  lineStartY = outputHitbox.y;
-                }
-              });
-            }
-          });
-        });
+        let startItem = null;
+        let endItem = null;
 
         canvas.addEventListener("mousemove", function (e) {
           const rect = canvas.getBoundingClientRect();
@@ -1032,6 +951,7 @@
                     mouseY >= inputHitbox.y &&
                     mouseY <= inputHitbox.y + inputHitbox.height
                   ) {
+                    endItem = "input";
                     lineEndX = inputHitbox.x;
                     lineEndY = inputHitbox.y;
                   }
@@ -1055,6 +975,7 @@
                     mouseY >= outputHitbox.y &&
                     mouseY <= outputHitbox.y + outputHitbox.height
                   ) {
+                    endItem = "output";
                     lineEndX = outputHitbox.x;
                     lineEndY = outputHitbox.y;
                   }
@@ -1062,7 +983,9 @@
               }
             });
 
-            drawConnectionLine(lineStartX, lineStartY, lineEndX, lineEndY);
+            if (areCompatibleMarkers(startItem, endItem)) {
+              addConnectionLine(lineStartX, lineStartY, lineEndX, lineEndY);
+            }
           }
 
           isDraggingMarker = false;
@@ -1070,6 +993,96 @@
           lineStartY = null;
           lineEndX = null;
           lineEndY = null;
+          startItem = null;
+          endItem = null;
+        });
+
+        canvas.addEventListener("mousedown", function (e) {
+          isDragging = true;
+          lastPosX = e.clientX;
+          lastPosY = e.clientY;
+
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = (e.clientX - rect.left) / scale;
+          const mouseY = (e.clientY - rect.top) / scale;
+
+          draggableItems.forEach((item, index) => {
+            const hitbox = {
+              x: item.x * scale,
+              y: (item.y - 16) * scale,
+              width: ctx.measureText(item.name).width * scale,
+              height: 16 * scale,
+            };
+            if (
+              mouseX >= hitbox.x &&
+              mouseX <= hitbox.x + hitbox.width &&
+              mouseY >= hitbox.y &&
+              mouseY <= hitbox.y + hitbox.height
+            ) {
+              selectedItemIndex = index;
+              dragOffsetX = mouseX - hitbox.x;
+              dragOffsetY = mouseY - hitbox.y;
+              isDragging = false;
+            }
+
+            const itemNameWidth = ctx.measureText(item.name).width;
+            const itemNameHeight = 16;
+            const centerY = item.y - itemNameHeight / 2;
+
+            if (item.inputs) {
+              item.inputs.forEach((input, inputIndex) => {
+                const inputHitbox = {
+                  x: (item.x - 20 - ctx.measureText(input).width) * scale,
+                  y:
+                    (centerY -
+                      (item.inputs.length * 16) / 2 +
+                      inputIndex * 32) *
+                    scale,
+                  width: 12 * scale,
+                  height: 16 * scale,
+                };
+                if (
+                  mouseX >= inputHitbox.x &&
+                  mouseX <= inputHitbox.x + inputHitbox.width &&
+                  mouseY >= inputHitbox.y &&
+                  mouseY <= inputHitbox.y + inputHitbox.height
+                ) {
+                  console.log("Input Marker: ", input);
+                  isDraggingMarker = true;
+                  startItem = "input";
+                  lineStartX = inputHitbox.x;
+                  lineStartY = inputHitbox.y;
+                }
+              });
+            }
+
+            if (item.outputs) {
+              item.outputs.forEach((output, outputIndex) => {
+                const outputHitbox = {
+                  x: (item.x + ctx.measureText(item.name).width + 20) * scale,
+                  y:
+                    (centerY -
+                      (item.outputs.length * 16) / 2 +
+                      outputIndex * 32) *
+                    scale,
+                  width: 12 * scale,
+                  height: 16 * scale,
+                };
+                if (
+                  mouseX >= outputHitbox.x &&
+                  mouseX <= outputHitbox.x + outputHitbox.width &&
+                  mouseY >= outputHitbox.y &&
+                  mouseY <= outputHitbox.y + outputHitbox.height
+                ) {
+                  console.log("Output Marker: ", output);
+                  isDraggingMarker = true;
+                  startItem = "output";
+                  lineStartX = outputHitbox.x;
+                  lineStartY = outputHitbox.y;
+                }
+              });
+            }
+          });
         });
 
         canvas.addEventListener("mouseleave", function () {
@@ -1148,15 +1161,37 @@
           });
         }
 
-        function drawConnectionLine(startX, startY, endX, endY) {
+        function drawConnectionLines() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           drawItems();
-          ctx.beginPath();
-          ctx.moveTo(startX, startY);
-          ctx.lineTo(endX, endY);
-          ctx.strokeStyle = "red";
-          ctx.lineWidth = 1;
-          ctx.stroke();
+          connectionLines.forEach((line) => {
+            ctx.beginPath();
+            ctx.moveTo(line.startX * scale, line.startY * scale);
+            ctx.lineTo(line.endX * scale, line.endY * scale);
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          });
+        }
+
+        function addConnectionLine(startX, startY, endX, endY) {
+          connectionLines.push({ startX, startY, endX, endY });
+          drawConnectionLines();
+        }
+
+        function clearConnectionLines() {
+          connectionLines = [];
+          drawConnectionLines();
+        }
+
+        function areCompatibleMarkers(startItem, endItem) {
+          if (startItem === "input" && endItem === "output") {
+            return true;
+          }
+          if (startItem === "output" && endItem === "input") {
+            return true;
+          }
+          return false;
         }
       });
     </script>
