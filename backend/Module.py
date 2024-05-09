@@ -25,6 +25,7 @@ class Module:
     
     # Check if all inputs are available, call by child class run method
     def run(self) -> None:
+        self.status = True
         for key in self.inputBuffer:
             if self.inputBuffer[key] is None:
                 continue
@@ -33,7 +34,6 @@ class Module:
                 self.status = False
                 self.outputBuffer['msg'].set_val("Input " + str(key) + " is not available")
                 return
-        self.status = True
 
     def set_hyperparameters(self, hyperparameters: dict[str, any]) -> bool:
         for key in hyperparameters:
@@ -47,6 +47,7 @@ class Pipeline(Module):
     
     modules: dict[str, Module]
     regDict: dict[tuple[str, str, str, str], None]
+    input: dict[str, Buffer]
 
     def __init__(self):
         super().__init__()
@@ -54,9 +55,15 @@ class Pipeline(Module):
         self.regDict = dict()
 
     def run(self) -> None:
-        super().run()
-        if self.status == False:
-            return
+        self.status = True
+        for key in self.inputBuffer:
+            if self.inputBuffer[key] is None:
+                continue
+            self.input[key].set_val(self.inputBuffer[key].get_val(id(self)))
+            if self.input[key] is None:
+                self.status = False
+                self.outputBuffer['msg'].set_val("Input " + str(key) + " is not available")
+                return
         threads: dict[str, Thread] = dict()
         try:
             for key in self.modules:
@@ -132,12 +139,14 @@ class Pipeline(Module):
                 else: self.output_unregister(key)
     
     def input_register(self, key: str, tgtModelKey: str, tgtKey: str) -> bool:
-        if key not in self.inputBuffer:
-            self.inputBuffer[key] = Buffer(None)
         if tgtModelKey not in self.modules or tgtKey not in self.modules[tgtModelKey].inputBuffer:
             return False
-        self.inputBuffer[key].register(id(self.modules[tgtModelKey].inputBuffer[tgtKey]))
-        self.modules[tgtModelKey].inputBuffer[tgtKey] = self.inputBuffer[key]
+        if key not in self.inputBuffer:
+            self.inputBuffer[key] = None
+        if key not in self.input:
+            self.input[key]= Buffer(None)
+        self.input[key].register(id(self.modules[tgtModelKey].inputBuffer[tgtKey]))
+        self.modules[tgtModelKey].inputBuffer[tgtKey] = self.input[key]
         self.regDict[(True, key)] = [tgtModelKey, tgtKey]   
         return True
     
@@ -153,10 +162,10 @@ class Pipeline(Module):
         return True
         
     def output_register(self, key: str, srcModelKey: str, srcKey: str) -> bool:
-        if key not in self.outputBuffer:
-            self.outputBuffer[key] = Buffer(None)
         if srcModelKey not in self.modules or srcKey not in self.modules[srcModelKey].outputBuffer:
             return False
+        if key not in self.outputBuffer:
+            self.outputBuffer[key] = Buffer(None)
         self.modules[srcModelKey].outputBuffer[srcKey].register(id(self.outputBuffer[key]))
         self.outputBuffer[key] = self.modules[srcModelKey].outputBuffer[srcKey]
         self.regDict[(False, key)] = [srcModelKey, srcKey]

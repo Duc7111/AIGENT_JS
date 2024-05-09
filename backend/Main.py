@@ -10,49 +10,68 @@ PORT = 7777
 
 pipeline: Pipeline = Pipeline()
 
-def __json_to_pipeline(path: str) -> Pipeline:
+def __tuple_to_str(t: tuple) -> str:
+    return ', '.join(map(str, t))
+
+def __json_to_pipeline(json: dict) -> Pipeline:
     resPipeline = Pipeline()
-    with open(path, 'r') as f:
-        data = json.load(f)
-    for key, val in data['inputBuffer'].items():
-        resPipeline.inputBuffer[key] = Buffer(val)
-    for key, val in data['outputBuffer'].items():
-        resPipeline.outputBuffer[key] = Buffer(val) 
-    for key, val in data['hyperparameters'].items():
-        resPipeline.hyperparameters[key] = val
-    resPipeline.hyperparameters_list = data['hyperparameters_list']
-    for key, val in data['modules'].items():    
-        res = add_module(key, val['type'], val['module'])
-        if not res['status']:
-            raise Exception (res['msg'])
-        res = set_module_hyperparameters(key, val['hyperparameters'])
-        if not res['status']:
-            raise Exception (res['msg'])
-    for key in data['regDict']:
+    resPipeline.inputBuffer = {key: Buffer(val) for key, val in json['inputBuffer'].items()}
+    resPipeline.outputBuffer = {key: Buffer(val) for key, val in json['outputBuffer'].items()}
+    resPipeline.hyperparameters_list = json['hyperparameters_list']
+    resPipeline.hyperparameters = json['hyperparameters']
+    resPipeline.modules = {}
+    for key, val in json['modules'].items():
+        if 'type' not in val:
+            resPipeline.modules[key] = __json_to_pipeline(val)
+        else:
+            type = import_module(val['type'])
+            module = getattr(type, val['module'])
+            module: Module = module()
+            module.set_hyperparameters(val['hyperparameters'])
+            resPipeline.add_module(key, module)
+    for key, val in json['regDict'].items():
         parsed_key = tuple(map(str, key.split(', ')))
-        if len(parsed_key) == 4:
-            res = connect_modules(*parsed_key)
-            if not res['status']:
-                raise Exception (res['msg'])
-        elif len(parsed_key) == 2:
+        if len(parsed_key) == 2:
             if parsed_key[0] == 'True':
-                res = input_register(parsed_key[1], *data['regDict'][key])
+                resPipeline.input_register(parsed_key[1], val[0], val[1])
             else:
-                res = output_register(parsed_key[1], *data['regDict'][key])
-            if not res['status']:
-                raise Exception (res['msg'])
-    return resPipeline  
+                resPipeline.output_register(parsed_key[1], val[0], val[1])
+        else:
+            resPipeline.connect(parsed_key[0], parsed_key[1], parsed_key[2], parsed_key[3])
+    return resPipeline
+
+def __pipeline_to_json(pipeline: Pipeline) -> dict:
+    data = dict()
+    data['inputBuffer'] = {key: pipeline.inputBuffer[key]._val for key in pipeline.inputBuffer}
+    data['outputBuffer'] = {key: pipeline.outputBuffer[key]._val for key in pipeline.outputBuffer}
+    data['hyperparameters'] = pipeline.hyperparameters
+    data['hyperparameters_list'] = pipeline.hyperparameters_list
+    data['modules'] = {}
+    for key, val in pipeline.modules.items():
+        if val.__class__.__module__ == 'Module' and val.__class__.__name__ == 'Pipeline':
+            data['modules'][key] = __pipeline_to_json(val)
+        else:
+            data['modules'][key] = {
+                'type': val.__class__.__module__,
+                'module': val.__class__.__name__,
+                'hyperparameters': val.hyperparameters,
+            }
+    data['regDict'] = {__tuple_to_str(key): val for key, val in pipeline.regDict.items()}
+    return data
 
 def load_pipeline(path: str) -> dict:
     try:
         global pipeline
-        pipeline = __json_to_pipeline(path)
+        with open(path, 'r') as f:
+            pipeline = __json_to_pipeline(json.load(f))
     except Exception as e:
         return {'status': False, 'outputs': {}, 'msg': str(e)}
+    return {'status': True, 'outputs': {}, 'msg': None}
     
 def load_pipeline_as_module(key: str, path: str) -> dict:
     try:
-        res = __json_to_pipeline(path)
+        with open(path, 'r') as f:
+            res = __json_to_pipeline(json.load(f))
     except Exception as e:
         return {'status': False, 'outputs': {}, 'msg': str(e)}
     return {
@@ -65,18 +84,9 @@ def load_pipeline_as_module(key: str, path: str) -> dict:
         'msg': pipeline.outputBuffer['msg']._val
         }
 
-def __tuple_to_str(t: tuple) -> str:
-    return ', '.join(map(str, t))
-
 def save_pipeline(path: str) -> dict:
-    data = dict()
-    data['inputBuffer'] = {key: pipeline.inputBuffer[key]._val for key in pipeline.inputBuffer}
-    data['outputBuffer'] = {key: pipeline.outputBuffer[key]._val for key in pipeline.outputBuffer}
-    data['hyperparameters'] = pipeline.hyperparameters
-    data['hyperparameters_list'] = pipeline.hyperparameters_list
-    data['modules'] = {key: {'type': type(val).__module__, 'module': type(val).__name__, 'hyperparameters': val.hyperparameters} for key, val in pipeline.modules.items()}
-    data['regDict'] = {__tuple_to_str(key): val for key, val in pipeline.regDict.items()}
     try:
+        data = __pipeline_to_json(pipeline)
         with open(path, 'w') as f:
             json.dump(data, f)
     except Exception as e:
