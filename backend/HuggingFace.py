@@ -65,6 +65,7 @@ class Pipeline(Module):
         self.___pipeline = None
         self.hyperparameters_list = pipeline.__code__.co_varnames
         self.outputBuffer['output'] = Buffer('')
+        self.inputBuffer['input'] = None
     
     def run(self) -> None:
         self.___pipeline = pipeline(**self.hyperparameters)
@@ -73,10 +74,14 @@ class Pipeline(Module):
             return
         super().run()
         if self.status == False:
+            self.outputBuffer['output'].set_val(None)
+            self.outputBuffer['msg'].set_val("Input error")
             return
         try:
-            res = self.___pipeline(**self.input)
+            res = self.___pipeline(**self.input['input'])
             self.outputBuffer['output'].set_val(res)
-        except:
+        except Exception as e:
             self.status = False
+            self.outputBuffer['output'].set_val(None)
+            self.outputBuffer['msg'].set_val(str(e))
             return
