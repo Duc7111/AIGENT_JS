@@ -257,7 +257,13 @@
           var div = document.createElement("div");
           div.className = "directory-content";
           div.innerHTML = `
-            <div class="directory-name">${item}</div>
+            <div class="directory-header">
+              <span class="directory-name">${item}</span>
+              <span class="icon_delete">
+                <img src="./image/ic_delete.svg" class="ic_delete" />
+              </span>
+            </div>
+            
             <div class="directory-icons">
               <img src="./image/icmodel/${icon1}" class="icon_model" />
               <img src="./image/icmodel/${icon2}" class="icon_model" />
@@ -268,7 +274,21 @@
           listDirectory.appendChild(div);
 
           div.addEventListener("click", async () => {
-            await handleDirectoryClick(item);
+            const target = event.target;
+
+            if (target.classList.contains("ic_delete")) {
+              console.log("Delete clicked on", item);
+              const deleteFileFromHome = [item, GetFolderPath()];
+              const checkDelete = await window.electron.deleteDirFromHome(
+                deleteFileFromHome
+              );
+              console.log("check Delete status", checkDelete);
+              if (checkDelete) {
+                ListFileName();
+              }
+            } else {
+              await handleDirectoryClick(item);
+            }
           });
         });
       }

@@ -23,6 +23,17 @@ contextBridge.exposeInMainWorld('electron', {
     //     });
     // },
 
+    deleteDirFromHome: (dirFolder) => {
+        return new Promise((resolve, reject) => {
+            console.log("deleteDirFromHome called",dirFolder);
+            ipcRenderer.send('delete-dir-from-home', dirFolder);
+            ipcRenderer.on('delete-dir-from-home-response', (event, checkDeleteStatus) => {
+                console.log('delete-dir-response:', checkDeleteStatus);
+                resolve(checkDeleteStatus);
+            });
+        });
+},
+
     importFileFromDialog: (importFile) => {
         return new Promise((resolve, reject) => {
             ipcRenderer.send('import-file-dialog', importFile);

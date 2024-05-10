@@ -315,11 +315,22 @@ body {
   filter: brightness(0.7);
 }
 
+.directory-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: min-content;
+  width: 100%;
+  background-color: #9897DD;
+  border-radius: 8px 8px 0 0;
+}
+
 .directory-name{
-  max-width: 220px;
-  margin: 16px;
-  width: max-content;
-  height: 100px;
+  margin-left: 16px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  width: 160px;
+  height: 48px;
   border-radius: 8px;
   font-size: 32px;
   color: #1E1D2E;
@@ -333,6 +344,18 @@ body {
   text-overflow: ellipsis;
 }
 
+.icon_delete{
+  float: right;
+  width: min-content;
+  height: min-content;
+  margin-right: 16px;
+}
+
+.icon_delete .ic_delete{
+  width: 40px;
+  height: 40px;
+}
+
 .directory-icons{
   display: flex;
   justify-content: space-between;
@@ -340,7 +363,6 @@ body {
   margin-top:8px;
   margin-left: 16px;
   margin-right: 16px;
-  
 }
 
 .icon_model{

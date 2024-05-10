@@ -165,6 +165,44 @@ const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
+  ipcMain.on('delete-dir-from-home', async (event, data) => {
+    const uiPath = `${data[1]}/${data[0]}.ui.json`;
+    const bePath = `${data[1]}/${data[0]}.json`;
+    console.log("UI path delete-dir-from-home called",uiPath);
+    console.log("BE path delete-dir-from-home called",bePath);
+    let checkDeleteUiStatus = false;
+    let checkDeleteBeStatus = false;
+    if (fsExtra.existsSync(uiPath)) {
+      await fsExtra.unlink(uiPath, (err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('Directory ui removed successfully');
+          checkDeleteUiStatus = true;
+        }
+      });
+    }else{
+      checkDeleteUiStatus = true;
+    }
+
+
+    if(fsExtra.existsSync(bePath)){
+      await fsExtra.unlink(bePath, (err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('Directory be removed successfully');
+          checkDeleteBeStatus = true;
+        }
+      });
+    }else{
+      checkDeleteBeStatus = true;
+    }
+
+    await event.sender.send('delete-dir-from-home-response', checkDeleteBeStatus || checkDeleteUiStatus);
+
+  });
+  
   ipcMain.on('import-file-dialog', async (event, data) => {
     await openImportFileDialog(data[0],data[1]);
     await event.sender.send('import-file-response', checkFileImport);
