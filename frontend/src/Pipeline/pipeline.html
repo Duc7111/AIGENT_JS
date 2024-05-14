@@ -783,19 +783,19 @@
 
                 inputFile.addEventListener("change", function (e) {
                   const selectedFile = e.target.files[0];
-                  const filePath = selectedFile
-                    ? selectedFile.path.replace(/\\/g, "\\\\")
-                    : "";
+                  const pathJson = {
+                    file: selectedFile.path,
+                  };
                   item.name = selectedFile
                     ? selectedFile.name
                     : "No file chosen";
                   window.electron.setHyperparameters(
                     item.originalName,
-                    filePath
+                    pathJson
                   );
-                  window.electron.drawItems();
+                  drawItems();
                   console.log("original name:", item.originalName);
-                  console.log("Selected file:", filePath);
+                  console.log("Selected file:", JSON.stringify(pathJson));
                 });
               }
             }
