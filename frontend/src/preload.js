@@ -149,6 +149,17 @@ contextBridge.exposeInMainWorld('electron', {
             },
         });
     },
+    outputRegister: (key, srcModuleKey, srcKey) => {
+        console.log("outputRegister called");
+        ipcRenderer.send('output_register', {
+            request: "output_register",
+            inputs: {
+                key: key,
+                srcModuleKey: srcModuleKey,
+                srcKey: srcKey
+            },
+        });
+    },
     removeModule: (id_name) => {
         console.log("removeModule called");
         ipcRenderer.send('remove-module', {

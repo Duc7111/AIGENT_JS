@@ -866,6 +866,11 @@
                     item.originalName,
                     pathJson
                   );
+                  window.electron.outputRegister(
+                    item.originalName,
+                    item.originalName,
+                    "output"
+                  );
                   drawItems();
                   console.log("original name:", item.originalName);
                   console.log("Selected file:", JSON.stringify(pathJson));

@@ -284,6 +284,10 @@ const createWindow = () => {
     clientSocket.write(JSON.stringify(data));
   });
 
+  ipcMain.on('output_register', (event, data) => {
+    clientSocket.write(JSON.stringify(data));
+  });
+
   ipcMain.on('remove-module', (event, data) => {
     clientSocket.write(JSON.stringify(data));
   });
