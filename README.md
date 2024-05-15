@@ -11,8 +11,27 @@ To create a drag-and-drop AI pipelines, we split them into modules, which is any
 
 ### Modules
 Modules consist of three main component: output buffer, which is design to hold and maintain value for asynchronus accesses; input buffer, which hold pointers to the corespond source: an output buffer of another module; and a run method, define how a module compute, act, and map input value to output value. This design allow modules to work all by themselves, provide good modularity.
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="Module.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="Module.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="Module.drawio.svg">
+  </picture>  
+</p>
 
 ### Pipeline
 To make it easier for users to build bigger and bigger applications, we implement a Pipeline as if it is a module. Pipelines inherith all nature of modules with additional infomation about the modules that the pipeline has. Pipelines run by activate all modules and let them run in multi-thread. This allow us to maximize the flexablity of the pipeline with a simple design. However, this design heavily effect the performance of the pipeline, especially for feed-foward pipelines consist of many modules.  
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="Pipeline.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="Pipeline.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="Pipeline.drawio.svg">
+  </picture>  
+</p>
 
-##
+## Class diagram
+<picture>
+ <source media="(prefers-color-scheme: dark)" srcset="AIGENT_ClassDiagram.drawio.svg">
+ <source media="(prefers-color-scheme: light)" srcset="AIGENT_ClassDiagram.drawio.svg">
+ <img alt="YOUR-ALT-TEXT" src="AIGENT_ClassDiagram.drawio.svg">
+</picture>
