@@ -287,6 +287,15 @@
                 </div>
               </div>
             </div>
+
+            <!-- User -->
+            <div class="menu-section" id="menu-user">
+              <div class="menu-header">
+                <span>User</span>
+                <img src="../image/ic_arrow_down.svg" class="ic-expand" />
+              </div>
+              <div class="menu-item"></div>
+            </div>
           </div>
 
           <div id="workspace">
@@ -432,6 +441,7 @@
       let draggableItems = [];
       let listAvailableProjectName = [];
       let receivedData;
+
       document.addEventListener("DOMContentLoaded", function () {
         // get params from the homepage
         const urlParams = new URLSearchParams(window.location.search);
@@ -489,6 +499,65 @@
           draggableItems = JSON.parse(dataFile);
           console.log("Data from given file:", draggableItems);
           drawItems();
+        }
+
+        // add side menu with user's modules
+        const menuUser = document.getElementById("menu-user");
+        const menuItemUser = menuUser.querySelector(".menu-item");
+        menuItemUser.style.display = "none";
+        let isMenuUserOpen = false;
+
+        const iconExpandUser = menuUser.querySelector(".ic-expand");
+        iconExpandUser.setAttribute("src", "../image/ic_arrow_up.svg");
+
+        const currentProjectName = projectNameInput.value;
+        addModuleUserToMenu().then(() => {
+          isMenuUserOpen = true;
+          menuItems = document.querySelectorAll(".menu-item .item");
+          console.log("Menu Items Inner:", menuItems);
+          menuItems.forEach((item) => {
+            item.draggable = true;
+            item.addEventListener("dragstart", function (e) {
+              if (isMenuUserOpen) {
+                const originalItemName =
+                  e.target.querySelector(".item-name").textContent;
+                if (search_click == false) {
+                  const itemName = generateUniqueItemName(originalItemName);
+                  e.dataTransfer.setData("text/plain", itemName);
+                }
+              }
+            });
+          });
+        });
+
+        async function addModuleUserToMenu() {
+          await getProjectNames();
+          console.log(
+            "List Available Project Name below menu:",
+            listAvailableProjectName
+          );
+          console.log("Parent Directory in addMenuUser:", parentDirectory);
+          listAvailableProjectName.forEach((projectNameUser) => {
+            const projectNameWithoutSpace = projectNameUser.split(" ").join("");
+            const fileUiPath = `${parentDirectory}/${projectNameWithoutSpace}.json`;
+            const inputName = `${projectNameWithoutSpace}_Input`;
+            const outputName = `${projectNameWithoutSpace}_Output`;
+            const itemUser = document.createElement("div");
+            itemUser.className = "item";
+            itemUser.draggable = true;
+            itemUser.innerHTML = `
+            <span
+            class="item-name"
+            f-name= "${projectNameWithoutSpace}"
+            module-name= "${projectNameWithoutSpace}"
+            file-module= "${fileUiPath}"
+            input-name= "${inputName}"
+            output-name= "${outputName}"
+            >${projectNameUser}</span
+          >
+            `;
+            menuItemUser.appendChild(itemUser);
+          });
         }
 
         //get unique file name
@@ -549,11 +618,11 @@
 
         // Search items
         const searchInput = document.getElementById("searchInput");
-        const items = document.querySelectorAll(".menu-item .item");
 
         let hasResults = false;
         let search_click = false;
         searchInput.addEventListener("keypress", function (e) {
+          const items = document.querySelectorAll(".menu-item .item");
           if (e.key === "Enter") {
             const searchTerm = searchInput.value.trim().toLowerCase();
 
@@ -581,11 +650,13 @@
               menuItems.forEach((item) => {
                 item.draggable = true;
                 item.addEventListener("dragstart", function (e) {
-                  const originalItemName =
-                    e.target.querySelector(".item-name").textContent;
-                  if (search_click == true) {
-                    const itemName = generateUniqueItemName(originalItemName);
-                    e.dataTransfer.setData("text/plain", itemName);
+                  if (isMenuUserOpen) {
+                    const originalItemName =
+                      e.target.querySelector(".item-name").textContent;
+                    if (search_click == true) {
+                      const itemName = generateUniqueItemName(originalItemName);
+                      e.dataTransfer.setData("text/plain", itemName);
+                    }
                   }
                 });
               });
@@ -684,11 +755,13 @@
         menuItems.forEach((item) => {
           item.draggable = true;
           item.addEventListener("dragstart", function (e) {
-            const originalItemName =
-              e.target.querySelector(".item-name").textContent;
-            if (search_click == false) {
-              const itemName = generateUniqueItemName(originalItemName);
-              e.dataTransfer.setData("text/plain", itemName);
+            if (isMenuUserOpen) {
+              const originalItemName =
+                e.target.querySelector(".item-name").textContent;
+              if (search_click == false) {
+                const itemName = generateUniqueItemName(originalItemName);
+                e.dataTransfer.setData("text/plain", itemName);
+              }
             }
           });
         });
