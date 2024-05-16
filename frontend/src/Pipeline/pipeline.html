@@ -499,6 +499,7 @@
           draggableItems = JSON.parse(dataFile);
           console.log("Data from given file:", draggableItems);
           drawItems();
+          drawConnectionLines();
         }
 
         // add side menu with user's modules
@@ -825,6 +826,7 @@
 
               draggableItems.push(newItem);
               drawItems();
+              drawConnectionLines();
             });
           }
         });
@@ -984,6 +986,7 @@
             draggableItems[selectedItemIndex].y = mouseY - dragOffsetY;
 
             drawItems();
+            drawConnectionLines();
           }
 
           if (isDragging) {
@@ -1001,7 +1004,6 @@
             lineEndY = mouseY;
           }
 
-          // Redraw items and connection line
           if (isDraggingMarker) {
             lineEndX = null;
             lineEndY = null;
@@ -1284,12 +1286,41 @@
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           drawItems();
           connectionLines.forEach((line) => {
-            ctx.beginPath();
-            ctx.moveTo(line.startX * scale, line.startY * scale);
-            ctx.lineTo(line.endX * scale, line.endY * scale);
-            ctx.strokeStyle = "red";
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            const srcItem = draggableItems.find(
+              (item) => item.originalName === line.srcModuleKey
+            );
+            const tgtItem = draggableItems.find(
+              (item) => item.originalName === line.tgtModuleKey
+            );
+
+            if (srcItem && tgtItem) {
+              const srcItemNameWidth = ctx.measureText(srcItem.name).width;
+              const srcItemNameHeight = 16; // Font size 16
+              const srcCenterY = srcItem.y - srcItemNameHeight / 2;
+
+              const tgtItemNameWidth = ctx.measureText(tgtItem.name).width;
+              const tgtItemNameHeight = 16; // Font size 16
+              const tgtCenterY = tgtItem.y - tgtItemNameHeight / 2;
+              const startX = srcItem.x + srcItemNameWidth + 20;
+              const startY =
+                srcCenterY -
+                (srcItem.outputs.length * 16) / 2 +
+                srcItem.outputs.findIndex((output) => output === line.srcKey) *
+                  32;
+
+              const endX = tgtItem.x - 20 - ctx.measureText(line.tgtKey).width;
+              const endY =
+                tgtCenterY -
+                (tgtItem.inputs.length * 16) / 2 +
+                tgtItem.inputs.findIndex((input) => input === line.tgtKey) * 32;
+
+              ctx.beginPath();
+              ctx.moveTo(startX * scale, startY * scale);
+              ctx.lineTo(endX * scale, endY * scale);
+              ctx.strokeStyle = "red";
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
           });
         }
 
