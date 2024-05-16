@@ -7,7 +7,7 @@ from Container import Buffer
 
 class Model(Module):
     
-    __model: any | None
+    __model: any
     
     def __init__(self):
         super().__init__()
@@ -34,7 +34,7 @@ class Model(Module):
         
 class Tokenizer(Module):
     
-    __tokenizer: any | None
+    __tokenizer: any
         
     def __init__(self):
         super().__init__()
