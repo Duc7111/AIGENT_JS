@@ -789,16 +789,19 @@
 
         workspace.addEventListener("drop", function (e) {
           e.preventDefault();
+          const regex = /_\d+$/;
           const itemName = e.dataTransfer
             .getData("text/plain")
             .replace(/\s/g, "");
 
+          const itemNameTemp = itemName.replace(regex, "");
+
           // add module to the pipeline
           const draggedElement = document.querySelector(
-            `[f-name="${itemName}"]`
+            `[f-name="${itemNameTemp}"]`
           );
           console.log("Drag & Drop:", itemName);
-          console.log("Item Context Array:", itemContextArray);
+
           if (draggedElement) {
             const moduleName = draggedElement.getAttribute("module-name");
             const fileModule = draggedElement.getAttribute("file-module");
