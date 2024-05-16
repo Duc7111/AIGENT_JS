@@ -502,6 +502,9 @@
           drawConnectionLines();
         }
 
+        // variable to store the menu items (context) of user name
+        let itemContextArray = [];
+
         // add side menu with user's modules
         const menuUser = document.getElementById("menu-user");
         const menuItemUser = menuUser.querySelector(".menu-item");
@@ -514,19 +517,23 @@
         const currentProjectName = projectNameInput.value;
         addModuleUserToMenu().then(() => {
           isMenuUserOpen = true;
-          const menuItemsUser = document.querySelectorAll("#menu-item .item");
-          console.log("Menu Items Inner:", menuItems);
-          menuItemsUser.forEach((item) => {
+          const menuUser = document.getElementById("menu-user");
+          menuItems = document.querySelectorAll(".menu-item .item");
+          menuItems.forEach((item) => {
             item.draggable = true;
             item.addEventListener("dragstart", function (e) {
-              if (isMenuUserOpen) {
-                const originalItemName123 =
-                  e.target.querySelector(".item-name").textContent;
-                const itemName123 = generateUniqueItemName(originalItemName123);
-                e.dataTransfer.setData("text/plain", itemName123);
+              const originalItemName =
+                e.target.querySelector(".item-name").textContent;
+              if (search_click == false) {
+                const itemName = generateUniqueItemName(originalItemName);
+                e.dataTransfer.setData("text/plain", itemName);
               }
             });
           });
+          const contextUser = menuUser.querySelectorAll(".item-name");
+          itemContextArray = Array.from(contextUser).map((itemNameElement) =>
+            itemNameElement.textContent.replace(/\s/g, "")
+          );
         });
 
         async function addModuleUserToMenu() {
@@ -649,13 +656,11 @@
               menuItems.forEach((item) => {
                 item.draggable = true;
                 item.addEventListener("dragstart", function (e) {
-                  if (isMenuUserOpen) {
-                    const originalItemName =
-                      e.target.querySelector(".item-name").textContent;
-                    if (search_click == true) {
-                      const itemName = generateUniqueItemName(originalItemName);
-                      e.dataTransfer.setData("text/plain", itemName);
-                    }
+                  const originalItemName =
+                    e.target.querySelector(".item-name").textContent;
+                  if (search_click == true) {
+                    const itemName = generateUniqueItemName(originalItemName);
+                    e.dataTransfer.setData("text/plain", itemName);
                   }
                 });
               });
@@ -750,8 +755,8 @@
         let dragOffsetX = 0;
         let dragOffsetY = 0;
 
-        menuItems = document.querySelectorAll(".menu-item .item");
-        menuItems.forEach((item) => {
+        //menuItems = document.querySelectorAll(".menu-item .item");
+        /*menuItems.forEach((item) => {
           item.draggable = true;
           item.addEventListener("dragstart", function (e) {
             if (isMenuUserOpen) {
@@ -763,7 +768,7 @@
               }
             }
           });
-        });
+        });*/
 
         function generateUniqueItemName(itemName) {
           if (!(itemName in unique_item_name)) {
@@ -793,6 +798,7 @@
             `[f-name="${itemName}"]`
           );
           console.log("Drag & Drop:", itemName);
+          console.log("Item Context Array:", itemContextArray);
           if (draggedElement) {
             const moduleName = draggedElement.getAttribute("module-name");
             const fileModule = draggedElement.getAttribute("file-module");
@@ -800,7 +806,14 @@
             console.log("Module Name:", moduleName);
             console.log("File Module:", fileModule);
 
-            window.electron.addModule(itemName, fileModule, moduleName);
+            if (itemContextArray.includes(itemName)) {
+              console.log("Pipeline as module");
+              window.electron.loadPipelineAsModule(itemName, fileModule);
+            } else {
+              console.log("normal module ");
+              window.electron.addModule(itemName, fileModule, moduleName);
+            }
+
             getReceivedData().then(() => {
               const x = e.clientX - workspace.getBoundingClientRect().left;
               const y = e.clientY - workspace.getBoundingClientRect().top;

@@ -202,6 +202,10 @@ const createWindow = () => {
     await event.sender.send('delete-dir-from-home-response', checkDeleteBeStatus || checkDeleteUiStatus);
 
   });
+
+  ipcMain.on('load-pipeline-as-module', (event, data) => {
+
+  });
   
   ipcMain.on('import-file-dialog', async (event, data) => {
     await openImportFileDialog(data[0],data[1]);
@@ -277,6 +281,10 @@ const createWindow = () => {
   });
 
   ipcMain.on('add-module', (event, data) => {
+    clientSocket.write(JSON.stringify(data));
+  });
+
+  ipcMain.on('load-pipeline-as-module', (event, data) => {
     clientSocket.write(JSON.stringify(data));
   });
 
