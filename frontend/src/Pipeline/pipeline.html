@@ -513,18 +513,16 @@
         const currentProjectName = projectNameInput.value;
         addModuleUserToMenu().then(() => {
           isMenuUserOpen = true;
-          menuItems = document.querySelectorAll(".menu-item .item");
+          const menuItemsUser = document.querySelectorAll("#menu-item .item");
           console.log("Menu Items Inner:", menuItems);
-          menuItems.forEach((item) => {
+          menuItemsUser.forEach((item) => {
             item.draggable = true;
             item.addEventListener("dragstart", function (e) {
               if (isMenuUserOpen) {
-                const originalItemName =
+                const originalItemName123 =
                   e.target.querySelector(".item-name").textContent;
-                if (search_click == false) {
-                  const itemName = generateUniqueItemName(originalItemName);
-                  e.dataTransfer.setData("text/plain", itemName);
-                }
+                const itemName123 = generateUniqueItemName(originalItemName123);
+                e.dataTransfer.setData("text/plain", itemName123);
               }
             });
           });
