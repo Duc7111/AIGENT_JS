@@ -108,6 +108,10 @@ contextBridge.exposeInMainWorld('electron', {
         console.log("saveJsonToFile called",transferData[0],transferData[1],transferData[2]);
         ipcRenderer.send('save-json-file', transferData);
     },
+    saveConnectionToFile: (transferData)=> {
+        console.log("saveConnectionToFile called",transferData[0],transferData[1],transferData[2]);
+        ipcRenderer.send('save-connection-file', transferData);
+    },
     openPipeline: () => {
         console.log("openPipeline called");
         ipcRenderer.send('open-pipeline');

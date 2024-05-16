@@ -43,6 +43,19 @@ function saveJsonToFile(data) {
     });
 };
 
+function saveConnectionToFile(data) {
+  const filePath = `${data[1]}/${data[2]}.connection.json`;
+    console.log("saveConnectionToFile called",data[0],filePath);
+    const jsonStrings = data[0].map(item => JSON.stringify(item, null, 2));
+    fsExtra.writeFile(filePath, `[${jsonStrings.join(',\n')}]`, (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log('Connection saved successfully');
+      }   
+    });
+};
+
 async function openImportFileDialog(listUniqueProjectName, saveLocalPath) {
   try {
       const result = await dialog.showOpenDialog({
@@ -249,6 +262,20 @@ const createWindow = () => {
         console.error(err);
       } else {
         console.log('File saved successfully');
+      }   
+    });
+  });
+
+  ipcMain.on('save-connection-file', (event, data) => {
+    console.log("saveConnectionToFile called initial",data);
+    const filePath = `${data[1]}/${data[2]}.connection.json`;
+    console.log("saveConnectionToFile called",data[0],filePath);
+    const jsonStrings = data[0].map(item => JSON.stringify(item, null, 2));
+    fsExtra.writeFile(filePath, `[${jsonStrings.join(',\n')}]`, (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log('Connection saved successfully');
       }   
     });
   });

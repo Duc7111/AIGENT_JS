@@ -306,6 +306,7 @@
     </div>
 
     <script>
+      let connectionLines = [];
       // function export
       const btnExport = document.getElementById("btn-export");
       btnExport.addEventListener("click", function () {
@@ -325,7 +326,15 @@
           parentDirectory,
           projectNameInput.value,
         ];
+
+        const connectionTransferData = [
+          connectionLines,
+          connectionDirectory,
+          projectNameInput.value,
+        ];
+
         window.electron.saveJsonToFile(transferData);
+        window.electron.saveConnectionToFile(connectionTransferData);
       });
 
       const btn_run = document.getElementById("btn-run");
@@ -352,7 +361,14 @@
       parentDirectory = parentDirectory
         .replace(/%20/g, " ")
         .replace(/\\/g, "\\\\");
-      console.log("Parent Directory:", parentDirectory);
+
+      let connectionDirectory = pathParts.join("/") + "/__connection__";
+      connectionDirectory = connectionDirectory.substring(1);
+      connectionDirectory = connectionDirectory
+        .replace(/%20/g, " ")
+        .replace(/\\/g, "\\\\");
+
+      console.log("Parent Directory:", connectionDirectory);
 
       //Function: save pipeline
       const icSave = document.getElementById("ic-save");
@@ -363,8 +379,19 @@
           parentDirectory,
           projectNameInput.value,
         ];
+
+        const connectionTransferData = [
+          connectionLines,
+          connectionDirectory,
+          projectNameInput.value,
+        ];
+
+        console.log("Parent Directory:", parentDirectory);
+        console.log("Project Name:", projectNameInput.value);
+
         console.log("Transfer Data:", transferData);
         window.electron.saveJsonToFile(transferData);
+        window.electron.saveConnectionToFile(connectionTransferData);
         //window.electron.savePipeline();
       });
 
@@ -451,8 +478,9 @@
         if (names) {
           const uniqueProjectName = getUniqueName(names);
           projectNameInput.value = uniqueProjectName;
-          const givenFileNamePath = `${parentDirectory}/${uniqueProjectName}.ui.json`;
-          getDataFromGivenFile(givenFileNamePath);
+          const uiFileNamePath = `${parentDirectory}/${uniqueProjectName}.ui.json`;
+          const connectionFileNamePath = `${connectionDirectory}/${uniqueProjectName}.connection.json`;
+          getDataFromGivenFile(uiFileNamePath, connectionFileNamePath);
         } else {
           getProjectNames();
           generateUniqueProjectName();
@@ -492,11 +520,13 @@
           console.log("Received Data Outputs:", receivedData.outputs.outputs);
         }
 
-        async function getDataFromGivenFile(givenFilePath) {
-          const dataFile = await window.electron.readFileGivenName(
-            givenFilePath
+        async function getDataFromGivenFile(uiFilePath, connectionFilePath) {
+          const uiFile = await window.electron.readFileGivenName(uiFilePath);
+          const connectionFile = await window.electron.readFileGivenName(
+            connectionFilePath
           );
-          draggableItems = JSON.parse(dataFile);
+          draggableItems = JSON.parse(uiFile);
+          connectionLines = JSON.parse(connectionFile);
           console.log("Data from given file:", draggableItems);
           drawItems();
           drawConnectionLines();
@@ -888,6 +918,7 @@
                     "output"
                   );
                   drawItems();
+                  drawConnectionLines();
                   console.log("original name:", item.originalName);
                   console.log("Selected file:", JSON.stringify(pathJson));
                 });
@@ -911,7 +942,6 @@
           );
         }
         let isDraggingMarker = false;
-        let connectionLines = [];
 
         let lineStartX = null;
         let lineStartY = null;
@@ -1311,11 +1341,11 @@
 
             if (srcItem && tgtItem) {
               const srcItemNameWidth = ctx.measureText(srcItem.name).width;
-              const srcItemNameHeight = 16; // Font size 16
+              const srcItemNameHeight = 16;
               const srcCenterY = srcItem.y - srcItemNameHeight / 2;
 
               const tgtItemNameWidth = ctx.measureText(tgtItem.name).width;
-              const tgtItemNameHeight = 16; // Font size 16
+              const tgtItemNameHeight = 16;
               const tgtCenterY = tgtItem.y - tgtItemNameHeight / 2;
               const startX = srcItem.x + srcItemNameWidth + 20;
               const startY =
