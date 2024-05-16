@@ -22,7 +22,16 @@ contextBridge.exposeInMainWorld('electron', {
     //         });
     //     });
     // },
-
+    loadPipelineAsModule: (keyID, pathModule) => {
+        console.log("loadPipelineAsModule called");
+        ipcRenderer.send('load-pipeline-as-module', {
+            request: "load_pipeline_as_module",
+            inputs: {
+                key: keyID,
+                path: pathModule,
+            },
+        }); 
+    },
     deleteDirFromHome: (dirFolder) => {
         return new Promise((resolve, reject) => {
             console.log("deleteDirFromHome called",dirFolder);
