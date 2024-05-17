@@ -536,6 +536,16 @@
           );
           draggableItems = JSON.parse(uiFile);
           connectionLines = JSON.parse(connectionFile);
+          draggableItems.forEach((item) => {
+            const regex = /_\d+$/;
+            const originalNameLoad = item.originalName.replace(regex, ""); // Directly replace on the string
+            if (!(originalNameLoad in unique_item_name)) {
+              unique_item_name[originalNameLoad] = 1;
+            } else {
+              unique_item_name[originalNameLoad]++;
+            }
+          });
+          console.log("Unique data from given file:", unique_item_name);
           console.log("Data from given file:", draggableItems);
           drawItems();
           drawConnectionLines();
@@ -548,14 +558,12 @@
         const menuUser = document.getElementById("menu-user");
         const menuItemUser = menuUser.querySelector(".menu-item");
         menuItemUser.style.display = "none";
-        let isMenuUserOpen = false;
 
         const iconExpandUser = menuUser.querySelector(".ic-expand");
         iconExpandUser.setAttribute("src", "../image/ic_arrow_up.svg");
 
         const currentProjectName = projectNameInput.value;
         addModuleUserToMenu().then(() => {
-          isMenuUserOpen = true;
           const menuUser = document.getElementById("menu-user");
           menuItems = document.querySelectorAll(".menu-item .item");
           menuItems.forEach((item) => {
@@ -564,8 +572,7 @@
               const originalItemName =
                 e.target.querySelector(".item-name").textContent;
               if (search_click == false) {
-                const itemName = generateUniqueItemName(originalItemName);
-                e.dataTransfer.setData("text/plain", itemName);
+                e.dataTransfer.setData("text/plain", originalItemName);
               }
             });
           });
@@ -698,8 +705,7 @@
                   const originalItemName =
                     e.target.querySelector(".item-name").textContent;
                   if (search_click == true) {
-                    const itemName = generateUniqueItemName(originalItemName);
-                    e.dataTransfer.setData("text/plain", itemName);
+                    e.dataTransfer.setData("text/plain", originalItemName);
                   }
                 });
               });
@@ -798,14 +804,12 @@
         /*menuItems.forEach((item) => {
           item.draggable = true;
           item.addEventListener("dragstart", function (e) {
-            if (isMenuUserOpen) {
               const originalItemName =
                 e.target.querySelector(".item-name").textContent;
               if (search_click == false) {
                 const itemName = generateUniqueItemName(originalItemName);
                 e.dataTransfer.setData("text/plain", itemName);
               }
-            }
           });
         });*/
 
@@ -828,16 +832,15 @@
 
         workspace.addEventListener("drop", function (e) {
           e.preventDefault();
-          const regex = /_\d+$/;
-          const itemName = e.dataTransfer
+          const originalItemName = e.dataTransfer
             .getData("text/plain")
             .replace(/\s/g, "");
 
-          const itemNameTemp = itemName.replace(regex, "");
+          const itemName = generateUniqueItemName(originalItemName);
 
           // add module to the pipeline
           const draggedElement = document.querySelector(
-            `[f-name="${itemNameTemp}"]`
+            `[f-name="${originalItemName}"]`
           );
           console.log("Drag & Drop:", itemName);
 
