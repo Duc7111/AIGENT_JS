@@ -229,7 +229,7 @@ const createWindow = () => {
       checkDeleteConnectionStatus = true;
     }
 
-    await event.sender.send('delete-dir-from-home-response', checkDeleteBeStatus || checkDeleteUiStatus || checkDeleteConnectionStatus);
+    await event.sender.send('delete-dir-from-home-response', true);
 
   });
 
