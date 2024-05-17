@@ -35,7 +35,7 @@ class FileWriter(Module):
             return
         try:
             with open(self.hyperparameters['file'], 'w') as file:
-                file.write(self.inputBuffer['input'].get_val(id(self)))
+                file.write(self.inputBuffer['input'].get_val(1))
                 self.status = True
         except Exception as e:
             self.status = False
@@ -73,7 +73,7 @@ class TextGetter(Module):
         if self.status == False:
             return
         try:
-            self.outputBuffer['output'].set_val(self.inputBuffer['input'].get_val(id(self)))
+            self.outputBuffer['output'].set_val(self.inputBuffer['input'].get_val(1))
             self.status = True
         except Exception as e:
             self.status = False

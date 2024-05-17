@@ -42,8 +42,8 @@ def __json_to_pipeline(json: dict) -> Pipeline:
 
 def __pipeline_to_json(pipeline: Pipeline) -> dict:
     data = dict()
-    data['inputBuffer'] = {key: pipeline.inputBuffer[key]._val for key in pipeline.inputBuffer}
-    data['outputBuffer'] = {key: pipeline.outputBuffer[key]._val for key in pipeline.outputBuffer}
+    data['inputBuffer'] = {key: pipeline.inputBuffer[key].get_val(0) for key in pipeline.inputBuffer}
+    data['outputBuffer'] = {key: pipeline.outputBuffer[key].get_val(0) for key in pipeline.outputBuffer}
     data['hyperparameters'] = pipeline.hyperparameters
     data['hyperparameters_list'] = pipeline.hyperparameters_list
     data['modules'] = {}
@@ -81,7 +81,7 @@ def load_pipeline_as_module(key: str, path: str) -> dict:
             'inputs': list(res.inputBuffer.keys()), 
             'outputs': list(res.outputBuffer.keys())
         }, 
-        'msg': pipeline.outputBuffer['msg']._val
+        'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
 
 def save_pipeline(path: str) -> dict:
@@ -104,14 +104,14 @@ def add_module(key: str, type: str, module: str) -> dict:
             'inputs': list(module.inputBuffer.keys()),
             'outputs': list(module.outputBuffer.keys())
         },
-        'msg': pipeline.outputBuffer['msg']._val
+        'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
 
 def remove_module(key: str) -> dict:
     return {
         'status': pipeline.remove_module(key), 
         'outputs': {},
-        'msg': pipeline.outputBuffer['msg']._val
+        'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
 
 def set_module_hyperparameters(key: str, hyperparameters: dict) -> dict:
@@ -130,49 +130,49 @@ def set_module_hyperparameters(key: str, hyperparameters: dict) -> dict:
     return {
         'status': status,
         'outputs': outputs,
-        'msg': pipeline.outputBuffer['msg']._val
+        'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
 
 def connect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> dict:
     return {
         'status': pipeline.connect(srcModuleKey, tgtModuleKey, srcKey, tgtKey), 
         'outputs': {},
-        'msg': pipeline.outputBuffer['msg']._val
+        'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
 
 def disconnect_modules(srcModuleKey: str, tgtModuleKey: str, srcKey: str, tgtKey: str) -> dict:
     return {
         'status': pipeline.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey), 
         'outputs': {},
-        'msg': pipeline.outputBuffer['msg']._val
+        'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
 
 def input_register(key: str, tgtModuleKey: str, tgtKey: str) -> dict:
     return {
         'status': pipeline.input_register(key, tgtModuleKey, tgtKey), 
         'outputs': {},
-        'msg': pipeline.outputBuffer['msg']._val
+        'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
 
 def input_unregister(key: str) -> dict:
     return {
         'status': pipeline.input_unregister(key), 
         'outputs': {},
-        'msg': pipeline.outputBuffer['msg']._val
+        'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
 
 def output_register(key: str, srcModuleKey: str, srcKey: str) -> dict:
     return {
         'status': pipeline.output_register(key, srcModuleKey, srcKey), 
         'outputs': {},
-        'msg': pipeline.outputBuffer['msg']._val
+        'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
 
 def output_unregister(key: str) -> dict:
     return {
         'status': pipeline.output_unregister(key), 
         'outputs': {},
-        'msg': pipeline.outputBuffer['msg']._val
+        'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
     
 def run() -> dict:
@@ -180,11 +180,11 @@ def run() -> dict:
     outputs = {}
     for key in pipeline.outputBuffer:
         if key != 'msg':
-            outputs[key] = pipeline.outputBuffer[key]._val
+            outputs[key] = pipeline.outputBuffer[key].get_val(1)
     return {
         'status': pipeline.status, 
         'outputs': outputs,
-        'msg': pipeline.outputBuffer['msg']._val
+        'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
 
 
@@ -204,6 +204,7 @@ if __name__ == '__main__':
                 if not data:
                     break
                 data = json.loads(data)
+                print(data)
                 res = request[data['request']](**data['inputs'])
-                print(res)
                 conn.sendall(json.dumps(res).encode())
+                pipeline.outputBuffer['msg']._val = None
