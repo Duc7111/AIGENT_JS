@@ -181,10 +181,13 @@ const createWindow = () => {
   ipcMain.on('delete-dir-from-home', async (event, data) => {
     const uiPath = `${data[1]}/${data[0]}.ui.json`;
     const bePath = `${data[1]}/${data[0]}.json`;
+    const connectionPath = `${data[2]}/${data[0]}.connection.json`;
     console.log("UI path delete-dir-from-home called",uiPath);
     console.log("BE path delete-dir-from-home called",bePath);
+    console.log("Connection path delete-dir-from-home called",bePath);
     let checkDeleteUiStatus = false;
     let checkDeleteBeStatus = false;
+    let checkDeleteConnectionStatus = false;
     if (fsExtra.existsSync(uiPath)) {
       await fsExtra.unlink(uiPath, (err) => {
         if (err) {
@@ -212,7 +215,20 @@ const createWindow = () => {
       checkDeleteBeStatus = true;
     }
 
-    await event.sender.send('delete-dir-from-home-response', checkDeleteBeStatus || checkDeleteUiStatus);
+    if(fsExtra.existsSync(connectionPath)){
+      await fsExtra.unlink(connectionPath, (err) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('Directory be removed successfully');
+          checkDeleteConnectionStatus = true;
+        }
+      });
+    }else{
+      checkDeleteConnectionStatus = true;
+    }
+
+    await event.sender.send('delete-dir-from-home-response', checkDeleteBeStatus || checkDeleteUiStatus || checkDeleteConnectionStatus);
 
   });
 
