@@ -2,11 +2,15 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    
   }
   
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
       Arial, sans-serif;
+
+      overflow: hidden;
+      scroll-behavior: none;
   }
 
   .ic {
@@ -51,10 +55,11 @@
   }
 
   .content {
-    height: 100vh;
+    height: 100%;
     width: 100%;
-    padding: 0 32px;
+    padding: 0 32px 32px 32px;
     background-color: #1e1d2e;
+    
 
     .content-bar{
       display: flex;
@@ -113,12 +118,18 @@
       $menu-padding: 20px;
 
       .side-menu {
-        width: 315px;
+        width: 339px;
+        height: 78vh;
+        overflow-x: hidden;
+        overflow-y: scroll;
         margin-right: 8px;
+        margin-bottom: 16px;
         border-radius: 8px;
         background-color: #312E52;
         color: #F4F3F3;
         box-sizing: border-box;
+
+        scrollbar-width: none;
 
         .search-box {
           padding: 10px;
@@ -128,6 +139,8 @@
           display: flex;
           margin-bottom: $menu-padding;
           input {
+            height: 28px;
+            width: 100%;
             background-color: #9290c3;
             margin-left: 8px;
             border: none;
@@ -180,7 +193,7 @@
 
       #workspace {
         width: 100%;
-        height: 85vh;
+        height: 78vh;
         overflow: hidden; 
         position: relative;
         background-color: #473e5098;
