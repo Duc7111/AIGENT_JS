@@ -308,7 +308,7 @@ const createWindow = () => {
   });
 
   ipcMain.on('add-module', (event, data) => {
-    console.log("load-pipeline-as-module called",data);
+    console.log("add-module called",data);
     clientSocket.write(JSON.stringify(data));
   });
 

@@ -303,6 +303,15 @@
           </div>
         </div>
       </div>
+
+      <div id="inputModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <p>Enter data for the module:</p>
+          <input type="text" id="modalInput" />
+          <button id="submitInput">Submit</button>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -857,6 +866,7 @@
                 x: x,
                 y: y,
                 dragging: false,
+                hyperparameters: [],
                 inputs: [],
                 outputs: [],
               };
@@ -868,8 +878,13 @@
                 );
               }
 
-              if (receivedData.outputs.hyperparameters.includes("file")) {
-                newItem.name = "Click to choose file";
+              if (receivedData.outputs.hyperparameters != null) {
+                newItem.hyperparameters = receivedData.outputs.hyperparameters;
+                if (newItem.hyperparameters.includes("file")) {
+                  newItem.name = "Click to choose file";
+                } else {
+                  newItem.name = "Click to type";
+                }
               }
 
               draggableItems.push(newItem);
@@ -897,7 +912,7 @@
               mouseY >= hitbox.y &&
               mouseY <= hitbox.y + hitbox.height
             ) {
-              if (receivedData.outputs.hyperparameters.includes("file")) {
+              if (item.hyperparameters.includes("file")) {
                 const inputFile = document.createElement("input");
                 inputFile.type = "file";
                 inputFile.click();
@@ -914,15 +929,60 @@
                     item.originalName,
                     pathJson
                   );
+                  window.electron.outputRegister(
+                    item.originalName,
+                    item.originalName,
+                    "output"
+                  );
                   drawItems();
                   drawConnectionLines();
                   console.log("original name:", item.originalName);
                   console.log("Selected file:", JSON.stringify(pathJson));
                 });
+              } else {
+                showModal(item, item.hyperparameters);
               }
             }
           });
         });
+
+        function showModal(item, dataType) {
+          const modal = document.getElementById("inputModal");
+          const span = document.getElementsByClassName("close")[0];
+          const submitButton = document.getElementById("submitInput");
+          const inputField = document.getElementById("modalInput");
+          modal.style.display = "block";
+
+          span.onclick = function () {
+            modal.style.display = "none";
+          };
+
+          window.onclick = function (event) {
+            if (event.target == modal) {
+              modal.style.display = "none";
+            }
+          };
+
+          submitButton.onclick = function () {
+            const userInput = inputField.value;
+            if (userInput !== "") {
+              item.name = userInput;
+              window.electron.setHyperparameters(item.originalName, {
+                dataType: userInput,
+              });
+              window.electron.outputRegister(
+                item.originalName,
+                item.originalName,
+                "output"
+              );
+              drawItems();
+              drawConnectionLines();
+              console.log("original name:", item.originalName);
+              console.log("User input:", userInput);
+            }
+            modal.style.display = "none";
+          };
+        }
 
         function isMouseOverItem(mouseX, mouseY, item) {
           const hitbox = {
@@ -1105,6 +1165,7 @@
                 ) {
                   console.log("Input Marker: ", input);
                   isDraggingMarker = true;
+                  isDragging = false;
                   startItem = "input";
                   tgtModuleKey = item.originalName;
                   tgtKey = input;
@@ -1134,6 +1195,7 @@
                 ) {
                   console.log("Output Marker: ", output);
                   isDraggingMarker = true;
+                  isDragging = false;
                   startItem = "output";
                   srcModuleKey = item.originalName;
                   srcKey = output;
