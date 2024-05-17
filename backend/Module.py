@@ -127,7 +127,7 @@ class Pipeline(Module):
                     self.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
                     del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]
             for (type, key) in list(self.regDict.keys()):
-                if self.regDict[(type, key)][0] == key or self.regDict[(type, key)][1] == key:
+                if self.regDict[(type, key)][0] == key:
                     if type: self.input_unregister(key)
                     else: self.output_unregister(key)
         else:
