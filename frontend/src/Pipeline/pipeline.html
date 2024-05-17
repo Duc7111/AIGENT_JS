@@ -571,9 +571,7 @@
             item.addEventListener("dragstart", function (e) {
               const originalItemName =
                 e.target.querySelector(".item-name").textContent;
-              if (search_click == false) {
-                e.dataTransfer.setData("text/plain", originalItemName);
-              }
+              e.dataTransfer.setData("text/plain", originalItemName);
             });
           });
           const contextUser = menuUser.querySelectorAll(".item-name");
@@ -704,9 +702,7 @@
                 item.addEventListener("dragstart", function (e) {
                   const originalItemName =
                     e.target.querySelector(".item-name").textContent;
-                  if (search_click == true) {
-                    e.dataTransfer.setData("text/plain", originalItemName);
-                  }
+                  e.dataTransfer.setData("text/plain", originalItemName);
                 });
               });
             } else {
