@@ -1222,11 +1222,14 @@
               if (item.inputs) {
                 item.inputs.forEach((input, inputIndex) => {
                   const inputHitbox = {
-                    x: item.x - 20 - ctx.measureText(input).width,
+                    x: (item.x - 20 - ctx.measureText(input).width) * scale,
                     y:
-                      centerY - (item.inputs.length * 16) / 2 + inputIndex * 32,
-                    width: 12,
-                    height: 16,
+                      (centerY -
+                        (item.inputs.length * 16) / 2 +
+                        inputIndex * 32) *
+                      scale,
+                    width: 12 * scale,
+                    height: 16 * scale,
                   };
                   if (
                     mouseX >= inputHitbox.x &&
@@ -1246,13 +1249,14 @@
               if (item.outputs) {
                 item.outputs.forEach((output, outputIndex) => {
                   const outputHitbox = {
-                    x: item.x + ctx.measureText(item.name).width + 20,
+                    x: (item.x + ctx.measureText(item.name).width + 20) * scale,
                     y:
-                      centerY -
-                      (item.outputs.length * 16) / 2 +
-                      outputIndex * 32,
-                    width: 12,
-                    height: 16,
+                      (centerY -
+                        (item.outputs.length * 16) / 2 +
+                        outputIndex * 32) *
+                      scale,
+                    width: 12 * scale,
+                    height: 16 * scale,
                   };
                   if (
                     mouseX >= outputHitbox.x &&
