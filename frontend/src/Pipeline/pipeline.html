@@ -863,10 +863,12 @@
 
               if (receivedData) {
                 newItem.inputs = receivedData.outputs.inputs;
-                newItem.outputs = receivedData.outputs.outputs;
+                newItem.outputs = receivedData.outputs.outputs.filter(
+                  (output) => output !== "msg"
+                );
               }
 
-              if (itemName.includes("FileReader")) {
+              if (receivedData.outputs.hyperparameters.includes("file")) {
                 newItem.name = "Click to choose file";
               }
 
@@ -895,7 +897,7 @@
               mouseY >= hitbox.y &&
               mouseY <= hitbox.y + hitbox.height
             ) {
-              if (item.originalName.includes("FileReader")) {
+              if (receivedData.outputs.hyperparameters.includes("file")) {
                 const inputFile = document.createElement("input");
                 inputFile.type = "file";
                 inputFile.click();
@@ -911,11 +913,6 @@
                   window.electron.setHyperparameters(
                     item.originalName,
                     pathJson
-                  );
-                  window.electron.outputRegister(
-                    item.originalName,
-                    item.originalName,
-                    "output"
                   );
                   drawItems();
                   drawConnectionLines();
