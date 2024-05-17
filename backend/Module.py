@@ -145,10 +145,11 @@ class Pipeline(Module):
             self.inputBuffer[key] = None
         if key not in self.input:
             self.input[key]= Buffer(None)
-        self.input[key].register()
-        self.modules[tgtModelKey].inputBuffer[tgtKey] = self.input[key]
-        self.regDict[(True, key)] = [tgtModelKey, tgtKey]   
-        return True
+            self.input[key].register()
+            self.modules[tgtModelKey].inputBuffer[tgtKey] = self.input[key]
+            self.regDict[(True, key)] = [tgtModelKey, tgtKey]
+            return True
+        return False
     
     def input_unregister(self, key: str) -> bool:
         if key not in self.inputBuffer:
@@ -166,10 +167,10 @@ class Pipeline(Module):
             return False
         if key not in self.outputBuffer:
             self.outputBuffer[key] = Buffer(None)
-        self.modules[srcModelKey].outputBuffer[srcKey].register()
-        self.outputBuffer[key] = self.modules[srcModelKey].outputBuffer[srcKey]
-        self.regDict[(False, key)] = [srcModelKey, srcKey]
-        return True
+            self.modules[srcModelKey].outputBuffer[srcKey].register()
+            self.outputBuffer[key] = self.modules[srcModelKey].outputBuffer[srcKey]
+            self.regDict[(False, key)] = [srcModelKey, srcKey]
+        return False
     
     def output_unregister(self, key: str) -> bool:
         if key not in self.outputBuffer:
