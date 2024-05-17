@@ -9,6 +9,14 @@ AI and Machine Learning (ML) have rapidly evolving recently and become a common 
 ## Usecase Diagram
 USECASE DIAGRAM GO HERE
 
+## Class Diagram
+
+<picture>
+ <source media="(prefers-color-scheme: dark)" srcset="AIGENT_ClassDiagram.drawio.svg">
+ <source media="(prefers-color-scheme: light)" srcset="AIGENT_ClassDiagram.drawio.svg">
+ <img alt="YOUR-ALT-TEXT" src="AIGENT_ClassDiagram.drawio.svg">
+</picture>
+
 ## Architechture
 Our program consist of two parts, which can work independently, frontend and backend. While frontend is coded with python, backend is implemented with Electron, a popular Node.js framework for desktop development that have web like syntax - which not seem to help at all. These two parts communicate with each other purely by json strings sended through TCP/IP sockets
 
@@ -44,10 +52,8 @@ A pipeline can be saved, and because pipelines are also modules, it can be added
 ### Frontend
 FRONTEND INFO GO HERE
 
+## Key Features
+KEY FEATURE GO HERE
 
-## Class diagram
-<picture>
- <source media="(prefers-color-scheme: dark)" srcset="AIGENT_ClassDiagram.drawio.svg">
- <source media="(prefers-color-scheme: light)" srcset="AIGENT_ClassDiagram.drawio.svg">
- <img alt="YOUR-ALT-TEXT" src="AIGENT_ClassDiagram.drawio.svg">
-</picture>
+## Contributers
+Duc7111 - Duc7111: Backend developer
