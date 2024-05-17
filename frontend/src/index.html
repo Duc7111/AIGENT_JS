@@ -278,7 +278,11 @@
 
             if (target.classList.contains("ic_delete")) {
               console.log("Delete clicked on", item);
-              const deleteFileFromHome = [item, GetFolderPath()];
+              const deleteFileFromHome = [
+                item,
+                GetFolderPath(),
+                connectionPath,
+              ];
               const checkDelete = await window.electron.deleteDirFromHome(
                 deleteFileFromHome
               );
@@ -306,6 +310,7 @@
         //window.electron.openPipeline();
       };
 
+      let connectionPath = "";
       function GetFolderPath() {
         const currentUrl = window.location.href;
         const currentWorkingDirectory = new URL(currentUrl).pathname;
@@ -326,6 +331,14 @@
           .replace(/%20/g, " ")
           .replace(/\\/g, "\\\\");
         console.log("Parent Directory:", parentDirectory);
+
+        connectionPath = pathParts.join("/");
+        connectionPath = connectionPath + "/__connection__";
+        connectionPath = connectionPath.substring(1);
+        connectionPath = connectionPath
+          .replace(/%20/g, " ")
+          .replace(/\\/g, "\\\\");
+        console.log("Connection Directory:", connectionPath);
         return parentDirectory;
       }
 
