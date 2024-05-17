@@ -15,8 +15,6 @@ def __tuple_to_str(t: tuple) -> str:
 
 def __json_to_pipeline(json: dict) -> Pipeline:
     resPipeline = Pipeline()
-    resPipeline.inputBuffer = {key: Buffer(val) for key, val in json['inputBuffer'].items()}
-    resPipeline.outputBuffer = {key: Buffer(val) for key, val in json['outputBuffer'].items()}
     resPipeline.hyperparameters_list = json['hyperparameters_list']
     resPipeline.hyperparameters = json['hyperparameters']
     resPipeline.modules = {}
@@ -180,7 +178,7 @@ def run() -> dict:
     outputs = {}
     for key in pipeline.outputBuffer:
         if key != 'msg':
-            outputs[key] = pipeline.outputBuffer[key].get_val(1)
+            outputs[key] = pipeline.outputBuffer[key].get_val(0)
     return {
         'status': pipeline.status, 
         'outputs': outputs,

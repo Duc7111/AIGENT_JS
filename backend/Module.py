@@ -122,21 +122,37 @@ class Pipeline(Module):
     
     def full_disconnect(self, key: str = None) -> None:
         if key is not None:
-            for (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in list(self.regDict.keys()):
+            for k, val in self.regDict.items():
+                if len(k) == 2 and val[0] == key:
+                    if k[0]: self.input_unregister(k)
+                    else: self.output_unregister(k)
+                    del self.regDict[k]
+                else:
+                    if k[0] == key or k[1] == key:
+                        self.disconnect(k[0], k[1], k[2], k[3])
+                        del self.regDict[k]
+            """ for (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in list(self.regDict.keys()):
                 if srcModuleKey == key or tgtModuleKey == key:
                     self.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
                     del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]
             for (type, key) in list(self.regDict.keys()):
                 if self.regDict[(type, key)][0] == key:
                     if type: self.input_unregister(key)
-                    else: self.output_unregister(key)
+                    else: self.output_unregister(key) """
         else:
-            for (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in list(self.regDict.keys()):
+            for k, val in self.regDict.items():
+                if len(k) == 2:
+                    if k[0]: self.input_unregister(k)
+                    else: self.output_unregister(k)
+                else:
+                    self.disconnect(k[0], k[1], k[2], k[3])
+                del self.regDict[k]
+            """ for (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in list(self.regDict.keys()):
                 self.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
                 del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]
             for (type, key) in list(self.regDict.keys()):
                 if type: self.input_unregister(key)
-                else: self.output_unregister(key)
+                else: self.output_unregister(key) """
     
     def input_register(self, key: str, tgtModelKey: str, tgtKey: str) -> bool:
         if tgtModelKey not in self.modules or tgtKey not in self.modules[tgtModelKey].inputBuffer:
@@ -166,18 +182,15 @@ class Pipeline(Module):
         if srcModelKey not in self.modules or srcKey not in self.modules[srcModelKey].outputBuffer:
             return False
         if key not in self.outputBuffer:
-            self.outputBuffer[key] = Buffer(None)
-            self.modules[srcModelKey].outputBuffer[srcKey].register()
             self.outputBuffer[key] = self.modules[srcModelKey].outputBuffer[srcKey]
             self.regDict[(False, key)] = [srcModelKey, srcKey]
+            return True
         return False
     
     def output_unregister(self, key: str) -> bool:
         if key not in self.outputBuffer:
             return False
         if (False, key) in self.regDict:
-            srcModelKey, srcKey = self.regDict[(False, key)]
-            self.modules[srcModelKey].outputBuffer[srcKey].unregister()
             del self.outputBuffer[key]
             del self.regDict[(False, key)]
         return True

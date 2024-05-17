@@ -63,6 +63,6 @@ class Buffer:
                 sleep(0.01*self.__unread)
             else: 
                 break
-        self._val = val
+        self._val = deepcopy(val)
         self.__unread = self.__cread
         self.__mutex.release()
