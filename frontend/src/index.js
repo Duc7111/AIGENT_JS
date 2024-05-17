@@ -5,6 +5,7 @@ const HOST = '127.0.0.1';
 const PORT = 7777;
 
 var fsExtra = require('fs-extra');
+const { request } = require('http');
 
 let mainWindow;
 
@@ -271,6 +272,7 @@ const createWindow = () => {
   ipcMain.on('save-json-file', (event, data) => {
     console.log("saveJsonToFile called initial",data);
     const filePath = `${data[1]}/${data[2]}.ui.json`;
+    const beFilePath = `${data[1]}/${data[2]}.json`;
     console.log("saveJsonToFile called",data[0],filePath);
     const jsonStrings = data[0].map(item => JSON.stringify(item, null, 2));
     fsExtra.writeFile(filePath, `[${jsonStrings.join(',\n')}]`, (err) => {
@@ -280,6 +282,14 @@ const createWindow = () => {
         console.log('File saved successfully');
       }   
     });
+
+    const inputsSave = {
+      request: "save_pipeline",
+      inputs: {
+        path: beFilePath,
+      }
+    }
+    clientSocket.write(JSON.stringify(inputsSave)); 
   });
 
   ipcMain.on('save-connection-file', (event, data) => {
