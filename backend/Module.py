@@ -29,7 +29,7 @@ class Module:
         for key in self.inputBuffer:
             if self.inputBuffer[key] is None:
                 continue
-            self.input[key] = self.inputBuffer[key].get_val(id(self))
+            self.input[key] = self.inputBuffer[key].get_val(1)
             if self.input[key] is None:
                 self.status = False
                 self.outputBuffer['msg'].set_val("Input " + str(key) + " is not available")
@@ -59,7 +59,7 @@ class Pipeline(Module):
         for key in self.inputBuffer:
             if self.inputBuffer[key] is None:
                 continue
-            self.input[key].set_val(self.inputBuffer[key].get_val(id(self)))
+            self.input[key].set_val(self.inputBuffer[key].get_val(1))
             if self.input[key] is None:
                 self.status = False
                 self.outputBuffer['msg'].set_val("Input " + str(key) + " is not available")
@@ -104,7 +104,7 @@ class Pipeline(Module):
         if srcKey not in self.modules[srcModuleKey].outputBuffer or tgtKey not in self.modules[tgtModuleKey].inputBuffer:
             return False
         if (srcModuleKey, tgtModuleKey, srcKey, tgtKey) not in self.regDict:
-            self.modules[srcModuleKey].outputBuffer[srcKey].register(id(self.modules[tgtModuleKey].inputBuffer[tgtKey]))
+            self.modules[srcModuleKey].outputBuffer[srcKey].register()
             self.modules[tgtModuleKey].inputBuffer[tgtKey] = self.modules[srcModuleKey].outputBuffer[srcKey]
             self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)] = None
         return True
@@ -115,7 +115,7 @@ class Pipeline(Module):
         if srcKey not in self.modules[srcModuleKey].outputBuffer or tgtKey not in self.modules[tgtModuleKey].inputBuffer:
             return False
         if (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in self.regDict:
-            self.modules[srcModuleKey].outputBuffer[srcKey].unregister(id(self.modules[tgtModuleKey].inputBuffer[tgtKey]))
+            self.modules[srcModuleKey].outputBuffer[srcKey].unregister()
             self.modules[tgtModuleKey].inputBuffer[tgtKey] = None
             del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]
         return True
@@ -145,7 +145,7 @@ class Pipeline(Module):
             self.inputBuffer[key] = None
         if key not in self.input:
             self.input[key]= Buffer(None)
-        self.input[key].register(id(self.modules[tgtModelKey].inputBuffer[tgtKey]))
+        self.input[key].register()
         self.modules[tgtModelKey].inputBuffer[tgtKey] = self.input[key]
         self.regDict[(True, key)] = [tgtModelKey, tgtKey]   
         return True
@@ -155,7 +155,7 @@ class Pipeline(Module):
             return False
         if (True, key) in self.regDict:
             tgtModelKey, tgtKey = self.regDict[(True, key)]
-            self.inputBuffer[key].unregister(id(self.modules[tgtModelKey].inputBuffer[tgtKey]))
+            self.inputBuffer[key].unregister()
             self.modules[tgtModelKey].inputBuffer[tgtKey] = None
             del self.inputBuffer[key]
             del self.regDict[(True, key)]
@@ -166,7 +166,7 @@ class Pipeline(Module):
             return False
         if key not in self.outputBuffer:
             self.outputBuffer[key] = Buffer(None)
-        self.modules[srcModelKey].outputBuffer[srcKey].register(id(self.outputBuffer[key]))
+        self.modules[srcModelKey].outputBuffer[srcKey].register()
         self.outputBuffer[key] = self.modules[srcModelKey].outputBuffer[srcKey]
         self.regDict[(False, key)] = [srcModelKey, srcKey]
         return True
@@ -176,7 +176,7 @@ class Pipeline(Module):
             return False
         if (False, key) in self.regDict:
             srcModelKey, srcKey = self.regDict[(False, key)]
-            self.modules[srcModelKey].outputBuffer[srcKey].unregister(id(self.outputBuffer[key]))
+            self.modules[srcModelKey].outputBuffer[srcKey].unregister()
             del self.outputBuffer[key]
             del self.regDict[(False, key)]
         return True
