@@ -1,6 +1,8 @@
 
 import socket
 import json
+import torch
+import transformers
 from importlib import import_module
 
 from Module import *
