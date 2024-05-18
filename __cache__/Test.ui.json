@@ -1,0 +1,63 @@
+[{
+  "originalName": "FileReader",
+  "name": "Click to choose file",
+  "x": 403.40625,
+  "y": 310,
+  "dragging": false,
+  "hyperparameters": "file",
+  "inputs": [],
+  "outputs": [
+    "new"
+  ],
+  "outputColors": {
+    "test": "green",
+    "new": "green"
+  }
+},
+{
+  "originalName": "TextGetter",
+  "name": "TextGetter",
+  "x": 190.40625,
+  "y": 221,
+  "dragging": false,
+  "hyperparameters": [],
+  "inputs": [
+    "input"
+  ],
+  "outputs": [
+    "output"
+  ]
+},
+{
+  "originalName": "FileReader_2",
+  "name": "Click to choose file",
+  "x": 359.40625,
+  "y": 387,
+  "dragging": false,
+  "hyperparameters": "file",
+  "inputs": [],
+  "outputs": [
+    "output"
+  ],
+  "outputColors": {
+    "0": "green",
+    "test": "green",
+    "output": "green"
+  }
+},
+{
+  "originalName": "DictMerger",
+  "name": "question, context",
+  "x": 359.40625,
+  "y": 578,
+  "dragging": false,
+  "hyperparameters": "keys",
+  "inputs": [
+    "question",
+    " context"
+  ],
+  "outputs": [
+    "msg",
+    "output"
+  ]
+}]

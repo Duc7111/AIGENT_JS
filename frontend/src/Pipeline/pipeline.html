@@ -331,6 +331,19 @@
           <button id="noti-btn">Cancel</button>
         </div>
       </div>
+
+      <div id="popup" class="popup">
+        <div class="popup-content">
+          <span class="close">&times;</span>
+          <p id="popup-title">Register Marker</p>
+          <input
+            type="text"
+            id="marker-name"
+            placeholder="Enter register name"
+          />
+          <button id="register-marker-btn">Register</button>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -509,7 +522,6 @@
           const notiMessage = document.getElementById("noti-message");
           const notiBtn = document.getElementById("noti-btn");
           if (receivedData.status == true && run == true) {
-            console.log("TRUEEE");
             notiTitle.textContent = "Success";
             notiMessage.textContent =
               Object.keys(receivedData.outputs).length !== 0
@@ -1109,7 +1121,11 @@
                 } else if (dataType == "keys") {
                   const stringArray = userInput.split(",").map(String);
                   window.electron.setHyperparameters(item.originalName, {
-                    [dataType]: string,
+                    [dataType]: stringArray,
+                  });
+                  getReceivedData().then(() => {
+                    item.inputs = receivedData.outputs.inputs;
+                    item.outputs = receivedData.outputs.outputs;
                   });
                 } else {
                   window.electron.setHyperparameters(item.originalName, {
@@ -1389,6 +1405,130 @@
           }
         });
 
+        let selectedMarker = null;
+
+        canvas.addEventListener("dblclick", function (e) {
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = (e.clientX - rect.left) / scale;
+          const mouseY = (e.clientY - rect.top) / scale;
+          let isOverItem = false;
+          let isOverMarker = false;
+
+          draggableItems.forEach((item, index) => {
+            const itemNameWidth = ctx.measureText(item.name).width;
+            const itemNameHeight = 16;
+            const centerY = item.y - itemNameHeight / 2;
+
+            if (item.inputs) {
+              item.inputs.forEach((input, inputIndex) => {
+                const inputHitbox = {
+                  x: (item.x - 20 - ctx.measureText(input).width) * scale,
+                  y:
+                    (centerY -
+                      (item.inputs.length * 16) / 2 +
+                      inputIndex * 32) *
+                    scale,
+                  width: 12 * scale,
+                  height: 16 * scale,
+                };
+                if (
+                  mouseX >= inputHitbox.x &&
+                  mouseX <= inputHitbox.x + inputHitbox.width &&
+                  mouseY >= inputHitbox.y &&
+                  mouseY <= inputHitbox.y + inputHitbox.height
+                ) {
+                  selectedMarker = { item, type: "input", index: inputIndex };
+                  showPopup();
+                }
+              });
+            }
+
+            if (item.outputs) {
+              item.outputs.forEach((output, outputIndex) => {
+                const outputHitbox = {
+                  x: (item.x + ctx.measureText(item.name).width + 20) * scale,
+                  y:
+                    (centerY -
+                      (item.outputs.length * 16) / 2 +
+                      outputIndex * 32) *
+                    scale,
+                  width: 12 * scale,
+                  height: 16 * scale,
+                };
+                if (
+                  mouseX >= outputHitbox.x &&
+                  mouseX <= outputHitbox.x + outputHitbox.width &&
+                  mouseY >= outputHitbox.y &&
+                  mouseY <= outputHitbox.y + outputHitbox.height
+                ) {
+                  selectedMarker = { item, type: "output", index: outputIndex };
+                  showPopup();
+                }
+              });
+            }
+          });
+        });
+
+        function showPopup() {
+          const popup = document.getElementById("popup");
+          const closeBtn = document.querySelector(".popup .close");
+          const registerBtn = document.getElementById("register-marker-btn");
+          const popupTitle = document.getElementById("popup-title");
+
+          popup.style.display = "block";
+          popupTitle.textContent = "Enter register name of ";
+
+          if (selectedMarker.type === "input") {
+            popupTitle.textContent +=
+              selectedMarker.item.inputs[selectedMarker.index];
+          } else {
+            popupTitle.textContent +=
+              selectedMarker.item.outputs[selectedMarker.index];
+          }
+
+          closeBtn.onclick = function () {
+            popup.style.display = "none";
+          };
+
+          window.onclick = function (event) {
+            if (event.target == popup) {
+              popup.style.display = "none";
+            }
+          };
+
+          registerBtn.onclick = function () {
+            const markerName = document.getElementById("marker-name").value;
+            if (markerName && selectedMarker) {
+              if (selectedMarker.type === "input") {
+                if (!selectedMarker.item.inputColors)
+                  selectedMarker.item.inputColors = {};
+                selectedMarker.item.inputColors[
+                  selectedMarker.item.outputs[selectedMarker.index]
+                ] = "green";
+                window.electron.inputRegister(
+                  markerName,
+                  selectedMarker.item.originalName,
+                  selectedMarker.item.inputs[selectedMarker.index]
+                );
+              } else {
+                if (!selectedMarker.item.outputColors)
+                  selectedMarker.item.outputColors = {};
+                selectedMarker.item.outputColors[
+                  selectedMarker.item.outputs[selectedMarker.index]
+                ] = "green";
+                window.electron.outputRegister(
+                  markerName,
+                  selectedMarker.item.originalName,
+                  selectedMarker.item.outputs[selectedMarker.index]
+                );
+              }
+              drawItems();
+              drawConnectionLines();
+              popup.style.display = "none";
+              showNotifications(false);
+            }
+          };
+        }
         canvas.addEventListener("mousedown", function (e) {
           isDragging = true;
           lastPosX = e.clientX;
@@ -1612,7 +1752,6 @@
 
         function drawItems() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          // drawGrid();
           draggableItems.forEach((item) => {
             ctx.save();
             ctx.scale(scale, scale);
@@ -1629,7 +1768,10 @@
               const inputSpacing = 20;
               let inputY = centerY - (item.inputs.length * 16) / 2;
               item.inputs.forEach((input) => {
-                ctx.fillStyle = "red";
+                ctx.fillStyle =
+                  item.inputColors && item.inputColors[input]
+                    ? item.inputColors[input]
+                    : "red";
                 ctx.beginPath();
                 ctx.arc(
                   item.x - inputSpacing - ctx.measureText(input).width,
@@ -1640,7 +1782,7 @@
                 );
                 ctx.fill();
 
-                ctx.fillStyle = "red";
+                ctx.fillStyle = ctx.fillStyle;
                 ctx.fillText(
                   input,
                   item.x - inputSpacing - ctx.measureText(input).width + 10,
@@ -1655,7 +1797,10 @@
               const outputSpacing = 20;
               let outputY = centerY - (item.outputs.length * 16) / 2;
               item.outputs.forEach((output) => {
-                ctx.fillStyle = "red";
+                ctx.fillStyle =
+                  item.outputColors && item.outputColors[output]
+                    ? item.outputColors[output]
+                    : "red";
                 ctx.beginPath();
                 ctx.arc(
                   item.x + itemNameWidth + outputSpacing,
@@ -1666,7 +1811,7 @@
                 );
                 ctx.fill();
 
-                ctx.fillStyle = "red";
+                ctx.fillStyle = ctx.fillStyle;
                 ctx.fillText(
                   output,
                   item.x + itemNameWidth + outputSpacing + 10,
