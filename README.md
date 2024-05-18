@@ -50,10 +50,37 @@ To make it easier for users to build bigger and bigger applications, we implemen
 A pipeline can be saved, and because pipelines are also modules, it can be added into other pipelines. Hence, our program allow users to build up large pipeline by gradually building smaller pipelines
 
 ### Frontend
-FRONTEND INFO GO HERE
+#### Use case diagram
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="usecase.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="usecase.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="usecase.drawio.svg">
+  </picture>  
+</p>
 
+The diagram visually depicts:
+
+User Interactions: How users (actors) can interact with the system to manage pipelines.
+
+Functionalities: Key functionalities available to users, including creating directories, searching pipelines, managing projects, building/deleting pipelines, and exporting/importing data.
+
+Relationships: Connections between functionalities, such as nested actions and optional extensions.
+This use case diagram provides a clear understanding of user interaction capabilities within the pipeline management system.
 ## Key Features
 KEY FEATURE GO HERE
+1. Drag and Drop Modules:
+Our platform offers an intuitive drag-and-drop interface that allows users to seamlessly add modules to their workspace. Users can effortlessly move these modules around the workspace, arranging them in any configuration that suits their workflow.
 
+2. Zoom and Pan:
+To enhance user experience, the workspace supports zooming in and out, providing users with the flexibility to focus on specific modules or get an overview of the entire project. Additionally, users can pan across the workspace to navigate their modules easily.
+
+3. Flexible Module Positioning:
+Users can position modules anywhere within the workspace, giving them complete control over the layout. This feature ensures that users can organize their workspace in the most efficient and personalized manner.
+
+4. Connectable Gates:
+Each module comes equipped with gates that can be connected to gates of other modules. This allows users to create complex workflows by linking modules together to perform specific tasks or functions. The connectivity between modules enables the execution of customized operations tailored to the user's requirements.
 ## Contributers
 Duc7111 - Duc7111: Backend developer
+
+TringuyenCoding - TringuyenCoding: Frontend developer
