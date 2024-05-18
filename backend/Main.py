@@ -185,6 +185,10 @@ def run() -> dict:
         'msg': pipeline.outputBuffer['msg'].get_val(0)
         }
 
+def reset() -> dict:
+    global pipeline
+    pipeline = Pipeline()
+    return {'status': True, 'outputs': {}, 'msg': None}
 
 request = globals()
 
