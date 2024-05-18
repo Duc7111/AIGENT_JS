@@ -2,7 +2,6 @@
 import socket
 import json
 import torch
-import transformers
 import math
 from importlib import import_module
 
@@ -205,7 +204,7 @@ if __name__ == '__main__':
         with conn:
             print('Connected by', addr)
             while True:
-                data = conn.recv(1024)
+                data = conn.recv(10485576)
                 if not data:
                     break
                 data = json.loads(data)
