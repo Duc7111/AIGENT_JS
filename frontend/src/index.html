@@ -219,7 +219,11 @@
       //import function
       const btnImport = document.getElementById("btn-import");
       btnImport.addEventListener("click", async () => {
-        const importFileDialog = [giveUniqueName(jsonData), GetFolderPath()];
+        const importFileDialog = [
+          giveUniqueName(jsonData),
+          GetFolderPath(),
+          connectionPath,
+        ];
         const checkImport = await window.electron.importFileFromDialog(
           importFileDialog
         );
