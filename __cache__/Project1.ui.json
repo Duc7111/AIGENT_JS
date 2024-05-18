@@ -1,0 +1,24 @@
+[{
+  "originalName": "FileReader",
+  "name": "FileReader",
+  "x": 184.60000610351562,
+  "y": 150.59999084472656,
+  "dragging": false,
+  "markerColor": "red"
+},
+{
+  "originalName": "FileWriter",
+  "name": "FileWriter",
+  "x": 429.6000061035156,
+  "y": 309.59999084472656,
+  "dragging": false,
+  "markerColor": "red"
+},
+{
+  "originalName": "TextGetter",
+  "name": "TextGetter",
+  "x": 122.60000610351562,
+  "y": 302.59999084472656,
+  "dragging": false,
+  "markerColor": "red"
+}]
