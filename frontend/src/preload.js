@@ -185,6 +185,35 @@ contextBridge.exposeInMainWorld('electron', {
             },
         });
     },
+    outputUnregister: (key) => {
+        console.log("outputUnregister called");
+        ipcRenderer.send('output_unregister', {
+            request: "output_unregister",
+            inputs: {
+                key: key,
+            },
+        });
+    },
+    inputRegister: (key, tgtModuleKey, tgtKey) => {
+        console.log("inputRegister called");
+        ipcRenderer.send('input_register', {
+            request: "input_register",
+            inputs: {
+                key: key,
+                tgtModuleKey: tgtModuleKey,
+                tgtKey: tgtKey
+            },
+        });
+    },
+    inputUnregister: (key) => {
+        console.log("inputUnregister called");
+        ipcRenderer.send('input_unregister', {
+            request: "input_unregister",
+            inputs: {
+                key: key,
+            },
+        });
+    },
     removeModule: (id_name) => {
         console.log("removeModule called");
         ipcRenderer.send('remove-module', {
