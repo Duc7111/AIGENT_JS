@@ -56,6 +56,7 @@ contextBridge.exposeInMainWorld('electron', {
 
     importFileFromDialog: (importFile) => {
         return new Promise((resolve, reject) => {
+            console.log("importFileFromDialog called",importFile);
             ipcRenderer.send('import-file-dialog', importFile);
             ipcRenderer.on('import-file-response', (event, data) => {
                 console.log('import-file-response:', data);
@@ -65,7 +66,7 @@ contextBridge.exposeInMainWorld('electron', {
     },
 
     exportToJsonl: (transferData)=>{
-        console.log("ExportToJsonl called",transferData[0],transferData[1],transferData[2]);
+        console.log("ExportToJsonl called",transferData[0],transferData[1],transferData[2],transferData[3],transferData[4]);
         ipcRenderer.send('export-jsonl-file', transferData);
     },
 
