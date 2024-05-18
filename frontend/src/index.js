@@ -232,10 +232,6 @@ const createWindow = () => {
     await event.sender.send('delete-dir-from-home-response', true);
 
   });
-
-  ipcMain.on('load-pipeline-as-module', (event, data) => {
-
-  });
   
   ipcMain.on('import-file-dialog', async (event, data) => {
     await openImportFileDialog(data[0],data[1]);
@@ -317,13 +313,25 @@ const createWindow = () => {
     });
   });
 
+  ipcMain.on('load-pipeline', (event,data) => {
+    clientSocket.write(JSON.stringify(data));
+  });
+
   ipcMain.on('open-pipeline', (event) => {
     mainWindow.loadFile(path.join(__dirname, 'Pipeline', 'pipeline.html'));
+    clientSocket.write(JSON.stringify({
+      request: "reset",
+      inputs:{},
+  }));
     // console.log(path.join(__dirname, 'Pipeline', 'pipeline.html'));
     // mainWindow.once('send-params-to-next-page', (event, params) => {
     //   mainWindow.webContents.send('pass-params', params);
     // });
   });
+
+  ipcMain.on('reset-pipeline', (event,data) =>{
+    clientSocket.write(JSON.stringify(data));
+  })
 
   ipcMain.on('navigate-back', (event) => {
     mainWindow.webContents.goBack();

@@ -307,8 +307,19 @@
       <div id="inputModal" class="modal">
         <div class="modal-content">
           <span class="close">&times;</span>
-          <p>Enter data for the module:</p>
-          <input type="text" id="modalInput" />
+          <p id="modal-title">Enter data for the module</p>
+          <div class="input-line" id="input-line-1">
+            <p class="data-type" id="data-type_1">Test</p>
+            <input class="modal-input" type="text" id="modal-input-1" />
+          </div>
+          <div class="input-line" id="input-line-2">
+            <p class="data-type" id="data-type_2">Test</p>
+            <input class="modal-input" type="text" id="modal-input-2" />
+          </div>
+          <div class="input-line" id="input-line-3">
+            <p class="data-type" id="data-type_3">Test</p>
+            <input class="modal-input" type="text" id="modal-input-3" />
+          </div>
           <button id="submitInput">Submit</button>
         </div>
       </div>
@@ -484,11 +495,14 @@
         const namesString = urlParams.get("names");
         const names = JSON.parse(namesString);
         console.log("Pass Params:", names);
+        let uniqueProjectName = "";
         if (names) {
-          const uniqueProjectName = getUniqueName(names);
+          uniqueProjectName = getUniqueName(names);
           projectNameInput.value = uniqueProjectName;
           const uiFileNamePath = `${parentDirectory}/${uniqueProjectName}.ui.json`;
           const connectionFileNamePath = `${connectionDirectory}/${uniqueProjectName}.connection.json`;
+          const beFilePath = `${parentDirectory}/${uniqueProjectName}.json`;
+          window.electron.loadPipeline(beFilePath);
           getDataFromGivenFile(uiFileNamePath, connectionFileNamePath);
         } else {
           getProjectNames();
@@ -588,25 +602,29 @@
           );
           console.log("Parent Directory in addMenuUser:", parentDirectory);
           listAvailableProjectName.forEach((projectNameUser) => {
-            const projectNameWithoutSpace = projectNameUser.split(" ").join("");
-            const fileUiPath = `${parentDirectory}/${projectNameWithoutSpace}.json`;
-            const inputName = `${projectNameWithoutSpace}_Input`;
-            const outputName = `${projectNameWithoutSpace}_Output`;
-            const itemUser = document.createElement("div");
-            itemUser.className = "item";
-            itemUser.draggable = true;
-            itemUser.innerHTML = `
-            <span
-            class="item-name"
-            f-name= "${projectNameWithoutSpace}"
-            module-name= "${projectNameWithoutSpace}"
-            file-module= "${fileUiPath}"
-            input-name= "${inputName}"
-            output-name= "${outputName}"
-            >${projectNameUser}</span
-          >
-            `;
-            menuItemUser.appendChild(itemUser);
+            if (!uniqueProjectName.includes(projectNameUser)) {
+              const projectNameWithoutSpace = projectNameUser
+                .split(" ")
+                .join("");
+              const fileUiPath = `${parentDirectory}/${projectNameUser}.json`;
+              const inputName = `${projectNameWithoutSpace}_Input`;
+              const outputName = `${projectNameWithoutSpace}_Output`;
+              const itemUser = document.createElement("div");
+              itemUser.className = "item";
+              itemUser.draggable = true;
+              itemUser.innerHTML = `
+                <span
+                class="item-name"
+                f-name= "${projectNameWithoutSpace}"
+                module-name= "${projectNameWithoutSpace}"
+                file-module= "${fileUiPath}"
+                input-name= "${inputName}"
+                output-name= "${outputName}"
+                >${projectNameUser}</span
+              >
+                `;
+              menuItemUser.appendChild(itemUser);
+            }
           });
         }
 
@@ -898,12 +916,12 @@
                 );
               }
 
-              if (receivedData.outputs.hyperparameters != null) {
+              if (receivedData.outputs.hyperparameters.length) {
                 newItem.hyperparameters = receivedData.outputs.hyperparameters;
                 if (newItem.hyperparameters.includes("file")) {
                   newItem.name = "Click to choose file";
                 } else {
-                  newItem.name = "Click to type";
+                  newItem.name = "Click to input";
                 }
               }
 
@@ -932,45 +950,62 @@
               mouseY >= hitbox.y &&
               mouseY <= hitbox.y + hitbox.height
             ) {
-              if (item.hyperparameters.includes("file")) {
-                const inputFile = document.createElement("input");
-                inputFile.type = "file";
-                inputFile.click();
+              if (item.hyperparameters.length != 0) {
+                if (item.hyperparameters.includes("file")) {
+                  const inputFile = document.createElement("input");
+                  inputFile.type = "file";
+                  inputFile.click();
 
-                inputFile.addEventListener("change", function (e) {
-                  const selectedFile = e.target.files[0];
-                  const pathJson = {
-                    file: selectedFile.path,
-                  };
-                  item.name = selectedFile
-                    ? selectedFile.name
-                    : "No file chosen";
-                  window.electron.setHyperparameters(
-                    item.originalName,
-                    pathJson
-                  );
-                  window.electron.outputRegister(
-                    item.originalName,
-                    item.originalName,
-                    "output"
-                  );
-                  drawItems();
-                  drawConnectionLines();
-                  console.log("original name:", item.originalName);
-                  console.log("Selected file:", JSON.stringify(pathJson));
-                });
-              } else {
-                showModal(item, item.hyperparameters);
+                  inputFile.addEventListener("change", function (e) {
+                    const selectedFile = e.target.files[0];
+                    const pathJson = {
+                      file: selectedFile.path,
+                    };
+                    item.name = selectedFile
+                      ? selectedFile.name
+                      : "No file chosen";
+                    window.electron.setHyperparameters(
+                      item.originalName,
+                      pathJson
+                    );
+                    drawItems();
+                    drawConnectionLines();
+                  });
+                } else {
+                  showModal(item, item.hyperparameters);
+                }
               }
             }
           });
         });
 
         function showModal(item, dataType) {
+          const title = document.getElementById("modal-title");
           const modal = document.getElementById("inputModal");
           const span = document.getElementsByClassName("close")[0];
           const submitButton = document.getElementById("submitInput");
-          const inputField = document.getElementById("modalInput");
+
+          const inputLine1 = document.getElementById("input-line-1");
+          const inputField1 = document.getElementById("modal-input-1");
+          const dataTypeElement1 = document.getElementById("data-type_1");
+
+          const inputLine2 = document.getElementById("input-line-2");
+          const inputField2 = document.getElementById("modal-input-2");
+          const dataTypeElement2 = document.getElementById("data-type_2");
+
+          const inputLine3 = document.getElementById("input-line-3");
+          const inputField3 = document.getElementById("modal-input-3");
+          const dataTypeElement3 = document.getElementById("data-type_3");
+
+          inputLine1.style.display = "none";
+          inputLine2.style.display = "none";
+          inputLine3.style.display = "none";
+
+          inputField1.value = "";
+          inputField2.value = "";
+          inputField3.value = "";
+
+          title.textContent = "Enter data for the module " + item.originalName;
           modal.style.display = "block";
 
           span.onclick = function () {
@@ -983,25 +1018,152 @@
             }
           };
 
-          submitButton.onclick = function () {
-            const userInput = inputField.value;
-            if (userInput !== "") {
-              item.name = userInput;
-              window.electron.setHyperparameters(item.originalName, {
-                dataType: userInput,
-              });
-              window.electron.outputRegister(
-                item.originalName,
-                item.originalName,
-                "output"
-              );
+          if (!Array.isArray(dataType)) {
+            inputLine1.style.display = "flex";
+            dataTypeElement1.textContent = dataType;
+
+            if (dataType == "size" || dataType == "index") {
+              inputField1.type = "number";
+              inputField1.placeholder = "Enter number";
+            } else if (dataType == "text") {
+              inputField1.type = "text";
+              inputField1.placeholder = "Enter text";
+            } else if (dataType == "vector") {
+              inputField1.type = "text";
+              inputField1.placeholder = "Enter numbers separated by commas";
+            } else if (dataType == "keys") {
+              inputField1.type = "text";
+              inputField1.placeholder = "Enter words separated by commas";
+            }
+
+            submitButton.onclick = function () {
+              const userInput = inputField1.value;
+              if (userInput !== "") {
+                item.name = userInput;
+
+                if (dataType == "vector") {
+                  const numberArray = userInput.split(",").map(Number);
+                  window.electron.setHyperparameters(item.originalName, {
+                    [dataType]: numberArray,
+                  });
+                } else if (dataType == "keys") {
+                  const stringArray = userInput.split(",").map(String);
+                  window.electron.setHyperparameters(item.originalName, {
+                    [dataType]: string,
+                  });
+                } else {
+                  window.electron.setHyperparameters(item.originalName, {
+                    [dataType]: userInput,
+                  });
+                }
+                drawItems();
+                drawConnectionLines();
+
+                modal.style.display = "none";
+              }
+            };
+          } else {
+            inputLine1.style.display = "flex";
+            dataTypeElement1.textContent = dataType[0];
+            inputField1.type = "text";
+            inputField1.placeholder = "Enter words";
+
+            inputLine2.style.display = "flex";
+            dataTypeElement2.textContent = dataType[1];
+            inputField2.type = "text";
+            inputField2.placeholder = "Enter words";
+
+            inputLine3.style.display = "flex";
+            dataTypeElement3.textContent = dataType[2];
+            inputField3.type = "text";
+            inputField3.placeholder = "Enter words";
+
+            if (dataType[0] == "weights") {
+              inputLine3.style.display = "none";
+
+              inputField1.placeholder = "Enter numbers separated by commas";
+
+              inputField2.type = "number";
+              inputField2.placeholder = "Enter a number";
+
+              if (dataType.length > 2) {
+                inputLine3.style.display = "flex";
+              }
+            }
+
+            submitButton.onclick = function () {
+              const userInput1 = inputField1.value;
+              const userInput2 = inputField2.value;
+              const userInput3 = inputField3.value;
+
+              if (
+                dataType[0] == "weights" &&
+                userInput1 !== "" &&
+                userInput2 !== ""
+              ) {
+                const numberArray = userInput1.split(",").map(Number);
+                if (dataType.length <= 2) {
+                  item.name =
+                    dataType[0] +
+                    ": " +
+                    userInput1 +
+                    ", " +
+                    dataType[1] +
+                    ": " +
+                    userInput2;
+                  window.electron.setHyperparameters(item.originalName, {
+                    [dataType[0]]: userInput1,
+                    [dataType[1]]: numberArray,
+                  });
+                } else if (dataType.length > 2 && userInput3 !== "") {
+                  item.name =
+                    dataType[0] +
+                    ": " +
+                    userInput1 +
+                    ", " +
+                    dataType[1] +
+                    ": " +
+                    userInput2 +
+                    ", " +
+                    dataType[2] +
+                    ": " +
+                    userInput3;
+                  window.electron.setHyperparameters(item.originalName, {
+                    [dataType[0]]: userInput1,
+                    [dataType[1]]: numberArray,
+                    [dataType[2]]: userInput3,
+                  });
+                }
+              } else {
+                if (
+                  userInput1 !== "" &&
+                  userInput2 !== "" &&
+                  userInput3 !== ""
+                ) {
+                  item.name =
+                    dataType[0] +
+                    ": " +
+                    userInput1 +
+                    ", " +
+                    dataType[1] +
+                    ": " +
+                    userInput2 +
+                    ", " +
+                    dataType[2] +
+                    ": " +
+                    userInput3;
+                  window.electron.setHyperparameters(item.originalName, {
+                    [dataType[0]]: userInput1,
+                    [dataType[1]]: userInput2,
+                    [dataType[2]]: userInput3,
+                  });
+                }
+              }
               drawItems();
               drawConnectionLines();
-              console.log("original name:", item.originalName);
-              console.log("User input:", userInput);
-            }
-            modal.style.display = "none";
-          };
+              modal.style.display = "none";
+            };
+          }
         }
 
         function isMouseOverItem(mouseX, mouseY, item) {
@@ -1031,6 +1193,40 @@
 
         let startItem = null;
         let endItem = null;
+
+        canvas.addEventListener("contextmenu", function (e) {
+          e.preventDefault();
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = (e.clientX - rect.left) / scale;
+          const mouseY = (e.clientY - rect.top) / scale;
+          draggableItems.forEach((item, index) => {
+            if (isMouseOverItem(mouseX, mouseY, item)) {
+              window.electron.removeModule(item.originalName);
+              draggableItems.splice(index, 1);
+              connectionLines = connectionLines.filter((line) => {
+                return (
+                  line.srcModuleKey !== item.originalName &&
+                  line.tgtModuleKey !== item.originalName
+                );
+              });
+              drawItems();
+              drawConnectionLines();
+            }
+          });
+
+          const connectionIndex = getConnectionUnderMouse(mouseX, mouseY);
+          if (connectionIndex !== -1) {
+            window.electron.disconnectModule(
+              connectionLines[connectionIndex].srcModuleKey,
+              connectionLines[connectionIndex].tgtModuleKey,
+              connectionLines[connectionIndex].srcKey,
+              connectionLines[connectionIndex].tgtKey
+            );
+            connectionLines.splice(connectionIndex, 1);
+            drawItems();
+            drawConnectionLines();
+          }
+        });
 
         canvas.addEventListener("mousemove", function (e) {
           const rect = canvas.getBoundingClientRect();
@@ -1512,6 +1708,63 @@
         function clearConnectionLines() {
           connectionLines = [];
           drawConnectionLines();
+        }
+
+        function getConnectionUnderMouse(mouseX, mouseY) {
+          for (let i = 0; i < connectionLines.length; i++) {
+            const line = connectionLines[i];
+            const srcItem = draggableItems.find(
+              (item) => item.originalName === line.srcModuleKey
+            );
+            const tgtItem = draggableItems.find(
+              (item) => item.originalName === line.tgtModuleKey
+            );
+
+            if (srcItem && tgtItem) {
+              const srcItemNameWidth = ctx.measureText(srcItem.name).width;
+              const srcItemNameHeight = 16;
+              const srcCenterY = srcItem.y - srcItemNameHeight / 2;
+              const tgtItemNameWidth = ctx.measureText(tgtItem.name).width;
+              const tgtItemNameHeight = 16;
+              const tgtCenterY = tgtItem.y - tgtItemNameHeight / 2;
+              const startX = srcItem.x + srcItemNameWidth + 20;
+              const startY =
+                srcCenterY -
+                (srcItem.outputs.length * 16) / 2 +
+                srcItem.outputs.findIndex((output) => output === line.srcKey) *
+                  32;
+              const endX = tgtItem.x - 20 - ctx.measureText(line.tgtKey).width;
+              const endY =
+                tgtCenterY -
+                (tgtItem.inputs.length * 16) / 2 +
+                tgtItem.inputs.findIndex((input) => input === line.tgtKey) * 32;
+
+              // Check if mouse coordinates intersect with the connection line segment
+              if (
+                isPointOnLine(
+                  startX * scale,
+                  startY * scale,
+                  endX * scale,
+                  endY * scale,
+                  mouseX,
+                  mouseY
+                )
+              ) {
+                return i;
+              }
+            }
+          }
+          return -1;
+        }
+
+        function isPointOnLine(x1, y1, x2, y2, mouseX, mouseY) {
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          const d1 = Math.sqrt((mouseX - x1) ** 2 + (mouseY - y1) ** 2);
+          const d2 = Math.sqrt((mouseX - x2) ** 2 + (mouseY - y2) ** 2);
+          const lineLen = Math.sqrt(dx ** 2 + dy ** 2);
+
+          return Math.abs(d1 + d2 - lineLen) < 0.1;
         }
 
         function areCompatibleMarkers(startItem, endItem) {

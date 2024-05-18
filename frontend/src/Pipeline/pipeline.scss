@@ -257,14 +257,26 @@
       margin-bottom: 10px;
     }
 
-    #modalInput {
-      background-color: #9290c3;
-      border-radius: 8px;
-      width: calc(100%);
-      border: none;
-      outline: none;
-      padding: 10px;
-      margin-bottom: 10px;
+    .input-line{
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      .data-type{
+        color: #fff;
+        margin-right: 10px;
+      }
+
+      .modal-input {
+        background-color: #9290c3;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 80%;
+        border: none;
+        outline: none;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
     }
 
     #submitInput {
