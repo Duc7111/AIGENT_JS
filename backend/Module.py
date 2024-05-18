@@ -90,10 +90,7 @@ class Pipeline(Module):
     def remove_module(self, key: str) -> bool:
         if key in self.modules:
             # Disconnect all connections
-            for (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in list(self.regDict.keys()):
-                if srcModuleKey == key or tgtModuleKey == key:
-                    self.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
-                    del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]
+            self.full_disconnect(key)
             del self.modules[key]
             return True
         return False
@@ -121,16 +118,15 @@ class Pipeline(Module):
         return True
     
     def full_disconnect(self, key: str = None) -> None:
+        regDict = tuple(self.regDict.keys())
         if key is not None:
-            for k, val in self.regDict.items():
-                if len(k) == 2 and val[0] == key:
-                    if k[0]: self.input_unregister(k)
-                    else: self.output_unregister(k)
-                    del self.regDict[k]
+            for k in regDict:
+                if len(k) == 2 and self.regDict[k][0] == key:
+                    if k[0]: self.input_unregister(k[1])
+                    else: self.output_unregister(k[1])
                 else:
                     if k[0] == key or k[1] == key:
                         self.disconnect(k[0], k[1], k[2], k[3])
-                        del self.regDict[k]
             """ for (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in list(self.regDict.keys()):
                 if srcModuleKey == key or tgtModuleKey == key:
                     self.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
@@ -140,13 +136,12 @@ class Pipeline(Module):
                     if type: self.input_unregister(key)
                     else: self.output_unregister(key) """
         else:
-            for k, val in self.regDict.items():
+            for k in regDict:
                 if len(k) == 2:
                     if k[0]: self.input_unregister(k)
                     else: self.output_unregister(k)
                 else:
                     self.disconnect(k[0], k[1], k[2], k[3])
-                del self.regDict[k]
             """ for (srcModuleKey, tgtModuleKey, srcKey, tgtKey) in list(self.regDict.keys()):
                 self.disconnect(srcModuleKey, tgtModuleKey, srcKey, tgtKey)
                 del self.regDict[(srcModuleKey, tgtModuleKey, srcKey, tgtKey)]

@@ -17,6 +17,8 @@ let uiJsonData = [];
 
 let beJsonData = [];
 
+let connectionJsonData = [];
+
 let clientSocket = new net.Socket();
 
 let combinedData = [];
@@ -32,16 +34,35 @@ if (require('electron-squirrel-startup')) {
 }
 
 function saveJsonToFile(data) {
-  const filePath = `${data[1]}/${data[2]}.ui.json`;
-    console.log("saveJsonToFile called",data[0],filePath);
-    const jsonStrings = data[0].map(item => JSON.stringify(item, null, 2));
-    fsExtra.writeFile(filePath, `[${jsonStrings.join(',\n')}]`, (err) => {
+  const fileUiPath = `${data[1]}/${data[2]}.ui.json`;
+  const fileBePath = `${data[1]}/${data[2]}.json`;
+  const inputsSave = {
+    request: "save_pipeline",
+    inputs: {
+      path: fileBePath,
+    }
+  }
+  clientSocket.write(JSON.stringify(inputsSave));
+  const fileConnectionPath = `${data[3]}/${data[2]}.connection.json`;
+  console.log("saveJsonToFile called",data[0],fileUiPath);
+  const jsonStrings = data[0].map(item => JSON.stringify(item, null, 2));
+  fsExtra.writeFile(fileUiPath, `[${jsonStrings.join(',\n')}]`, (err) => {
       if (err) {
         console.error(err);
       } else {
         console.log('File saved successfully');
       }   
-    });
+  });
+
+  const jsonConnectionStrings = data[4].map(item => JSON.stringify(item, null, 2));
+  fsExtra.writeFile(fileConnectionPath, `[${jsonConnectionStrings.join(',\n')}]`, (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log('Connection saved successfully');
+    }   
+  });
+  
 };
 
 function saveConnectionToFile(data) {
@@ -57,7 +78,7 @@ function saveConnectionToFile(data) {
     });
 };
 
-async function openImportFileDialog(listUniqueProjectName, saveLocalPath) {
+async function openImportFileDialog(listUniqueProjectName, saveLocalPath, connectionLocalPath) {
   try {
       const result = await dialog.showOpenDialog({
           properties: ['openFile'],
@@ -80,10 +101,11 @@ async function openImportFileDialog(listUniqueProjectName, saveLocalPath) {
           }
           const parsedData = JSON.parse(fileContent);
 
-          const { ui, be } = parsedData;
+          const { ui, be, connection } = parsedData;
 
           const uiFilePath = `${saveLocalPath}/${newProjectName}.ui.json`;
           const beFilePath = `${saveLocalPath}/${newProjectName}.json`;
+          const connectionFilePath = `${connectionLocalPath}/${newProjectName}.connection.json`;
 
           fsExtra.writeFile(uiFilePath, JSON.stringify(ui, null, 2), (err) => {
               if (err) {
@@ -100,6 +122,14 @@ async function openImportFileDialog(listUniqueProjectName, saveLocalPath) {
                   console.log(`Successfully saved file from import ${beFilePath}`);
                 }
           });
+
+          fsExtra.writeFile(connectionFilePath, JSON.stringify(connection, null, 2), (err) => {
+            if (err) {
+                console.error(`Error saving file from import ${connectionFilePath}:`, err);
+            } else {
+                console.log(`Successfully saved file from import ${connectionFilePath}`);
+              }
+        });
 
           checkFileImport = true;
           
@@ -145,20 +175,31 @@ function writeJsonlFile(jsonlFilePath, jsonData) {
 };
 
 async function combinedToOneData(){
-  console.log("uiJsonData, beJsonData called",uiJsonData,beJsonData);
-  if (uiJsonData && beJsonData) {
-    combinedData = {"ui": JSON.parse(uiJsonData), "be": JSON.parse(beJsonData)};
-  } else if(uiJsonData){
-    combinedData = {"ui": JSON.parse(uiJsonData), "be":{}};
-  } else if(beJsonData){
-    combinedData = {"ui":{},"be": JSON.parse(beJsonData)};
+  console.log("uiJsonData, beJsonData, connectionJsonData called", uiJsonData, beJsonData, connectionJsonData);
+  
+  combinedData = {"ui": {}, "be": {}, "connection": {}};
+
+  if (uiJsonData) {
+      combinedData.ui = JSON.parse(uiJsonData);
   }
+  
+  if (beJsonData) {
+      combinedData.be = JSON.parse(beJsonData);
+  }
+
+  if (connectionJsonData) {
+      combinedData.connection = JSON.parse(connectionJsonData);
+  }
+
+  
+  console.log("Combined Data:", combinedData);
 }
 
-async  function readJsonFile(uiPath, BePath) {
+async  function readJsonFile(uiPath, BePath, connectionPath) {
   try {
       uiJsonData = await fsExtra.readFile(uiPath, 'utf8');
       beJsonData = await fsExtra.readFile(BePath, 'utf8');
+      connectionJsonData = await fsExtra.readFile(connectionPath, 'utf8');
       await combinedToOneData();
   } catch (err) {
       console.error(`Error reading JSON file ${filePath}:`, err);
@@ -234,7 +275,7 @@ const createWindow = () => {
   });
   
   ipcMain.on('import-file-dialog', async (event, data) => {
-    await openImportFileDialog(data[0],data[1]);
+    await openImportFileDialog(data[0],data[1], data[2]);
     await event.sender.send('import-file-response', checkFileImport);
   });
 
@@ -243,8 +284,8 @@ const createWindow = () => {
     saveJsonToFile(data);
     const fileUiPath = `${data[1]}/${data[2]}.ui.json`;
     const fileBePath = `${data[1]}/${data[2]}.json`;
-    
-    readJsonFile(fileUiPath, fileBePath);
+    const fileConnectionPath = `${data[3]}/${data[2]}.connection.json`;
+    readJsonFile(fileUiPath, fileBePath,fileConnectionPath);
     openSaveFileDialog();
   });
 
