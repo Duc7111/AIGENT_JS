@@ -489,6 +489,8 @@
           projectNameInput.value = uniqueProjectName;
           const uiFileNamePath = `${parentDirectory}/${uniqueProjectName}.ui.json`;
           const connectionFileNamePath = `${connectionDirectory}/${uniqueProjectName}.connection.json`;
+          const beFilePath = `${parentDirectory}/${uniqueProjectName}.json`;
+          window.electron.loadPipeline(beFilePath);
           getDataFromGivenFile(uiFileNamePath, connectionFileNamePath);
         } else {
           getProjectNames();
@@ -589,7 +591,7 @@
           console.log("Parent Directory in addMenuUser:", parentDirectory);
           listAvailableProjectName.forEach((projectNameUser) => {
             const projectNameWithoutSpace = projectNameUser.split(" ").join("");
-            const fileUiPath = `${parentDirectory}/${projectNameWithoutSpace}.json`;
+            const fileUiPath = `${parentDirectory}/${projectNameUser}.json`;
             const inputName = `${projectNameWithoutSpace}_Input`;
             const outputName = `${projectNameWithoutSpace}_Output`;
             const itemUser = document.createElement("div");

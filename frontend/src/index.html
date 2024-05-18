@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Aileron</title>
+    <title>AIGENTJS</title>
     <link rel="stylesheet" href="index.css" />
   </head>
   <body>
@@ -16,7 +16,7 @@
           </li>
 
           <li>
-            <a href="#" class="logoName"> Aileron </a>
+            <a href="#" class="logoName"> AigentJS </a>
           </li>
 
           <li>
@@ -304,6 +304,7 @@
         });
         console.log("paramsJson", paramsJson);
         await window.electron.sendListProjectName(giveUniqueName(jsonData));
+
         window.location.href = `Pipeline\\pipeline.html?names=${JSON.stringify(
           paramsJson
         )}`;

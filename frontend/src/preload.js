@@ -22,6 +22,17 @@ contextBridge.exposeInMainWorld('electron', {
     //         });
     //     });
     // },
+
+    loadPipeline: (path) => {
+        console.log("loadPipeline called");
+        ipcRenderer.send('load-pipeline',{
+            request: "load_pipeline",
+            inputs: {
+                path: path,
+            }
+        });
+    },
+
     loadPipelineAsModule: (keyID, pathModule) => {
         console.log("loadPipelineAsModule called");
         ipcRenderer.send('load-pipeline-as-module', {
