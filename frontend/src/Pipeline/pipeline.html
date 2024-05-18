@@ -495,8 +495,9 @@
         const namesString = urlParams.get("names");
         const names = JSON.parse(namesString);
         console.log("Pass Params:", names);
+        let uniqueProjectName = "";
         if (names) {
-          const uniqueProjectName = getUniqueName(names);
+          uniqueProjectName = getUniqueName(names);
           projectNameInput.value = uniqueProjectName;
           const uiFileNamePath = `${parentDirectory}/${uniqueProjectName}.ui.json`;
           const connectionFileNamePath = `${connectionDirectory}/${uniqueProjectName}.connection.json`;
@@ -601,25 +602,29 @@
           );
           console.log("Parent Directory in addMenuUser:", parentDirectory);
           listAvailableProjectName.forEach((projectNameUser) => {
-            const projectNameWithoutSpace = projectNameUser.split(" ").join("");
-            const fileUiPath = `${parentDirectory}/${projectNameUser}.json`;
-            const inputName = `${projectNameWithoutSpace}_Input`;
-            const outputName = `${projectNameWithoutSpace}_Output`;
-            const itemUser = document.createElement("div");
-            itemUser.className = "item";
-            itemUser.draggable = true;
-            itemUser.innerHTML = `
-            <span
-            class="item-name"
-            f-name= "${projectNameWithoutSpace}"
-            module-name= "${projectNameWithoutSpace}"
-            file-module= "${fileUiPath}"
-            input-name= "${inputName}"
-            output-name= "${outputName}"
-            >${projectNameUser}</span
-          >
-            `;
-            menuItemUser.appendChild(itemUser);
+            if (!uniqueProjectName.includes(projectNameUser)) {
+              const projectNameWithoutSpace = projectNameUser
+                .split(" ")
+                .join("");
+              const fileUiPath = `${parentDirectory}/${projectNameUser}.json`;
+              const inputName = `${projectNameWithoutSpace}_Input`;
+              const outputName = `${projectNameWithoutSpace}_Output`;
+              const itemUser = document.createElement("div");
+              itemUser.className = "item";
+              itemUser.draggable = true;
+              itemUser.innerHTML = `
+                <span
+                class="item-name"
+                f-name= "${projectNameWithoutSpace}"
+                module-name= "${projectNameWithoutSpace}"
+                file-module= "${fileUiPath}"
+                input-name= "${inputName}"
+                output-name= "${outputName}"
+                >${projectNameUser}</span
+              >
+                `;
+              menuItemUser.appendChild(itemUser);
+            }
           });
         }
 
