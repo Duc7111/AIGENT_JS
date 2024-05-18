@@ -3,6 +3,7 @@ import socket
 import json
 import torch
 import transformers
+import math
 from importlib import import_module
 
 from Module import *
@@ -117,11 +118,11 @@ def remove_module(key: str) -> dict:
 def set_module_hyperparameters(key: str, hyperparameters: dict) -> dict:
     module = pipeline.modules[key]
     status = module.set_hyperparameters(hyperparameters)
-    if pipeline.changed:
+    if pipeline.modules[key].changed:
         outputs = {
             'hyperparameters': pipeline.modules[key].hyperparameters_list,
-            'inputs': module.inputBuffer.keys(),
-            'outputs': module.outputBuffer.keys()
+            'inputs': list(module.inputBuffer.keys()),
+            'outputs': list(module.outputBuffer.keys())
             }
         pipeline.full_disconnect(key)
         pipeline.changed = False
