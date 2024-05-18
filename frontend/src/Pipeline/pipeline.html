@@ -965,8 +965,6 @@
                     );
                     drawItems();
                     drawConnectionLines();
-                    console.log("original name:", item.originalName);
-                    console.log("Selected file:", JSON.stringify(pathJson));
                   });
                 } else {
                   showModal(item, item.hyperparameters);
@@ -1055,8 +1053,6 @@
                 }
                 drawItems();
                 drawConnectionLines();
-                console.log("original name:", item.originalName);
-                console.log("User input:", userInput);
 
                 modal.style.display = "none";
               }
@@ -1192,6 +1188,40 @@
 
         let startItem = null;
         let endItem = null;
+
+        canvas.addEventListener("contextmenu", function (e) {
+          e.preventDefault();
+          const rect = canvas.getBoundingClientRect();
+          const mouseX = (e.clientX - rect.left) / scale;
+          const mouseY = (e.clientY - rect.top) / scale;
+          draggableItems.forEach((item, index) => {
+            if (isMouseOverItem(mouseX, mouseY, item)) {
+              window.electron.removeModule(item.originalName);
+              draggableItems.splice(index, 1);
+              connectionLines = connectionLines.filter((line) => {
+                return (
+                  line.srcModuleKey !== item.originalName &&
+                  line.tgtModuleKey !== item.originalName
+                );
+              });
+              drawItems();
+              drawConnectionLines();
+            }
+          });
+
+          const connectionIndex = getConnectionUnderMouse(mouseX, mouseY);
+          if (connectionIndex !== -1) {
+            window.electron.disconnectModule(
+              connectionLines[connectionIndex].srcModuleKey,
+              connectionLines[connectionIndex].tgtModuleKey,
+              connectionLines[connectionIndex].srcKey,
+              connectionLines[connectionIndex].tgtKey
+            );
+            connectionLines.splice(connectionIndex, 1);
+            drawItems();
+            drawConnectionLines();
+          }
+        });
 
         canvas.addEventListener("mousemove", function (e) {
           const rect = canvas.getBoundingClientRect();
@@ -1673,6 +1703,63 @@
         function clearConnectionLines() {
           connectionLines = [];
           drawConnectionLines();
+        }
+
+        function getConnectionUnderMouse(mouseX, mouseY) {
+          for (let i = 0; i < connectionLines.length; i++) {
+            const line = connectionLines[i];
+            const srcItem = draggableItems.find(
+              (item) => item.originalName === line.srcModuleKey
+            );
+            const tgtItem = draggableItems.find(
+              (item) => item.originalName === line.tgtModuleKey
+            );
+
+            if (srcItem && tgtItem) {
+              const srcItemNameWidth = ctx.measureText(srcItem.name).width;
+              const srcItemNameHeight = 16;
+              const srcCenterY = srcItem.y - srcItemNameHeight / 2;
+              const tgtItemNameWidth = ctx.measureText(tgtItem.name).width;
+              const tgtItemNameHeight = 16;
+              const tgtCenterY = tgtItem.y - tgtItemNameHeight / 2;
+              const startX = srcItem.x + srcItemNameWidth + 20;
+              const startY =
+                srcCenterY -
+                (srcItem.outputs.length * 16) / 2 +
+                srcItem.outputs.findIndex((output) => output === line.srcKey) *
+                  32;
+              const endX = tgtItem.x - 20 - ctx.measureText(line.tgtKey).width;
+              const endY =
+                tgtCenterY -
+                (tgtItem.inputs.length * 16) / 2 +
+                tgtItem.inputs.findIndex((input) => input === line.tgtKey) * 32;
+
+              // Check if mouse coordinates intersect with the connection line segment
+              if (
+                isPointOnLine(
+                  startX * scale,
+                  startY * scale,
+                  endX * scale,
+                  endY * scale,
+                  mouseX,
+                  mouseY
+                )
+              ) {
+                return i;
+              }
+            }
+          }
+          return -1;
+        }
+
+        function isPointOnLine(x1, y1, x2, y2, mouseX, mouseY) {
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          const d1 = Math.sqrt((mouseX - x1) ** 2 + (mouseY - y1) ** 2);
+          const d2 = Math.sqrt((mouseX - x2) ** 2 + (mouseY - y2) ** 2);
+          const lineLen = Math.sqrt(dx ** 2 + dy ** 2);
+
+          return Math.abs(d1 + d2 - lineLen) < 0.1;
         }
 
         function areCompatibleMarkers(startItem, endItem) {
