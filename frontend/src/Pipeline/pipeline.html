@@ -647,13 +647,14 @@
 
         async function addModuleUserToMenu() {
           await getProjectNames();
+          console.log("uniqueProjectName:", uniqueProjectName);
           console.log(
             "List Available Project Name below menu:",
             listAvailableProjectName
           );
           console.log("Parent Directory in addMenuUser:", parentDirectory);
           listAvailableProjectName.forEach((projectNameUser) => {
-            if (!uniqueProjectName.includes(projectNameUser)) {
+            if (!(uniqueProjectName[0] === projectNameUser)) {
               const projectNameWithoutSpace = projectNameUser
                 .split(" ")
                 .join("");

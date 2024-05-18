@@ -304,7 +304,8 @@
       handleDirectoryClick = async (item) => {
         console.log("Clicked on", item);
         const paramsJson = jsonData.filter((fName) => {
-          return fName.includes(item);
+          const dirName = fName.split(".")[0];
+          if (dirName === item) return fName;
         });
         console.log("paramsJson", paramsJson);
         await window.electron.sendListProjectName(giveUniqueName(jsonData));
