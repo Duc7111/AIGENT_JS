@@ -1,8 +1,8 @@
 # **AIGENT_JS**
 ## **Contributers**
-Phan Trung Duc : Backend developer                                                
-Nguyen Dinh Ngoc Tri: Frontend developer                                            
-Le Truong Tho: Frontend developer
+Phan Trung Duc - 21125035: Backend developer          
+Nguyen Dinh Ngoc Tri - 21125065: Frontent developer      
+Le Truong Tho - 21125158: Frontend developer
 
 ## **Introduction**
 AIGENeraTor is an application designed for creating AI or programs in general with drag-and-drop method. This application is currently created for educational purpose, so the perfomance of programs created with this aplication might have quite bad performance.
@@ -140,6 +140,8 @@ Each module comes equipped with gates that can be connected to gates of other mo
 Users can click on modules to set hyperparameters, allowing for precise control and customization of each module's behavior. This feature enables users to fine-tune their modules to achieve optimal performance for their specific tasks.
 
 ## **How to Use the Program**
+1. Run file **Main.exe** in the folder named **Main**
+2. Run file **frontend.txt** in the folder named **frontend ...**
 ### **Starting on the Homepage:**
 
 1. **First Time Setup:**
@@ -186,5 +188,196 @@ To save your work, click the save icon.
 To run the project and see the output, click the run button.
 To export the project as a JSON file, click the export button.
 
+## **Example 1: Read-write file (easy):**
+1. **Add a New Directory:**
+   - Click the "Add" button on the Homepage to create a new directory and navigate to the Workspace page.
+
+2. **Edit Project Name (Optional):**
+   - If you wish to edit the project's name, click the edit icon and enter the new name. If not, you can skip this step.
+
+3. **Add a File Reader Module:**
+   - Left-click on the "File Reader" module in the side menu, hold, and drag it into the workspace.
+
+4. **Select a File for the File Reader Module:**
+   - Click on the dragged File Reader module to select a file. Choose any file in the .txt format. For this example, use: `Example1.txt` with the content: `Hello example1!`
+
+5. **Add a File Writer Module:**
+   - Repeat the same process as in step 3, but this time select the "File Writer" module.
+   - Perform the file selection step for the File Writer module. For this example, use an empty file:
+     - `Example1a.txt`
+
+6. **Connect the Modules:**
+   - Move the cursor to the output gate of the File Reader module and drag it to the input gate of the File Writer module. Note that the module names are not displayed during this process, so remember the module positions. 
+
+The final visualization is:
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="example1.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="example1.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="example1.drawio.svg">
+  </picture>  
+</p>
+
+7. **Save the Project (Optional):**
+   - Click the Save icon to save your work. This step can be skipped if not needed.
+
+8. **Run the Project:**
+   - Click the Run button. If the operation is successful, a success notification will pop up. If there is an error, an error notification will appear.
+
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="example1result.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="example1result.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="example1result.drawio.svg">
+  </picture>  
+</p>
+
+The file Example1a.txt is updated with content: `Hello example1!`
+
+## **Example 2: Pipeline hugging face (Medium):**
+1. **Add the "Text Holder" Module for Question Input:**
+   - Drag and drop the **"Text Holder"** module from the **"Input/Output"** section or use the search function to locate it.
+   - Click on the module to input the text, which should be the question. In this step, input: `What is the deadline?`
+
+2. **Add the "Text Holder" Module for Context Input:**
+   - Repeat step 1 to add another **"Text Holder"** module.
+   - Click on this module to input the text, which should contain the key answer. In this step, input: `The food is 5. The deadline is August.`
+
+3. **Add the "Dict Merger" Module:**
+   - Drag and drop the **"Dict Merger"** module from the **"Caster"** section.
+   - Click to set the hyperparameters and input: `question,context`. After inputting, you may need to zoom in or out to refresh the display.
+
+4. **Add the "Pipeline" Module:**
+   - Drag and drop the **"Pipeline"** module from the **"Hugging Face"** section.
+   - Set the following parameters:
+     - **task:** `question-answering`
+     - **model:** `deepset/tinyroberta-squad2`
+     - **config:** `deepset/tinyroberta-squad2`
+   - Note: You can use most models available on Hugging Face.
+
+5. **Connect the Gates:**
+   - First, connect the output gate of the **Text Holder** (containing the question) to the question gate of the **Dict Merger** (content: question, context).
+   - Second, connect the output gate of the **Text Holder** (containing the key answer) to the context gate of the **Dict Merger**.
+   - Third, connect the output gate of the **Dict Merger** to the input gate of the **Pipeline**.
+
+6. **Register the Output:**
+   - Double-click the output gate of the **Pipeline** module and input: `output` to register the output.
+
+The final visualization is:
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="example2.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="example2.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="example2.drawio.svg">
+  </picture>  
+</p>
+
+7. **Run the Project:**
+   - Click the Run button.
+
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="example2result.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="example2result.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="example2result.drawio.svg">
+  </picture>  
+</p>
+
+## **Example 3: New pipeline using the user's module (Medium):**
+1. To proceed, ensure that at least one directory has been created. In this example, we utilize the Hugging Face pipeline example 2. However, there's a slight variation: we won't add the TextHolder module. Instead, we'll register inputs for both input gates of the Dict Merger module by double clicking. The question gate, we input: `question` and the context gate, we input: `context`.
+
+The visualization of that directory is:
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="example3module1.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="example3module1.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="example3module1.drawio.svg">
+  </picture>  
+</p>
+
+2. **Choose or Create a Directory:**
+   - You can either create a new directory or access an existing one. In this example, we'll create a new directory.
+     - **A.** Follow steps 1 and 2 of example 2.
+     - **B.** Drag and drop your created modules from the User section. For instance, drag and drop the module `TextHuggingFace` created in step 1 above.
+     - **C.** Connect the gates as follows:
+        - Connecting the output gate of TextHolder (containing the question) to the question gate of the module TextHuggingFace.
+        - Connecting the output gate of TextHolder (containing the key answer) to the context gate of the module TextHuggingFace.
+     - **D.** Register the output by double-clicking on the output gate of the module TextHuggingFace.
+
+The visualization is:
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="example3module2.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="example3module2.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="example3module2.drawio.svg">
+  </picture>  
+</p>
+
+  - **E.** Click "Run" button. It returns to output: `August`.
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="example3module2result.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="example3module2result.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="example3module2result.drawio.svg">
+  </picture>  
+</p>
+
+
+## **Example 4: Build XOR gate using neural network (Hard):**
+1. **Add the "Vector Holder" Module:**
+   - Drag and drop the module "Vector Holder" from the Input/Output section.
+   - Click to set: `1,1`
+
+2. **Add the "NeuralUnit" Module (First Configuration):**
+   - Drag and drop the module "NeuralUnit" from the Neural Network section.
+   - Click to set:
+     - weights: `1,1`
+     - bias: `0`
+     - activation: `ReLU`
+
+3. **Add the "NeuralUnit" Module (Second Configuration):**
+   - Repeat step 2, but with different settings:
+     - weights: `1,1`
+     - bias: `-1`
+     - activation: `ReLU`
+
+4. **Add the "Array Merger" Module:**
+   - Drag and drop the module "Array Merger" from the Caster section.
+   - Click to set `2`.
+
+5. **Add the "NeuralUnit" Module (Third Configuration):**
+   - Repeat step 2, but with different settings:
+     - weights: `1,-2`
+     - bias: `0`
+     - activation: `ReLU`
+
+6. **Connect the Gates:**
+   - Connecting the output gate of Vector Holder to the input gate of NeuralUnit (weights: 1,1).
+   - Connecting the output gate of NeuralUnit (weights: 1,1, bias: 0) to the `0` gate of Array Merger.
+   - Connecting the output gate of NeuralUnit (weights: 1,1, bias: -1) to the `1` gate of Array Merger.
+   - Connecting the output gate of Array Merger to the input gate of NeuralUnit (weights: 1,-2).
+
+7. **Register the Output:**
+   - Register the output gate of NeuralUnit (weights: 1,-2) by double-clicking the output gate and set to `output`.
+
+The final visualization is:
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="example4.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="example4.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="example4.drawio.svg">
+  </picture>  
+</p>
+
+8. **Run the Project:**
+   - Click the Run button.
+
+<p align = "center">
+  <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="example4result.drawio.svg">
+   <source media="(prefers-color-scheme: light)" srcset="example4result.drawio.svg">
+   <img alt="YOUR-ALT-TEXT" src="example4result.drawio.svg">
+  </picture>  
+</p>
 
 
