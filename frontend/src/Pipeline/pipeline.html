@@ -1128,9 +1128,20 @@
                     item.outputs = receivedData.outputs.outputs;
                   });
                 } else {
-                  window.electron.setHyperparameters(item.originalName, {
-                    [dataType]: userInput,
-                  });
+                  if (dataType == "size") {
+                    window.electron.setHyperparameters(item.originalName, {
+                      [dataType]: parseInt(userInput),
+                    });
+                    console.log("User Input: ", userInput);
+                    getReceivedData().then(() => {
+                      item.inputs = receivedData.outputs.inputs;
+                      item.outputs = receivedData.outputs.outputs;
+                    });
+                  } else {
+                    window.electron.setHyperparameters(item.originalName, {
+                      [dataType]: userInput,
+                    });
+                  }
                 }
                 drawItems();
                 drawConnectionLines();
@@ -1189,8 +1200,8 @@
                     ": " +
                     userInput2;
                   window.electron.setHyperparameters(item.originalName, {
-                    [dataType[0]]: userInput1,
-                    [dataType[1]]: numberArray,
+                    [dataType[0]]: numberArray,
+                    [dataType[1]]: parseInt(userInput2),
                   });
                 } else if (dataType.length > 2 && userInput3 !== "") {
                   item.name =
@@ -1206,8 +1217,8 @@
                     ": " +
                     userInput3;
                   window.electron.setHyperparameters(item.originalName, {
-                    [dataType[0]]: userInput1,
-                    [dataType[1]]: numberArray,
+                    [dataType[0]]: numberArray,
+                    [dataType[1]]: parseInt(userInput2),
                     [dataType[2]]: userInput3,
                   });
                 }

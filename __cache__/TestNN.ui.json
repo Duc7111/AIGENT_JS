@@ -1,0 +1,85 @@
+[{
+  "originalName": "VectorHolder",
+  "name": "1,1",
+  "x": 283.03125,
+  "y": 346,
+  "dragging": false,
+  "hyperparameters": "vector",
+  "inputs": [],
+  "outputs": [
+    "output"
+  ]
+},
+{
+  "originalName": "NeuralUnit",
+  "name": "weights: 1,1, bias: 0, activation: ReLU",
+  "x": 527.03125,
+  "y": 242,
+  "dragging": false,
+  "hyperparameters": [
+    "weights",
+    "bias",
+    "activation"
+  ],
+  "inputs": [
+    "input"
+  ],
+  "outputs": [
+    "output"
+  ]
+},
+{
+  "originalName": "NeuralUnit_2",
+  "name": "weights: 1,1, bias: -1, activation: ReLU",
+  "x": 530.03125,
+  "y": 453,
+  "dragging": false,
+  "hyperparameters": [
+    "weights",
+    "bias",
+    "activation"
+  ],
+  "inputs": [
+    "input"
+  ],
+  "outputs": [
+    "output"
+  ]
+},
+{
+  "originalName": "ArrayMerger",
+  "name": "2",
+  "x": 966.03125,
+  "y": 341,
+  "dragging": false,
+  "hyperparameters": "size",
+  "inputs": [
+    "0",
+    "1"
+  ],
+  "outputs": [
+    "msg",
+    "output"
+  ]
+},
+{
+  "originalName": "NeuralUnit_3",
+  "name": "weights: 1,-2, bias: 0, activation: ReLU",
+  "x": 1026.03125,
+  "y": 508,
+  "dragging": false,
+  "hyperparameters": [
+    "weights",
+    "bias",
+    "activation"
+  ],
+  "inputs": [
+    "input"
+  ],
+  "outputs": [
+    "output"
+  ],
+  "outputColors": {
+    "output": "green"
+  }
+}]

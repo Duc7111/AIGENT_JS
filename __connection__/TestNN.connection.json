@@ -1,0 +1,50 @@
+[{
+  "startX": 316.9326171875,
+  "startY": 330,
+  "endX": 485.3466796875,
+  "endY": 226,
+  "srcModuleKey": "VectorHolder",
+  "tgtModuleKey": "NeuralUnit",
+  "srcKey": "output",
+  "tgtKey": "input"
+},
+{
+  "startX": 316.9326171875,
+  "startY": 330,
+  "endX": 488.3466796875,
+  "endY": 437,
+  "srcModuleKey": "VectorHolder",
+  "tgtModuleKey": "NeuralUnit_2",
+  "srcKey": "output",
+  "tgtKey": "input"
+},
+{
+  "startX": 714.3408203125,
+  "startY": 226,
+  "endX": 940.4697265625,
+  "endY": 317,
+  "srcModuleKey": "NeuralUnit",
+  "tgtModuleKey": "ArrayMerger",
+  "srcKey": "output",
+  "tgtKey": "0"
+},
+{
+  "startX": 720.6708984375,
+  "startY": 437,
+  "endX": 940.4697265625,
+  "endY": 349,
+  "srcModuleKey": "NeuralUnit_2",
+  "tgtModuleKey": "ArrayMerger",
+  "srcKey": "output",
+  "tgtKey": "1"
+},
+{
+  "startX": 991.5927734375,
+  "startY": 349,
+  "endX": 984.3466796875,
+  "endY": 492,
+  "srcModuleKey": "ArrayMerger",
+  "tgtModuleKey": "NeuralUnit_3",
+  "srcKey": "output",
+  "tgtKey": "input"
+}]
