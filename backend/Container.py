@@ -46,7 +46,11 @@ class Buffer:
     def get_val(self, id: int) -> any:
         val = None
         if id == 1:
-            self.__mutex.acquire()
+            while True:
+                self.__mutex.acquire()
+                if self.__unread > 0:
+                    break
+                self.__mutex.release()
             val = deepcopy(self._val)
             self.__unread -= 1
             self.__mutex.release()

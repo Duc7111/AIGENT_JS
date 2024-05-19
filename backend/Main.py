@@ -42,8 +42,6 @@ def __json_to_pipeline(json: dict) -> Pipeline:
 
 def __pipeline_to_json(pipeline: Pipeline) -> dict:
     data = dict()
-    data['inputBuffer'] = {key: pipeline.inputBuffer[key].get_val(0) for key in pipeline.inputBuffer}
-    data['outputBuffer'] = {key: pipeline.outputBuffer[key].get_val(0) for key in pipeline.outputBuffer}
     data['hyperparameters'] = pipeline.hyperparameters
     data['hyperparameters_list'] = pipeline.hyperparameters_list
     data['modules'] = {}

@@ -1,0 +1,89 @@
+[{
+  "originalName": "Pipeline",
+  "name": "task: question-answering, model: deepset/tinyroberta-squad2, tokenizer: deepset/tinyroberta-squad2",
+  "x": 455.484375,
+  "y": 227,
+  "dragging": false,
+  "hyperparameters": [
+    "task",
+    "model",
+    "config",
+    "tokenizer",
+    "feature_extractor",
+    "image_processor",
+    "framework",
+    "revision",
+    "use_fast",
+    "token",
+    "device",
+    "device_map",
+    "torch_dtype",
+    "trust_remote_code",
+    "model_kwargs",
+    "pipeline_class",
+    "kwargs",
+    "use_auth_token",
+    "code_revision",
+    "commit_hash",
+    "hub_kwargs",
+    "pretrained_model_name_or_path",
+    "resolved_config_file",
+    "k",
+    "v",
+    "_hub_kwargs",
+    "maybe_adapter_path",
+    "f",
+    "adapter_config",
+    "custom_tasks",
+    "normalized_task",
+    "targeted_task",
+    "task_options",
+    "class_ref",
+    "default_revision",
+    "model_name",
+    "model_classes",
+    "model_config",
+    "load_tokenizer",
+    "load_feature_extractor",
+    "load_image_processor",
+    "tokenizer_identifier",
+    "tokenizer_kwargs",
+    "kenlm",
+    "BeamSearchDecoderCTC",
+    "decoder",
+    "language_model_glob",
+    "alphabet_filename",
+    "allow_patterns",
+    "e",
+    "key"
+  ],
+  "inputs": [
+    "input"
+  ],
+  "outputs": [
+    "output"
+  ],
+  "outputColors": {
+    "output": "green"
+  }
+},
+{
+  "originalName": "DictMerger",
+  "name": "context,question",
+  "x": 205.484375,
+  "y": 188,
+  "dragging": false,
+  "hyperparameters": "keys",
+  "inputs": [
+    "context",
+    "question"
+  ],
+  "outputs": [
+    "msg",
+    "output"
+  ],
+  "inputColors": {
+    "msg": "green",
+    "output": "green"
+  }
+}]

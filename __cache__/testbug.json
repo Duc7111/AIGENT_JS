@@ -1,0 +1,1 @@
+{"inputBuffer": {}, "outputBuffer": {"msg": null, "output": ""}, "hyperparameters": {}, "hyperparameters_list": [], "modules": {"Pipeline": {"type": "HuggingFace", "module": "Pipeline", "hyperparameters": {"task": "question-answering", "model": "deepset/tinyroberta-squad2", "tokenizer": "deepset/tinyroberta-squad2"}}}, "regDict": {"False, output": ["Pipeline", "output"]}}

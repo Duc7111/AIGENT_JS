@@ -1,0 +1,10 @@
+[{
+  "startX": 305.3115234375,
+  "startY": 186,
+  "endX": 330.7998046875,
+  "endY": 277,
+  "srcModuleKey": "DictMerger",
+  "tgtModuleKey": "Pipeline",
+  "srcKey": "output",
+  "tgtKey": "input"
+}]

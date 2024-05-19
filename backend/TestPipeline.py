@@ -20,7 +20,7 @@ Report: containing the documentation (analysis and design report) of the project
 Demo: containing demo videos
 Release: containing the executable program or URL to the deployed location."""})
 
-load_pipeline_as_module('pipeline', parent_path / '__cache__' / 'TestHuggingFace.json')
+load_pipeline_as_module('pipeline', parent_path / '__cache__' / 'Project Name.json')
 
 connect_modules('questionHolder', 'pipeline', 'output', 'question')
 connect_modules('contextHolder', 'pipeline', 'output', 'context')
